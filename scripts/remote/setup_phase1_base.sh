@@ -67,6 +67,34 @@ cat >/home/hobbes/.openclaw/openclaw.json <<EOF
     "restart": true,
     "ownerDisplay": "raw"
   },
+  "tools": {
+    "media": {
+      "audio": {
+        "enabled": true,
+        "maxBytes": 20971520,
+        "language": "ru",
+        "echoTranscript": true,
+        "echoFormat": "📝 {transcript}",
+        "scope": {
+          "default": "deny",
+          "rules": [
+            {
+              "action": "allow",
+              "match": {
+                "chatType": "direct"
+              }
+            }
+          ]
+        },
+        "models": [
+          {
+            "provider": "openai",
+            "model": "gpt-4o-mini-transcribe"
+          }
+        ]
+      }
+    }
+  },
   "channels": {
     "telegram": {
       "enabled": true,

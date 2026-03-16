@@ -59,6 +59,7 @@ Recommended package group:
 - `build-essential`
 - `python3-venv`
 - `ca-certificates`
+- `ffmpeg`
 
 If the server is very small, add swap before model traffic starts.
 
@@ -138,6 +139,13 @@ Important model choice:
 - `fallbacks = [openai/gpt-4o-mini, openai/gpt-4o]`
 
 This model order was changed during stabilization because `gpt-4o` hit TPM rate limits too easily for Telegram interaction on this account.
+
+Important media choice for Telegram voice notes:
+
+- `tools.media.audio.enabled = true`
+- audio model `openai/gpt-4o-mini-transcribe`
+- `ffmpeg` and `ffprobe` must exist on the server
+- audio scope limited to direct chats
 
 ### 6. Service model
 
@@ -293,6 +301,14 @@ Phase 1 handling:
 
 - Treat as a known residual defect.
 - Revisit in Phase 2 when agent skills and media handling become first-class requirements.
+
+Follow-up fix identified later:
+
+- Install `ffmpeg`
+- add explicit `tools.media.audio` config
+- use `openai/gpt-4o-mini-transcribe`
+
+This fix was applied after the initial Phase 1 pass and must be re-tested with a fresh Telegram voice note before the issue can be considered closed.
 
 ### 7. SSH host key mismatch after OS reinstall
 
