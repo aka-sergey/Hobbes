@@ -1,0 +1,65 @@
+{
+  "meta": {
+    "lastTouchedVersion": "2026.3.13",
+    "lastTouchedAt": "REPLACE_AT_DEPLOY_TIME"
+  },
+  "auth": {
+    "profiles": {
+      "openai:default": {
+        "provider": "openai",
+        "mode": "api_key"
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "openai/gpt-4o-mini",
+        "fallbacks": [
+          "openai/gpt-4o-mini",
+          "openai/gpt-4o"
+        ]
+      },
+      "imageModel": {
+        "primary": "openai/gpt-4.1-mini"
+      },
+      "workspace": "/home/hobbes/.openclaw/workspace-main"
+    }
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto",
+    "restart": true,
+    "ownerDisplay": "raw"
+  },
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "dmPolicy": "pairing",
+      "groupPolicy": "disabled",
+      "streaming": "partial",
+      "botToken": "REPLACE_WITH_TELEGRAM_BOT_TOKEN",
+      "network": {
+        "autoSelectFamily": false,
+        "dnsResultOrder": "ipv4first"
+      }
+    }
+  },
+  "gateway": {
+    "port": 18789,
+    "mode": "local",
+    "bind": "loopback",
+    "channelHealthCheckMinutes": 0,
+    "reload": {
+      "mode": "off"
+    },
+    "auth": {
+      "mode": "token",
+      "token": "REPLACE_WITH_GATEWAY_TOKEN"
+    },
+    "tailscale": {
+      "mode": "off",
+      "resetOnExit": false
+    }
+  }
+}
