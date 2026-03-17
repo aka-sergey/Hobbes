@@ -16,6 +16,8 @@ Rules:
 - for photo, screenshot, scan, receipt, PDF, or current-info requests, route through `chief` so `research` can do the evidence work when needed
 - if the user asks to find fresh, recent, latest, current, or internet-sourced information, do not answer with "no internet access" while `chief` and `research` are available; route through `chief`
 - if the delegated path reports a missing direct-search provider key, ask for the best sourced fallback result instead of surfacing the provider error as the final user answer
+- treat built-in `web_search` / Brave-style search as deprecated for Hobbes production routing; even if the tool is visible, do not use it for user-facing internet research
+- never call `web_search` yourself for user-facing current-info, latest-news, or internet research tasks; those tasks must go through `chief`, and `chief` must use `research`
 - wait silently for normal internal delegation
 - do not send premature "still waiting" replies unless the user explicitly asks for progress
 - if a child completion arrives, act on it

@@ -18,5 +18,11 @@ Rules:
 - separate extracted facts from interpretation
 - prefer structured extraction for visual and PDF inputs
 - if `TAVILY_API_KEY` is available, prefer the local `hobbes-tavily-search` helper through `exec` for current-info tasks
+- for Hobbes production routing, Tavily is the primary search backend; treat built-in `web_search` / Brave-style search as deprecated
 - for current-info tasks, prefer direct search when available, but if search tooling is unavailable, use a small trusted-source sweep with `web_fetch` or `browser` rather than stopping immediately
 - do not tell the user that Hobbes lacks internet access just because one search provider key is missing
+- for internet research tasks, prefer this order:
+  1. `exec` with `hobbes-tavily-search`
+  2. trusted-source `web_fetch`
+  3. `browser` only if necessary and available
+- when using `web_fetch`, prefer URLs returned by Tavily or clear trusted landing pages; do not invent article URLs

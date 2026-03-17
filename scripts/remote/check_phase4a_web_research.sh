@@ -16,6 +16,7 @@ set -a
 set +a
 
 research_before="$(count_sessions research)"
+chief_before="$(count_sessions chief)"
 ts="$(date +%s)"
 
 if ! sudo -u hobbes bash -lc "
@@ -46,11 +47,28 @@ if ! sudo -u hobbes bash -lc "
 fi
 
 research_after="$(count_sessions research)"
+chief_after="$(count_sessions chief)"
 
-echo "web_research_session_counts research:${research_before}->${research_after}"
-
+echo "web_research_session_counts chief:${chief_before}->${chief_after} research:${research_before}->${research_after}"
+if [[ "$chief_after" -le "$chief_before" ]]; then
+  echo "WEB_RESEARCH_CHIEF_NOT_CONFIRMED" >&2
+  exit 1
+fi
 if [[ "$research_after" -le "$research_before" ]]; then
   echo "WEB_RESEARCH_ROUTING_NOT_CONFIRMED" >&2
+  exit 1
+fi
+
+latest_chief="$(find /home/hobbes/.openclaw/agents/chief/sessions -maxdepth 1 -type f -name '*.jsonl' -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)"
+latest_research="$(find /home/hobbes/.openclaw/agents/research/sessions -maxdepth 1 -type f -name '*.jsonl' -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)"
+
+if grep -q '"name":"web_search"' "$latest_chief"; then
+  echo "WEB_RESEARCH_CHIEF_USED_WEB_SEARCH" >&2
+  exit 1
+fi
+
+if ! grep -q 'hobbes-tavily-search\|Tavily' "$latest_research"; then
+  echo "WEB_RESEARCH_TAVILY_NOT_OBSERVED" >&2
   exit 1
 fi
 

@@ -12,6 +12,8 @@ Hard rules:
 - do not claim an agent is unavailable until checked
 - for the normal Telegram planning path, spawn `chief` first and then `comms` on the actual `chief` result
 - for current-info, latest-news, fresh-facts, or internet-search requests, spawn `chief`; do not claim that Hobbes lacks internet search while the internal `research` path is available
+- treat built-in `web_search` / Brave-style search as disabled for Hobbes production routing, even if it appears in the tool schema
+- never call direct `web_search` for those tasks from `main`; spawn `chief` and wait for the delegated result
 - do not send the final Telegram reply before the expected child result arrives
 - in the current Telegram conversation, do not call `message` for the final user reply; return plain assistant text once
 - use `message` only for side-channel notifications or a different explicit target

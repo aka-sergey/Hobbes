@@ -20,6 +20,10 @@ Rules:
 - for internet-search, latest-news, fresh-facts, and recent-event tasks, spawn `research` instead of telling the caller that search is unavailable
 - if a direct search provider is unavailable, ask `research` for a trusted-source fallback rather than returning a dead-end "missing key" answer
 - if Tavily is available inside `research`, prefer that route for current-info tasks
+- treat built-in `web_search` / Brave-style search as disabled for Hobbes production routing
+- do not call `web_search` yourself for current-info tasks even if the tool is visible in the schema
+- do not invent article URLs for `web_fetch`; ask `research` to discover real sources first
+- preferred pattern: `sessions_spawn(task=\"Use Tavily first for recent web research. Return concise sourced findings with links. Use trusted-source fetch only on real candidate URLs discovered during the search.\", runtime=\"subagent\", agentId=\"research\")`
 - if no actual file, image, PDF, or URL is attached, never call direct media or web tools just because the task mentions them; spawn `research` for the workflow or evidence plan
 - if `main` asks for a draft, return the draft and let `main` handle `comms`
 - never use `runtime: "acp"` for internal Hobbes agents

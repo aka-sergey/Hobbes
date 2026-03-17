@@ -256,3 +256,4 @@ Added:
   - added check script [check_tavily_integration.sh](/Users/sergeysobolev/HobbesCodex/scripts/remote/check_tavily_integration.sh)
   - updated `web-research`, `research`, and `chief` contracts to prefer Tavily when available
   - documented the rollout in [Tavily_Integration_Plan.md](/Users/sergeysobolev/HobbesCodex/docs/Tavily_Integration_Plan.md)
+- 2026-03-17: removed Brave-style `web_search` from Hobbes production routing in practice by hardening `main`, `chief`, and `research` contracts around `Tavily-first` search, non-invented `web_fetch` fallbacks, and internal-session reset guidance for stale routing behavior.

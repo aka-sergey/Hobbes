@@ -18,6 +18,9 @@ install -o hobbes -g hobbes -m 644 \
 install -o hobbes -g hobbes -m 644 \
   "${src_root}/config/agents/research/workspace/TOOLS.md" \
   /home/hobbes/.openclaw/workspace-research/TOOLS.md
+install -o hobbes -g hobbes -m 644 \
+  "${src_root}/config/agents/research/workspace/AGENTS.md" \
+  /home/hobbes/.openclaw/workspace-research/AGENTS.md
 install -m 755 \
   "${src_root}/scripts/remote/check_phase4a_web_research.sh" \
   /root/check_phase4a_web_research.sh
