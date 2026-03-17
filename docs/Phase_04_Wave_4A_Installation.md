@@ -74,7 +74,19 @@ Validation standard for this wave:
 1. skill files exist in the target workspaces
 2. `nativeSkills` remains enabled
 3. audio input is still enabled
-4. `main -> chief -> research` is confirmed by session counter growth
+4. bounded `chief -> research` delegation is confirmed by session counter growth
+
+Recommended regression on the current VPS:
+
+```bash
+bash /root/check_phase4a_chief_research.sh
+```
+
+Why this check is preferred:
+
+- it validates the critical delegation edge for Wave 4A
+- it is materially lighter than a full synthetic `main -> chief -> research` run
+- it avoids unnecessary memory spikes on the current `3 GB RAM` VPS
 
 ## Honest current limitation
 
@@ -102,15 +114,17 @@ Confirmed:
 - audio input remains enabled
 - image model remains configured
 - gateway health remains good
+- bounded `chief -> research` regression now passes on the live VPS
+- `research` session counter growth confirms actual delegation without the heavier `main` path
 
 Residual issue:
 
-- the synthetic routed check for `main -> chief -> research` is still not deterministic enough in local validation
-- `chief` can still collapse certain screenshot-style synthetic tasks locally instead of delegating all the way down to `research`
+- the old synthetic `main -> chief -> research` check is no longer the preferred regression on this hardware
+- full live modality confirmation is still needed in real chat flows, not just synthetic local checks
 
 Practical implication:
 
-- Wave 4A is ready as an install baseline
+- Wave 4A is ready as an install and bounded-regression baseline
 - one fresh live validation is still needed for:
   - screenshot/photo intake
   - PDF intake

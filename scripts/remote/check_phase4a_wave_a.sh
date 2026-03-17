@@ -53,7 +53,7 @@ if ! sudo -u hobbes bash -lc "
     --agent main \
     --session-id \"phase4a-main-chief-research-${ts}\" \
     --json \
-    --message $(printf '%q' "Check the live agent roster. If chief is available, spawn chief. Chief must use research, not direct image/pdf/web tools, for this task: create one short evidence-first workflow paragraph for how Hobbes should handle a Telegram screenshot of a receipt and what current web info should be verified next. Return one concise final paragraph.") \
+    --message $(printf '%q' "Check the live agent roster. If chief is available, spawn chief. Chief must use research, not direct image/pdf/web tools, for this task: no screenshot, receipt, PDF, or URL is attached here. Create one short evidence-first workflow paragraph for how Hobbes should handle a future Telegram receipt screenshot and what current web information research should verify next. Return one concise final paragraph.") \
     </dev/null
 "; then
   echo

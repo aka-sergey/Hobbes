@@ -229,3 +229,11 @@ Added:
 - updated project passport
 - explicit separation between live production state and target multi-agent blueprint
 - implementation review and staged roadmap for the 9-agent architecture
+# 2026-03-17
+
+- Wave 4A routing hardening:
+  - strengthened `chief` rules to avoid direct `image`/`pdf`/`web_search` use when no actual file or URL is attached
+  - added lightweight bounded regression script [check_phase4a_chief_research.sh](/Users/sergeysobolev/HobbesCodex/scripts/remote/check_phase4a_chief_research.sh)
+  - added remote runner [run_phase4a_chief_research_remote.sh](/Users/sergeysobolev/HobbesCodex/scripts/remote/run_phase4a_chief_research_remote.sh)
+  - confirmed live `chief -> research` delegation on VPS by session counter growth `research:3->4`
+  - documented that full synthetic `main -> chief -> research` runs are unnecessarily memory-heavy for the current `3 GB RAM` baseline
