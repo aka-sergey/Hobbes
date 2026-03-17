@@ -2,6 +2,25 @@
 
 ## 2026-03-17
 
+### Prepared the Phase 3 workhorse rollout kit
+
+Added in repo:
+
+- `Phase_03_WorkhorseRolloutPlan.md`
+- install and contract docs for `research`, `memory`, and `booking`
+- workspace templates for the three Phase 3 specialists
+- repeatable setup/check scripts for the three Phase 3 specialists
+
+Design decision:
+
+- Phase 3 follows the current roadmap and introduces `research`, `memory`, and `booking`
+- remote node host and `device` remain a later phase, not part of this rollout wave
+
+Status:
+
+- prepared in the repo
+- not yet deployed on the VPS
+
 ### Completed the first Phase 2 control-layer rollout
 
 Changed:

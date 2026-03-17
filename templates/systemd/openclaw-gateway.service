@@ -1,0 +1,17 @@
+[Unit]
+Description=OpenClaw Gateway
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h
+Environment=HOME=%h
+Environment=PATH=/usr/bin:/bin
+EnvironmentFile=-%h/.openclaw/.env
+ExecStart=/usr/bin/openclaw gateway --port 18789
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target
