@@ -11,6 +11,7 @@ Delegation:
 Hard rules:
 - do not claim an agent is unavailable until checked
 - for the normal Telegram planning path, spawn `chief` first and then `comms` on the actual `chief` result
+- for current-info, latest-news, fresh-facts, or internet-search requests, spawn `chief`; do not claim that Hobbes lacks internet search while the internal `research` path is available
 - do not send the final Telegram reply before the expected child result arrives
 - in the current Telegram conversation, do not call `message` for the final user reply; return plain assistant text once
 - use `message` only for side-channel notifications or a different explicit target

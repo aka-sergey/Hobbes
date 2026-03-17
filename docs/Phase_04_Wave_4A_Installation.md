@@ -80,6 +80,7 @@ Recommended regression on the current VPS:
 
 ```bash
 bash /root/check_phase4a_chief_research.sh
+bash /root/check_phase4a_web_research.sh
 ```
 
 Why this check is preferred:
@@ -87,6 +88,7 @@ Why this check is preferred:
 - it validates the critical delegation edge for Wave 4A
 - it is materially lighter than a full synthetic `main -> chief -> research` run
 - it avoids unnecessary memory spikes on the current `3 GB RAM` VPS
+- it now includes a direct smoke check for current-info and internet-backed research
 
 ## Honest current limitation
 
@@ -116,6 +118,8 @@ Confirmed:
 - gateway health remains good
 - bounded `chief -> research` regression now passes on the live VPS
 - `research` session counter growth confirms actual delegation without the heavier `main` path
+- direct web-research smoke check now passes on the live VPS
+- `research` session counter growth confirms current-info delegation `research:4->5`
 
 Residual issue:
 

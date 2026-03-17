@@ -7,6 +7,7 @@ Allowed:
 - artifact preparation
 - visual intake
 - PDF extraction
+- web-backed evidence gathering
 
 Not allowed by default:
 - durable memory writes

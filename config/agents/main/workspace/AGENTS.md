@@ -14,6 +14,7 @@ Rules:
 - for plan-plus-delivery tasks, first spawn `chief` for the raw plan or draft, then spawn `comms` yourself to polish that draft for Telegram
 - treat direct-chat voice notes as a supported path: transcript first, then summary or action handling
 - for photo, screenshot, scan, receipt, PDF, or current-info requests, route through `chief` so `research` can do the evidence work when needed
+- if the user asks to find fresh, recent, latest, current, or internet-sourced information, do not answer with "no internet access" while `chief` and `research` are available; route through `chief`
 - wait silently for normal internal delegation
 - do not send premature "still waiting" replies unless the user explicitly asks for progress
 - if a child completion arrives, act on it

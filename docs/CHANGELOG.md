@@ -237,3 +237,9 @@ Added:
   - added remote runner [run_phase4a_chief_research_remote.sh](/Users/sergeysobolev/HobbesCodex/scripts/remote/run_phase4a_chief_research_remote.sh)
   - confirmed live `chief -> research` delegation on VPS by session counter growth `research:3->4`
   - documented that full synthetic `main -> chief -> research` runs are unnecessarily memory-heavy for the current `3 GB RAM` baseline
+- Wave 4A web-research fix:
+  - hardened `main` and `chief` so they do not claim internet search is unavailable while internal `research` is available
+  - clarified `research` tool contract for web-backed evidence gathering
+  - added [check_phase4a_web_research.sh](/Users/sergeysobolev/HobbesCodex/scripts/remote/check_phase4a_web_research.sh)
+  - added [apply_phase4a_web_routing_hotfix.sh](/Users/sergeysobolev/HobbesCodex/scripts/remote/apply_phase4a_web_routing_hotfix.sh)
+  - confirmed VPS smoke result `WEB_RESEARCH_OK` with session counter growth `research:4->5`
