@@ -23,3 +23,5 @@ Fallback rule:
 - built-in `web_search` / Brave-style search is deprecated for Hobbes production routing; do not use it as the normal path
 - do not start with `web_search` when Tavily is available via the local helper
 - do not invent article URLs for `web_fetch`; fetch only URLs discovered by Tavily or obvious trusted landing pages
+- when Tavily returns mixed or contradictory signals, do not compress them into a single confident claim; explicitly say the evidence is mixed
+- when source quality is uneven, prefer the stronger source and mark weaker links as secondary context rather than core evidence

@@ -37,6 +37,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Maximum results to request",
     )
     parser.add_argument(
+        "--count",
+        type=int,
+        default=None,
+        help="Alias for --max-results for compatibility with older prompts",
+    )
+    parser.add_argument(
         "--include-answer",
         default="basic",
         choices=["false", "true", "basic", "advanced"],
@@ -89,11 +95,13 @@ def main() -> int:
         )
         return 2
 
+    max_results = args.count if args.count is not None else args.max_results
+
     payload = {
         "query": args.query,
         "topic": args.topic,
         "search_depth": args.search_depth,
-        "max_results": args.max_results,
+        "max_results": max_results,
         "include_answer": False
         if args.include_answer == "false"
         else args.include_answer,

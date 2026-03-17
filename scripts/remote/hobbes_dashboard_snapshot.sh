@@ -35,6 +35,7 @@ import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urlparse
 
 config_path = Path(sys.argv[1])
 openclaw_home = Path(sys.argv[2])
@@ -131,12 +132,168 @@ def load_agent_ids():
 
     return default_agents
 
+def extract_domain(url: str) -> str:
+    try:
+        return urlparse(url).netloc.replace("www.", "")
+    except Exception:
+        return ""
+
 def parse_logs():
     if not log_path.exists():
         return []
 
     lines = [line.strip() for line in log_path.read_text().splitlines() if line.strip()]
     return lines[-60:]
+
+def parse_iso(ts: str):
+    try:
+        return datetime.fromisoformat(ts.replace("Z", "+00:00"))
+    except Exception:
+        return None
+
+def load_searches():
+    searches = []
+    sessions_dir = openclaw_home / "agents" / "research" / "sessions"
+    if not sessions_dir.exists():
+        return searches
+
+    session_files = sorted(
+        sessions_dir.glob("*.jsonl"),
+        key=lambda item: item.stat().st_mtime,
+        reverse=True,
+    )[:5]
+
+    for path in session_files:
+        try:
+            lines = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+        except Exception:
+            continue
+
+        query = None
+        backend = "unknown"
+        status = "ok"
+        summary = None
+        sources = []
+        saw_fetch = False
+        saw_tavily = False
+        had_exec_error = False
+        last_ts = None
+
+        for entry in lines:
+            ts = entry.get("timestamp")
+            if isinstance(ts, str):
+                parsed = parse_iso(ts)
+                if parsed:
+                    last_ts = parsed
+
+            if entry.get("type") != "message":
+                continue
+
+            message = entry.get("message", {})
+            role = message.get("role")
+            content = message.get("content", [])
+
+            if role == "user":
+                for block in content:
+                    if block.get("type") != "text":
+                        continue
+                    text = block.get("text", "")
+                    match = re.search(r"\[Subagent Task\]:\s*(.+)", text, re.S)
+                    if match:
+                        query = match.group(1).strip()
+
+            if role == "assistant":
+                for block in content:
+                    if block.get("type") == "toolCall":
+                        name = block.get("name")
+                        arguments = block.get("arguments", {})
+                        if name == "exec":
+                            command = arguments.get("command", "")
+                            if "hobbes-tavily-search" in command:
+                                saw_tavily = True
+                                backend = "tavily"
+                        elif name == "web_fetch":
+                            saw_fetch = True
+                    elif block.get("type") == "text":
+                        text = block.get("text", "").strip()
+                        if text and "Ссылки на источники" in text:
+                            summary = text[:260]
+                        elif text and summary is None and len(text) > 40:
+                            summary = text[:260]
+
+            if role == "toolResult":
+                tool_name = message.get("toolName")
+                details = message.get("details", {})
+                payload_text = "\n".join(
+                    block.get("text", "")
+                    for block in content
+                    if block.get("type") == "text"
+                )
+                if tool_name == "exec":
+                    if isinstance(details, dict) and details.get("exitCode") not in (None, 0):
+                        had_exec_error = True
+                    try:
+                        payload_json = json.loads(payload_text)
+                    except Exception:
+                        payload_json = None
+                    if isinstance(payload_json, dict) and payload_json.get("ok") is True:
+                        backend = "tavily"
+                        if payload_json.get("query"):
+                            query = payload_json["query"]
+                        results = payload_json.get("results", [])
+                        for item in results[:4]:
+                            url = item.get("url")
+                            title = item.get("title")
+                            if not url or not title:
+                                continue
+                            sources.append({
+                                "title": title[:120],
+                                "url": url,
+                                "domain": extract_domain(url),
+                            })
+                    elif "unrecognized arguments" in payload_text or "missing_tavily_api_key" in payload_text:
+                        had_exec_error = True
+                elif tool_name == "web_fetch":
+                    saw_fetch = True
+                    if "status" in payload_text and "\"error\"" in payload_text:
+                        status = "fallback"
+
+        if not query:
+            continue
+
+        if saw_tavily and saw_fetch:
+            backend = "tavily+fetch"
+        elif saw_fetch and backend == "unknown":
+            backend = "fetch"
+
+        lowered_summary = (summary or "").lower()
+        if any(token in lowered_summary for token in ["смеш", "mixed", "conflict", "противореч"]):
+            status = "mixed"
+        elif saw_fetch and status != "mixed":
+            status = "fallback"
+        elif had_exec_error and backend == "unknown":
+            status = "error"
+
+        if not summary:
+            summary = "Search activity captured, but no final digest was extracted from the session."
+
+        if last_ts is None:
+            when = "recently"
+        else:
+            when = humanize_age((now - last_ts).total_seconds())
+
+        searches.append({
+            "id": path.stem,
+            "agentId": "research",
+            "backend": backend,
+            "status": status,
+            "when": when,
+            "query": query[:180],
+            "summary": summary[:260],
+            "sources": sources[:4],
+        })
+
+    return searches[:5]
 
 def event_from_line(idx: int, line: str):
     severity = "info"
@@ -170,6 +327,7 @@ def event_from_line(idx: int, line: str):
 
 log_lines = parse_logs()
 agent_ids = load_agent_ids()
+searches = load_searches()
 
 recent_lines = list(reversed(log_lines))
 events = []
@@ -271,7 +429,8 @@ payload = {
     },
     "agents": agents,
     "runs": runs,
-    "events": events
+    "events": events,
+    "searches": searches
 }
 
 print(json.dumps(payload))

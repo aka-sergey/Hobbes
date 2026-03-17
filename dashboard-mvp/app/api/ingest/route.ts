@@ -53,7 +53,25 @@ const snapshotSchema = z.object({
       when: z.string().min(1),
       detail: z.string().min(1)
     })
-  )
+  ),
+  searches: z.array(
+    z.object({
+      id: z.string().min(1),
+      agentId: z.string().min(1),
+      backend: z.string().min(1),
+      status: z.enum(["ok", "mixed", "fallback", "error"]),
+      when: z.string().min(1),
+      query: z.string().min(1),
+      summary: z.string().min(1),
+      sources: z.array(
+        z.object({
+          title: z.string().min(1),
+          url: z.string().min(1),
+          domain: z.string().min(1)
+        })
+      ).default([])
+    })
+  ).default([])
 });
 
 export async function POST(request: Request) {
@@ -76,14 +94,15 @@ export async function POST(request: Request) {
     const sql = getSql();
 
     await sql`
-      INSERT INTO dashboard_snapshots (source, captured_at, summary, agents, runs, events)
+      INSERT INTO dashboard_snapshots (source, captured_at, summary, agents, runs, events, searches)
       VALUES (
         ${snapshot.data.source},
         ${snapshot.data.timestamp},
         ${sql.json(toJsonValue(snapshot.data.summary))},
         ${sql.json(toJsonValue(snapshot.data.agents))},
         ${sql.json(toJsonValue(snapshot.data.runs))},
-        ${sql.json(toJsonValue(snapshot.data.events))}
+        ${sql.json(toJsonValue(snapshot.data.events))},
+        ${sql.json(toJsonValue(snapshot.data.searches))}
       )
     `;
 

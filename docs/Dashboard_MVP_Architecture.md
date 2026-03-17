@@ -111,6 +111,7 @@ Implemented now:
 - `GET /api/overview` serves the newest stored snapshot
 - `/` renders live data when a snapshot exists and falls back to mock data otherwise
 - a systemd timer on the VPS pushes a fresh snapshot every 2 minutes
+- the overview now has a `Searches` panel fed from recent `research` sessions, including query, backend, summary, and top links
 
 Current data sources:
 
@@ -124,6 +125,7 @@ Current limitations:
 - token usage and spend are still reported as `n/a`
 - run chains are inferred from recent session activity, not from structured OpenClaw run events
 - approvals are not yet ingested and currently show `0`
+- search logs are inferred from recent `research` session files rather than emitted as first-class structured events
 - the MVP is public by URL and still needs auth before broader production exposure
 
 ## MVP screens

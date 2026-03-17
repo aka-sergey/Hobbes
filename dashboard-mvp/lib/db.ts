@@ -51,8 +51,14 @@ export function ensureSchema() {
           agents JSONB NOT NULL,
           runs JSONB NOT NULL,
           events JSONB NOT NULL,
+          searches JSONB NOT NULL DEFAULT '[]'::jsonb,
           created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
+      `;
+
+      await sql`
+        ALTER TABLE dashboard_snapshots
+        ADD COLUMN IF NOT EXISTS searches JSONB NOT NULL DEFAULT '[]'::jsonb
       `;
 
       await sql`

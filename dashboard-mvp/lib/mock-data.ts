@@ -25,5 +25,20 @@ export const overviewData: OverviewData = {
     { id: "evt_3", severity: "warn", title: "Booking path still lightly exercised", when: "2m ago", detail: "Direct smoke is green, but live approval coverage is still thin." },
     { id: "evt_2", severity: "info", title: "Phase 3 routing regression passed", when: "5m ago", detail: "Research, memorykeeper, and bookingprep all completed bounded routing checks." },
     { id: "evt_1", severity: "info", title: "Gateway healthy", when: "just now", detail: "Health endpoint returned OK and all seven agents are registered." }
+  ],
+  searches: [
+    {
+      id: "search_001",
+      agentId: "research",
+      backend: "tavily",
+      status: "mixed",
+      when: "1m ago",
+      query: "commercial tankers Strait of Hormuz recent incidents",
+      summary: "Traffic continues, but sources also mention attacks and elevated risk. Mixed evidence is surfaced instead of flattened.",
+      sources: [
+        { title: "Reuters shipping update", url: "https://www.reuters.com/", domain: "reuters.com" },
+        { title: "gCaptain Strait of Hormuz", url: "https://gcaptain.com/", domain: "gcaptain.com" }
+      ]
+    }
   ]
 };

@@ -24,6 +24,7 @@ Use this skill for current external information.
 5. Separate:
    - confirmed facts
    - interpretations
+   - conflicting signals
    - open questions
 6. Return a short digest with links.
 7. If direct search is unavailable, fall back to a small trusted-source sweep with `web_fetch` or `browser` instead of stopping immediately.
@@ -60,3 +61,5 @@ When direct search is unavailable, prefer a short sweep of high-signal sources s
 - do not present stale facts as current
 - avoid source laundering; say when a claim comes from secondary reporting
 - prefer fewer reliable links over many weak ones
+- if sources conflict, say so explicitly instead of flattening them into one confident claim
+- if sources mention attacks, seizure, shelling, or warnings, do not describe the situation as fully safe or incident-free

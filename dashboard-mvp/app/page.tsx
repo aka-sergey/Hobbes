@@ -19,6 +19,12 @@ function sourceClass(source: "mock" | "live") {
   return source === "live" ? "pill ok" : "pill warn";
 }
 
+function searchClass(status: "ok" | "mixed" | "fallback" | "error") {
+  if (status === "error") return "pill danger";
+  if (status === "mixed" || status === "fallback") return "pill warn";
+  return "pill ok";
+}
+
 export default async function HomePage() {
   const data = await getOverviewData();
 
@@ -95,6 +101,39 @@ export default async function HomePage() {
                   <div className="muted mono">{event.when}</div>
                 </div>
               ))}
+            </div>
+          </div>
+
+          <div className="card span-12">
+            <h2 className="section-title">Searches</h2>
+            <div className="event-list">
+              {data.searches.length === 0 ? (
+                <div className="muted">No recent web research captured yet.</div>
+              ) : (
+                data.searches.map((search) => (
+                  <div className="event-item" key={search.id}>
+                    <div className="row">
+                      <strong>{search.query}</strong>
+                      <span className={searchClass(search.status)}>{search.status}</span>
+                    </div>
+                    <div className="row muted">
+                      <span className="mono">{search.agentId}</span>
+                      <span>{search.backend}</span>
+                      <span>{search.when}</span>
+                    </div>
+                    <div className="muted">{search.summary}</div>
+                    <div className="muted">
+                      {search.sources.map((source) => (
+                        <span key={`${search.id}-${source.url}`} style={{ display: "inline-block", marginRight: "0.75rem" }}>
+                          <a href={source.url} target="_blank" rel="noreferrer">
+                            {source.domain}
+                          </a>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 

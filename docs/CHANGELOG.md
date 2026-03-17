@@ -1,5 +1,22 @@
 # Hobbes Changelog
 
+## 2026-03-18
+
+### Hardened Tavily-backed web research quality and dashboard visibility
+
+Changed:
+
+- taught `research` to explicitly surface mixed or conflicting evidence instead of flattening it into a single confident claim
+- taught `chief` to demand that sourced summaries preserve contradictions instead of hiding them
+- added `--count` as a compatibility alias in [hobbes_tavily_search.py](/Users/sergeysobolev/HobbesCodex/scripts/remote/hobbes_tavily_search.py) so older prompts no longer waste one failed helper call before recovering to `--max-results`
+- extended the dashboard snapshot model and UI with a live `Searches` panel
+- wired snapshot ingestion to persist recent inferred `research` search activity, including query, backend, summary, and top links
+
+Verified:
+
+- local `dashboard-mvp` build passed successfully
+- shell/python syntax checks passed for the updated sender and helper scripts
+
 ## 2026-03-17
 
 ### Deployed the Wave 4A skills baseline on the VPS

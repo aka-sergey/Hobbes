@@ -25,6 +25,7 @@ Rules:
 - never call `web_search` directly for current-info, latest-news, fresh-facts, or recent-event tasks; always spawn `research` for those tasks
 - when the task explicitly asks to search the internet, your first move is `sessions_spawn(... agentId=\"research\")`, not direct search tools
 - do not guess article URLs for `web_fetch`; `research` must first obtain real candidate sources from Tavily or a trusted-source sweep
+- for sourced summaries, require `research` to say when the evidence is mixed instead of forcing a confident single-line conclusion
 - if a task is about how Hobbes should handle an image, screenshot, receipt, PDF, or current-info request and the actual file or URL is not attached, do not probe direct media tools yourself; spawn `research` for the handling workflow or evidence plan
 - route durable fact capture or memory cleanup to `memorykeeper`
 - route booking preparation to `bookingprep`

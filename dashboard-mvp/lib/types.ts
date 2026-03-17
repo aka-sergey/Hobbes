@@ -27,6 +27,23 @@ export type EventCard = {
   detail: string;
 };
 
+export type SearchSource = {
+  title: string;
+  url: string;
+  domain: string;
+};
+
+export type SearchCard = {
+  id: string;
+  agentId: string;
+  backend: string;
+  status: "ok" | "mixed" | "fallback" | "error";
+  when: string;
+  query: string;
+  summary: string;
+  sources: SearchSource[];
+};
+
 export type OverviewData = {
   source: "mock" | "live";
   capturedAt?: string;
@@ -37,4 +54,5 @@ export type OverviewData = {
   agents: AgentCard[];
   runs: RunCard[];
   events: EventCard[];
+  searches: SearchCard[];
 };

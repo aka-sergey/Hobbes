@@ -1,5 +1,5 @@
 import { overviewData } from "./mock-data";
-import type { AgentCard, EventCard, OverviewData, RunCard } from "./types";
+import type { AgentCard, EventCard, OverviewData, RunCard, SearchCard } from "./types";
 import { ensureSchema, getSql, hasDatabase } from "./db";
 
 type StoredSnapshotRow = {
@@ -13,6 +13,7 @@ type StoredSnapshotRow = {
   agents: AgentCard[];
   runs: RunCard[];
   events: EventCard[];
+  searches?: SearchCard[];
 };
 
 function asOverviewData(row: StoredSnapshotRow): OverviewData {
@@ -25,7 +26,8 @@ function asOverviewData(row: StoredSnapshotRow): OverviewData {
     estimatedSpendUsd: row.summary.estimatedSpendUsd ?? "n/a",
     agents: Array.isArray(row.agents) ? row.agents : [],
     runs: Array.isArray(row.runs) ? row.runs : [],
-    events: Array.isArray(row.events) ? row.events : []
+    events: Array.isArray(row.events) ? row.events : [],
+    searches: Array.isArray(row.searches) ? row.searches : []
   };
 }
 
@@ -38,7 +40,7 @@ export async function getOverviewData(): Promise<OverviewData> {
 
   const sql = getSql();
   const rows = await sql<StoredSnapshotRow[]>`
-    SELECT captured_at, summary, agents, runs, events
+    SELECT captured_at, summary, agents, runs, events, searches
     FROM dashboard_snapshots
     ORDER BY captured_at DESC, id DESC
     LIMIT 1
