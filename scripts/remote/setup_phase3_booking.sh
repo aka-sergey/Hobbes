@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-agent_dir="/home/hobbes/.openclaw/agents/booking"
+agent_dir="/home/hobbes/.openclaw/agents/bookingprep"
 workspace="/home/hobbes/.openclaw/workspace-booking"
 openclaw_config="/home/hobbes/.openclaw/openclaw.json"
 
@@ -80,11 +80,11 @@ EOF
 jq '
   .meta.lastTouchedAt = (now | gmtime | strftime("%Y-%m-%dT%H:%M:%SZ"))
   | .agents.list = (
-      ((.agents.list // []) | map(select(.id != "booking")))
+      ((.agents.list // []) | map(select(.id != "booking" and .id != "bookingprep")))
       + [
         {
-          "id": "booking",
-          "agentDir": "/home/hobbes/.openclaw/agents/booking/agent",
+          "id": "bookingprep",
+          "agentDir": "/home/hobbes/.openclaw/agents/bookingprep/agent",
           "workspace": "/home/hobbes/.openclaw/workspace-booking",
           "model": "openai/gpt-4.1-mini",
           "identity": {
@@ -100,4 +100,4 @@ mv "${openclaw_config}.tmp" "${openclaw_config}"
 chown hobbes:hobbes "${openclaw_config}"
 chmod 600 "${openclaw_config}"
 
-echo "booking installed; restart openclaw-gateway.service to apply agents.list changes"
+echo "bookingprep installed; restart openclaw-gateway.service to apply agents.list changes"

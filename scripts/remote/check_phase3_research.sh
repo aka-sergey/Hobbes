@@ -26,4 +26,5 @@ sudo -u hobbes env \
   --agent research \
   --session-id research-wave3-smoke \
   --json \
-  --message "Reply with exactly RESEARCH_OK"
+  --message "Reply with exactly RESEARCH_OK" \
+  </dev/null

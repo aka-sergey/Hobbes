@@ -11,6 +11,11 @@ Desired result:
 - direct smoke tests pass
 - `chief` can later route write proposals to it
 
+Runtime note:
+
+- public role name: `memory`
+- internal runtime id in OpenClaw: `memorykeeper`
+
 ## Preconditions
 
 Before installing `memory`, confirm:
@@ -24,8 +29,8 @@ Before installing `memory`, confirm:
 
 Agent directory:
 
-- `/home/hobbes/.openclaw/agents/memory/agent/auth-profiles.json`
-- `/home/hobbes/.openclaw/agents/memory/sessions/`
+- `/home/hobbes/.openclaw/agents/memorykeeper/agent/auth-profiles.json`
+- `/home/hobbes/.openclaw/agents/memorykeeper/sessions/`
 
 Workspace:
 

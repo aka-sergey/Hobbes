@@ -23,7 +23,8 @@ sudo -u hobbes env \
   DBUS_SESSION_BUS_ADDRESS="${hobbes_bus}" \
   openclaw agent \
   --local \
-  --agent memory \
+  --agent memorykeeper \
   --session-id memory-wave3-smoke \
   --json \
-  --message "Reply with exactly MEMORY_OK"
+  --message "Reply with exactly MEMORY_OK" \
+  </dev/null

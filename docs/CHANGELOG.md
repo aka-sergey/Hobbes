@@ -2,6 +2,33 @@
 
 ## 2026-03-17
 
+### Completed the Phase 3 workhorse installation baseline
+
+Changed:
+
+- deployed `research`, `memory`, and Booking on the VPS
+- stabilized internal runtime ids as:
+  - `memorykeeper` for Memory
+  - `bookingprep` for Booking
+- added routed permission wiring from `chief` to the three Phase 3 specialists
+- hardened Phase 3 check scripts so `openclaw agent --local` runs with `stdin` redirected from `/dev/null`
+
+Verified:
+
+- `openclaw-gateway.service` remained healthy after the rollout
+- `research` direct smoke test returned `RESEARCH_OK`
+- `memorykeeper` direct smoke test returned `MEMORY_OK`
+- `bookingprep` direct smoke test returned `BOOKING_OK`
+- all three specialist session counters increased during validation
+
+Residual issue:
+
+- routed regression checks still exceed the current timeout windows even though child-session growth confirms real delegation
+
+Artifacts:
+
+- Phase 3 closeout recorded in `docs/Phase_03_Closeout.md`
+
 ### Prepared the Phase 3 workhorse rollout kit
 
 Added in repo:
@@ -19,7 +46,7 @@ Design decision:
 Status:
 
 - prepared in the repo
-- not yet deployed on the VPS
+- later deployed and validated as recorded in `docs/Phase_03_Closeout.md`
 
 ### Completed the first Phase 2 control-layer rollout
 

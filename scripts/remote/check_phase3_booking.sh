@@ -23,7 +23,8 @@ sudo -u hobbes env \
   DBUS_SESSION_BUS_ADDRESS="${hobbes_bus}" \
   openclaw agent \
   --local \
-  --agent booking \
+  --agent bookingprep \
   --session-id booking-wave3-smoke \
   --json \
-  --message "Reply with exactly BOOKING_OK"
+  --message "Reply with exactly BOOKING_OK" \
+  </dev/null

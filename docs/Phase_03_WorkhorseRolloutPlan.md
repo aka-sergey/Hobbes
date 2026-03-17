@@ -15,7 +15,7 @@ Phase 3 in the current roadmap means:
 
 - `research`
 - `memory`
-- `booking`
+- `bookingprep` as the internal runtime id for Booking
 
 This phase explicitly excludes:
 
@@ -45,7 +45,12 @@ This agent adds durable knowledge discipline:
 - memory class selection
 - write governance
 
-### `booking`
+Runtime note:
+
+- public role name stays `memory`
+- internal OpenClaw runtime id is `memorykeeper`
+
+### Booking
 
 This agent adds structured real-world preparation:
 
@@ -53,6 +58,11 @@ This agent adds structured real-world preparation:
 - booking checklists
 - reservation-ready payloads
 - approval-ready decision packages
+
+Runtime note:
+
+- public role name stays Booking
+- internal OpenClaw runtime id is `bookingprep`
 
 ## Recommended Rollout Order
 
@@ -81,7 +91,7 @@ Add Phase 3 specialists behind that layer:
 
 - `chief -> research` for source-grounded work
 - `chief -> memory` for durable write proposals and memory maintenance
-- `chief -> booking` for structured booking prep
+- `chief -> bookingprep` for structured booking prep
 
 For Telegram-facing output, keep the stable pattern:
 
@@ -146,7 +156,7 @@ Does not own:
 - purchases
 - silent policy bypass
 
-### `booking`
+### Booking
 
 Owns:
 
@@ -176,7 +186,7 @@ Each Phase 3 agent should pass three levels:
 
 - `research` can return a short source-grounded brief
 - `memory` can classify a memory write and return a structured proposal
-- `booking` can return a booking-prep checklist or option package
+- Booking can return a booking-prep checklist or option package
 
 ### Level 3. Routed invocation
 
@@ -195,12 +205,17 @@ Each Phase 3 agent should pass three levels:
 
 Phase 3 is complete when:
 
-- `research`, `memory`, and `booking` are installed as isolated agents
+- `research`, `memorykeeper`, and `bookingprep` are installed as isolated agents
 - each has a workspace, contract, and repeatable install script
 - each has a direct smoke test
 - at least one routed path exists for each through `chief`
 - durable memory ownership is explicit
 - booking remains approval-gated
+
+Current closeout note:
+
+- direct validation passed for all three specialists
+- routed validation still needs speed work because the whole bounded regression runs can time out even when child-session counters confirm delegation
 
 ## Next Phase After This
 

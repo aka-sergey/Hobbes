@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-agent_dir="/home/hobbes/.openclaw/agents/memory"
+agent_dir="/home/hobbes/.openclaw/agents/memorykeeper"
 workspace="/home/hobbes/.openclaw/workspace-memory"
 openclaw_config="/home/hobbes/.openclaw/openclaw.json"
 
@@ -85,11 +85,11 @@ EOF
 jq '
   .meta.lastTouchedAt = (now | gmtime | strftime("%Y-%m-%dT%H:%M:%SZ"))
   | .agents.list = (
-      ((.agents.list // []) | map(select(.id != "memory")))
+      ((.agents.list // []) | map(select(.id != "memory" and .id != "memorykeeper")))
       + [
         {
-          "id": "memory",
-          "agentDir": "/home/hobbes/.openclaw/agents/memory/agent",
+          "id": "memorykeeper",
+          "agentDir": "/home/hobbes/.openclaw/agents/memorykeeper/agent",
           "workspace": "/home/hobbes/.openclaw/workspace-memory",
           "model": "openai/gpt-4.1-mini",
           "identity": {
@@ -105,4 +105,4 @@ mv "${openclaw_config}.tmp" "${openclaw_config}"
 chown hobbes:hobbes "${openclaw_config}"
 chmod 600 "${openclaw_config}"
 
-echo "memory installed; restart openclaw-gateway.service to apply agents.list changes"
+echo "memorykeeper installed; restart openclaw-gateway.service to apply agents.list changes"

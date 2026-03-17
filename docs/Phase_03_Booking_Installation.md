@@ -2,11 +2,11 @@
 
 ## Goal
 
-Install `booking` as the last Phase 3 workhorse specialist.
+Install Booking as the last Phase 3 workhorse specialist.
 
 Desired result:
 
-- `booking` exists as a separate internal agent
+- Booking exists as a separate internal agent
 - booking work stays approval-gated
 - direct smoke tests pass
 - later routed booking prep can happen without opening the payment path
@@ -40,9 +40,9 @@ Workspace:
 ## Install Order
 
 1. Create a backup.
-2. Create the `booking` agent directory and workspace.
+2. Create the Booking agent directory and workspace.
 3. Write the approval-aware prompt stack.
-4. Register `booking` in `openclaw.json -> agents.list`.
+4. Register internal runtime id `bookingprep` in `openclaw.json -> agents.list`.
 5. Restart `openclaw-gateway.service`.
 6. Run a direct smoke test.
 7. Only after that, wire `chief -> booking` for preparation-only flows.
@@ -59,11 +59,11 @@ Expected result:
 
 - JSON output returns successfully
 - answer contains `BOOKING_OK`
-- booking agent keeps the approval boundary explicit
+- Booking keeps the approval boundary explicit
 
 ## Exit Criteria
 
-`booking` is ready when:
+Booking is ready when:
 
 - install is repeatable
 - smoke test passes
