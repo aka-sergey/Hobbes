@@ -1,4 +1,9 @@
 import { z } from "zod";
+import { ensureSchema, getSql, hasDatabase } from "../../../lib/db";
+
+function toJsonValue(value: unknown) {
+  return JSON.parse(JSON.stringify(value));
+}
 
 const ingestSchema = z.object({
   eventType: z.string().min(1),
@@ -7,6 +12,48 @@ const ingestSchema = z.object({
   severity: z.enum(["info", "warn", "error"]).default("info"),
   timestamp: z.string().min(1),
   payload: z.record(z.string(), z.unknown()).default({})
+});
+
+const snapshotSchema = z.object({
+  snapshotType: z.literal("overview_snapshot"),
+  source: z.string().min(1),
+  timestamp: z.string().min(1),
+  summary: z.object({
+    healthyAgents: z.number().int().nonnegative(),
+    activeRuns: z.number().int().nonnegative(),
+    pendingApprovals: z.number().int().nonnegative(),
+    estimatedSpendUsd: z.string().min(1)
+  }),
+  agents: z.array(
+    z.object({
+      id: z.string().min(1),
+      displayName: z.string().min(1),
+      role: z.string().min(1),
+      health: z.enum(["healthy", "degraded", "failed"]),
+      lastLatencyMs: z.number().int().nonnegative(),
+      activeRuns: z.number().int().nonnegative(),
+      lastError: z.string().optional()
+    })
+  ),
+  runs: z.array(
+    z.object({
+      id: z.string().min(1),
+      chain: z.string().min(1),
+      status: z.enum(["running", "queued", "failed", "completed"]),
+      ageLabel: z.string().min(1),
+      tokenLabel: z.string().min(1),
+      costLabel: z.string().min(1)
+    })
+  ),
+  events: z.array(
+    z.object({
+      id: z.string().min(1),
+      severity: z.enum(["info", "warn", "error"]),
+      title: z.string().min(1),
+      when: z.string().min(1),
+      detail: z.string().min(1)
+    })
+  )
 });
 
 export async function POST(request: Request) {
@@ -18,11 +65,63 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
+  const snapshot = snapshotSchema.safeParse(body);
+
+  if (snapshot.success) {
+    if (!hasDatabase()) {
+      return Response.json({ ok: false, error: "database_not_configured" }, { status: 503 });
+    }
+
+    await ensureSchema();
+    const sql = getSql();
+
+    await sql`
+      INSERT INTO dashboard_snapshots (source, captured_at, summary, agents, runs, events)
+      VALUES (
+        ${snapshot.data.source},
+        ${snapshot.data.timestamp},
+        ${sql.json(toJsonValue(snapshot.data.summary))},
+        ${sql.json(toJsonValue(snapshot.data.agents))},
+        ${sql.json(toJsonValue(snapshot.data.runs))},
+        ${sql.json(toJsonValue(snapshot.data.events))}
+      )
+    `;
+
+    return Response.json({
+      ok: true,
+      accepted: true,
+      snapshot: {
+        source: snapshot.data.source,
+        timestamp: snapshot.data.timestamp
+      }
+    });
+  }
+
   const parsed = ingestSchema.safeParse(body);
 
   if (!parsed.success) {
     return Response.json({ ok: false, error: "invalid_payload", details: parsed.error.flatten() }, { status: 400 });
   }
+
+  if (!hasDatabase()) {
+    return Response.json({ ok: false, error: "database_not_configured" }, { status: 503 });
+  }
+
+  await ensureSchema();
+  const sql = getSql();
+
+  await sql`
+    INSERT INTO dashboard_events (source, event_type, agent_id, run_id, severity, event_ts, payload)
+    VALUES (
+      ${"hobbes"},
+      ${parsed.data.eventType},
+      ${parsed.data.agentId},
+      ${parsed.data.runId},
+      ${parsed.data.severity},
+      ${parsed.data.timestamp},
+      ${sql.json(toJsonValue(parsed.data.payload))}
+    )
+  `;
 
   return Response.json({
     ok: true,

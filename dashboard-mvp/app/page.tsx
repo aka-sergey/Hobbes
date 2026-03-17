@@ -1,4 +1,6 @@
-import { overviewData } from "../lib/mock-data";
+import { getOverviewData } from "../lib/overview";
+
+export const dynamic = "force-dynamic";
 
 function statusClass(health: string) {
   if (health === "healthy") return "pill ok";
@@ -13,8 +15,12 @@ function runClass(status: string) {
   return "pill ok";
 }
 
-export default function HomePage() {
-  const data = overviewData;
+function sourceClass(source: "mock" | "live") {
+  return source === "live" ? "pill ok" : "pill warn";
+}
+
+export default async function HomePage() {
+  const data = await getOverviewData();
 
   return (
     <main>
@@ -26,6 +32,10 @@ export default function HomePage() {
             This MVP is optimized for fast operational clarity: healthy agents, active runs,
             pending approvals, and token burn without diving into raw logs.
           </p>
+          <div className="row" style={{ marginTop: "1rem", gap: "0.75rem", flexWrap: "wrap" }}>
+            <span className={sourceClass(data.source)}>{data.source === "live" ? "live data" : "mock data"}</span>
+            {data.capturedAt ? <span className="muted mono">captured {new Date(data.capturedAt).toLocaleString()}</span> : null}
+          </div>
         </section>
 
         <section className="grid">

@@ -6,7 +6,8 @@ Fast Railway-ready observability dashboard for Hobbes.
 
 - `Next.js` web shell
 - responsive overview screen
-- mock data for product iteration
+- live snapshot loading from Postgres when `DATABASE_URL` is configured
+- mock data fallback when there is no ingested snapshot yet
 - `/api/health`
 - `/api/ingest` with token validation
 
@@ -16,13 +17,13 @@ Fast Railway-ready observability dashboard for Hobbes.
 2. Add environment variables:
    - `INGEST_TOKEN`
    - `NEXT_PUBLIC_APP_NAME=Hobbes Dashboard`
-   - later: `DATABASE_URL`
+   - `DATABASE_URL`
 3. Deploy the service.
-4. Add Postgres before replacing mock data with live queries.
+4. POST an `overview_snapshot` payload from the VPS on a timer.
 
 ## Next implementation steps
 
-1. Add Postgres tables from the dashboard architecture doc.
-2. Replace mock overview data with SQL-backed loaders.
-3. Emit structured events from Hobbes to `/api/ingest`.
-4. Add Runs, Agents, Approvals, and Usage pages.
+1. Emit recurring live snapshots from the VPS to `/api/ingest`.
+2. Add event-level usage and approval ingestion.
+3. Split Overview into Runs, Agents, Approvals, and Usage pages.
+4. Add auth before exposing production data broadly.

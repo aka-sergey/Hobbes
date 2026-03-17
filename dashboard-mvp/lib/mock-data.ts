@@ -1,6 +1,7 @@
 import type { OverviewData } from "./types";
 
 export const overviewData: OverviewData = {
+  source: "mock",
   healthyAgents: 7,
   activeRuns: 3,
   pendingApprovals: 1,

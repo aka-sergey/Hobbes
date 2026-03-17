@@ -28,6 +28,8 @@ export type EventCard = {
 };
 
 export type OverviewData = {
+  source: "mock" | "live";
+  capturedAt?: string;
   healthyAgents: number;
   activeRuns: number;
   pendingApprovals: number;

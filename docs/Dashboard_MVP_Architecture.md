@@ -102,6 +102,30 @@ This keeps the first version simple enough to ship fast and split later if neede
 4. Raw events are stored.
 5. Derived tables are updated for overview screens.
 
+## Current implementation status
+
+Implemented now:
+
+- `dashboard-mvp` is deployed on Railway
+- `POST /api/ingest` stores `overview_snapshot` payloads in Postgres
+- `GET /api/overview` serves the newest stored snapshot
+- `/` renders live data when a snapshot exists and falls back to mock data otherwise
+- a systemd timer on the VPS pushes a fresh snapshot every 2 minutes
+
+Current data sources:
+
+- OpenClaw health endpoint on `127.0.0.1:18792`
+- `openclaw-gateway.service` state
+- agent session directories under `~/.openclaw/agents/*/sessions`
+- recent gateway journal lines for operational signals
+
+Current limitations:
+
+- token usage and spend are still reported as `n/a`
+- run chains are inferred from recent session activity, not from structured OpenClaw run events
+- approvals are not yet ingested and currently show `0`
+- the MVP is public by URL and still needs auth before broader production exposure
+
 ## MVP screens
 
 ### `Overview`
@@ -179,3 +203,10 @@ Priority order on mobile:
 - you can see if a run is stuck
 - you can see pending approvals without logs
 - you can estimate token usage and cost by run and by agent
+
+## Next extension points
+
+1. replace inferred runs with structured run events from Hobbes
+2. ingest approvals and explicit queue state
+3. record token and model usage as first-class events
+4. add auth and private access before wider sharing

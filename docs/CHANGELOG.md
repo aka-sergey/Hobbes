@@ -2,6 +2,37 @@
 
 ## 2026-03-17
 
+### Shipped live dashboard ingestion from VPS to Railway
+
+Changed:
+
+- upgraded `dashboard-mvp` from mock-only shell to Postgres-backed live overview
+- added `GET /api/overview`
+- extended `POST /api/ingest` to accept persisted `overview_snapshot` payloads
+- added Railway runtime support for `DATABASE_URL`
+- installed a recurring VPS sender via:
+  - `/usr/local/bin/hobbes-dashboard-snapshot.sh`
+  - `hobbes-dashboard-snapshot.timer`
+
+Verified:
+
+- Railway dashboard remains reachable at `hobbes-dashboard-web-production.up.railway.app`
+- manual ingest smoke test was accepted with `200`
+- live VPS snapshot ingestion was accepted by Railway
+- `GET /api/overview` now returns `source=live`
+- the overview currently shows the real seven-agent runtime from the VPS
+
+Current limitations:
+
+- usage/cost is still `n/a`
+- approvals are not yet ingested
+- run chains are still inferred from recent session activity
+- dashboard access is still public by URL
+
+Artifacts:
+
+- implementation notes recorded in `docs/Dashboard_LiveIngest_Installation.md`
+
 ### Added initial skills and dashboard MVP foundation
 
 Added in repo:
