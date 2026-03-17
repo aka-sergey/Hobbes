@@ -153,17 +153,24 @@ def parse_iso(ts: str):
 
 def load_searches():
     searches = []
-    sessions_dir = openclaw_home / "agents" / "research" / "sessions"
-    if not sessions_dir.exists():
-        return searches
+    session_specs = [
+        ("research", openclaw_home / "agents" / "research" / "sessions"),
+        ("bookingprep", openclaw_home / "agents" / "bookingprep" / "sessions"),
+    ]
+    session_files = []
+    for agent_id, sessions_dir in session_specs:
+        if not sessions_dir.exists():
+            continue
+        for path in sessions_dir.glob("*.jsonl"):
+            session_files.append((agent_id, path))
 
     session_files = sorted(
-        sessions_dir.glob("*.jsonl"),
-        key=lambda item: item.stat().st_mtime,
+        session_files,
+        key=lambda item: item[1].stat().st_mtime,
         reverse=True,
-    )[:5]
+    )[:6]
 
-    for path in session_files:
+    for agent_id, path in session_files:
         try:
             lines = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
         except Exception:
@@ -177,6 +184,9 @@ def load_searches():
         saw_fetch = False
         saw_tavily = False
         had_exec_error = False
+        route_type = None
+        preferred_backend = None
+        preferred_agent = None
         last_ts = None
 
         for entry in lines:
@@ -236,7 +246,13 @@ def load_searches():
                         payload_json = json.loads(payload_text)
                     except Exception:
                         payload_json = None
-                    if isinstance(payload_json, dict) and payload_json.get("ok") is True:
+                    if isinstance(payload_json, dict) and payload_json.get("ok") is True and payload_json.get("detected_type"):
+                        route_type = payload_json.get("detected_type")
+                        preferred_backend = payload_json.get("preferred_backend")
+                        preferred_agent = payload_json.get("preferred_agent")
+                        if payload_json.get("query"):
+                            query = payload_json["query"]
+                    elif isinstance(payload_json, dict) and payload_json.get("ok") is True:
                         backend = "tavily"
                         if payload_json.get("query"):
                             query = payload_json["query"]
@@ -284,8 +300,11 @@ def load_searches():
 
         searches.append({
             "id": path.stem,
-            "agentId": "research",
+            "agentId": agent_id,
             "backend": backend,
+            "routeType": route_type or "unknown",
+            "preferredBackend": preferred_backend or backend,
+            "preferredAgent": preferred_agent or agent_id,
             "status": status,
             "when": when,
             "query": query[:180],

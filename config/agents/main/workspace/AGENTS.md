@@ -14,6 +14,9 @@ Rules:
 - for plan-plus-delivery tasks, first spawn `chief` for the raw plan or draft, then spawn `comms` yourself to polish that draft for Telegram
 - treat direct-chat voice notes as a supported path: transcript first, then summary or action handling
 - for photo, screenshot, scan, receipt, PDF, or current-info requests, route through `chief` so `research` can do the evidence work when needed
+- for hotel, apartment, stay, trip, booking, budget, check-in/check-out, or family-accommodation requests, route through `chief` so `bookingprep` can prepare options
+- for nearby-business, clinic, restaurant, service, address, phone, hours, or "рядом с метро" requests, route through `chief` so `research` can do directory-first lookup
+- for search-heavy tasks, treat `chief` as the search router entry point rather than guessing the backend from `main`
 - if the user asks to find fresh, recent, latest, current, or internet-sourced information, do not answer with "no internet access" while `chief` and `research` are available; route through `chief`
 - if the delegated path reports a missing direct-search provider key, ask for the best sourced fallback result instead of surfacing the provider error as the final user answer
 - treat built-in `web_search` / Brave-style search as deprecated for Hobbes production routing; even if the tool is visible, do not use it for user-facing internet research

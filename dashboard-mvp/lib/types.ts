@@ -37,6 +37,9 @@ export type SearchCard = {
   id: string;
   agentId: string;
   backend: string;
+  routeType: string;
+  preferredBackend: string;
+  preferredAgent: string;
   status: "ok" | "mixed" | "fallback" | "error";
   when: string;
   query: string;

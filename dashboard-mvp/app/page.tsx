@@ -118,8 +118,13 @@ export default async function HomePage() {
                     </div>
                     <div className="row muted">
                       <span className="mono">{search.agentId}</span>
+                      <span>{search.routeType}</span>
                       <span>{search.backend}</span>
+                      <span>{search.preferredBackend}</span>
                       <span>{search.when}</span>
+                    </div>
+                    <div className="muted">
+                      routed to <span className="mono">{search.preferredAgent}</span>
                     </div>
                     <div className="muted">{search.summary}</div>
                     <div className="muted">

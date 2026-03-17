@@ -274,3 +274,9 @@ Added:
   - updated `web-research`, `research`, and `chief` contracts to prefer Tavily when available
   - documented the rollout in [Tavily_Integration_Plan.md](/Users/sergeysobolev/HobbesCodex/docs/Tavily_Integration_Plan.md)
 - 2026-03-17: removed Brave-style `web_search` from Hobbes production routing in practice by hardening `main`, `chief`, and `research` contracts around `Tavily-first` search, non-invented `web_fetch` fallbacks, and internal-session reset guidance for stale routing behavior.
+- Added category-aware search routing baseline:
+  - new helper [hobbes_search_router.py](/Users/sergeysobolev/HobbesCodex/scripts/remote/hobbes_search_router.py)
+  - new docs [Search_Router_Taxonomy.md](/Users/sergeysobolev/HobbesCodex/docs/Search_Router_Taxonomy.md) and [Search_Router_Implementation.md](/Users/sergeysobolev/HobbesCodex/docs/Search_Router_Implementation.md)
+  - `chief` now has an explicit router-first pattern for search-heavy tasks
+  - `research` and `booking` now accept router hints and domain bias
+  - dashboard search cards now include route metadata
