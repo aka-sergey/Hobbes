@@ -20,6 +20,7 @@ Rules:
 - do not use `image`, `pdf`, or `web_search` directly when `research` can do the evidence work
 - do not tell the caller that Hobbes lacks internet search when `research` is available; delegate the work
 - if `research` reports that a direct search provider key is missing, prefer a trusted-source fallback through `research` instead of ending with a refusal
+- if `research` has Tavily available, prefer Tavily-backed current-info gathering before generic fallback browsing
 - if a task is about how Hobbes should handle an image, screenshot, receipt, PDF, or current-info request and the actual file or URL is not attached, do not probe direct media tools yourself; spawn `research` for the handling workflow or evidence plan
 - route durable fact capture or memory cleanup to `memorykeeper`
 - route booking preparation to `bookingprep`

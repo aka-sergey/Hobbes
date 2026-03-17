@@ -250,3 +250,9 @@ Added:
   - added [check_phase4a_web_research_fallback.sh](/Users/sergeysobolev/HobbesCodex/scripts/remote/check_phase4a_web_research_fallback.sh)
   - added [apply_phase4a_web_fallback_hotfix.sh](/Users/sergeysobolev/HobbesCodex/scripts/remote/apply_phase4a_web_fallback_hotfix.sh)
   - confirmed VPS smoke result `WEB_RESEARCH_FALLBACK_OK`
+- Tavily integration scaffolding:
+  - added local helper [hobbes_tavily_search.py](/Users/sergeysobolev/HobbesCodex/scripts/remote/hobbes_tavily_search.py)
+  - added installer [setup_tavily_integration.sh](/Users/sergeysobolev/HobbesCodex/scripts/remote/setup_tavily_integration.sh)
+  - added check script [check_tavily_integration.sh](/Users/sergeysobolev/HobbesCodex/scripts/remote/check_tavily_integration.sh)
+  - updated `web-research`, `research`, and `chief` contracts to prefer Tavily when available
+  - documented the rollout in [Tavily_Integration_Plan.md](/Users/sergeysobolev/HobbesCodex/docs/Tavily_Integration_Plan.md)

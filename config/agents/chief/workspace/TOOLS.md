@@ -19,6 +19,7 @@ Rules:
 - for screenshot, PDF, receipt, and current-info work, do not use `image`, `pdf`, or `web_search` yourself; spawn `research`
 - for internet-search, latest-news, fresh-facts, and recent-event tasks, spawn `research` instead of telling the caller that search is unavailable
 - if a direct search provider is unavailable, ask `research` for a trusted-source fallback rather than returning a dead-end "missing key" answer
+- if Tavily is available inside `research`, prefer that route for current-info tasks
 - if no actual file, image, PDF, or URL is attached, never call direct media or web tools just because the task mentions them; spawn `research` for the workflow or evidence plan
 - if `main` asks for a draft, return the draft and let `main` handle `comms`
 - never use `runtime: "acp"` for internal Hobbes agents

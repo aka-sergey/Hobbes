@@ -18,14 +18,25 @@ Use this skill for current external information.
 ## Core workflow
 
 1. Define the question in one sentence.
-2. Prefer primary or official sources first.
-3. Collect a small number of strong sources, not a noisy list.
-4. Separate:
+2. If `TAVILY_API_KEY` is available, prefer Tavily first via `exec` and `hobbes-tavily-search`.
+3. Prefer primary or official sources first.
+4. Collect a small number of strong sources, not a noisy list.
+5. Separate:
    - confirmed facts
    - interpretations
    - open questions
-5. Return a short digest with links.
-6. If direct search is unavailable, fall back to a small trusted-source sweep with `web_fetch` or `browser` instead of stopping immediately.
+6. Return a short digest with links.
+7. If direct search is unavailable, fall back to a small trusted-source sweep with `web_fetch` or `browser` instead of stopping immediately.
+
+## Tavily path
+
+When available, use:
+
+```bash
+hobbes-tavily-search --query "<query>" --topic news --time-range week --max-results 5 --pretty
+```
+
+Use `topic news` for recent events and `topic general` for broader lookups.
 
 ## Fallback sources
 
