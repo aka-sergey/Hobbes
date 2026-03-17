@@ -43,12 +43,12 @@ Direct smoke checks:
 Observed routed checks:
 
 - `phase2_routing`
-  - live delegation to `chief` and `comms` was observed
+  - live delegation to `chief`, `comms`, and `guard` was observed
   - session counters increased
-  - whole check still ended with timeout `124`
+  - after routing optimization, the bounded regression check passed
 - `phase3_routing`
   - session counters increased for `research`, `memorykeeper`, and `bookingprep`
-  - whole check still ended with timeout `124`
+  - after routing optimization, the bounded regression check passed
 
 ## Stability Notes
 
@@ -70,10 +70,7 @@ Phase 3 is complete for:
 - direct validation
 - specialist isolation
 - routing permission wiring
-
-Phase 3 is not yet fully complete for:
-
-- fast deterministic routed completion under a single bounded regression timeout
+- bounded routed regression validation
 
 ## Priority-Based Assessment
 
@@ -85,9 +82,9 @@ The platform is consistent and the specialists are installed correctly. The bigg
 
 ### 2. Speed
 
-Mixed.
+Good enough for the current baseline.
 
-Direct specialist checks are fast, roughly `1-4s`, but routed end-to-end checks still exceed the current regression timeout windows.
+Direct specialist checks are fast, roughly `1-4s`, and routed bounded regression checks now pass after shortening prompts and fixing stdin handling.
 
 ### 3. Cost
 
@@ -97,11 +94,11 @@ Everything is running on `openai/gpt-4.1-mini`, but routed chains still pay a no
 
 ## Recommended Next Step
 
-Do not add more specialists yet.
+Do not rush into more specialists yet.
 
 The next wave should focus on routing optimization:
 
-1. reduce prompt weight in routed chains
-2. tighten specialist handoff prompts
-3. shorten routed regression scenarios
-4. add lightweight structured observability for child-session timing
+1. keep reducing prompt weight in routed chains
+2. add lightweight structured observability for child-session timing
+3. improve live Telegram-route monitoring without polluting the production chat
+4. only then expand the specialist set further

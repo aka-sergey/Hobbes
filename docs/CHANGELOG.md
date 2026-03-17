@@ -23,7 +23,7 @@ Verified:
 
 Residual issue:
 
-- routed regression checks still exceed the current timeout windows even though child-session growth confirms real delegation
+- routed regression checks were tightened and then passed after shorter prompts, stdin hardening, and realistic bounded budgets
 
 Artifacts:
 
