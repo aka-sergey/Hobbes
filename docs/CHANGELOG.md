@@ -2,6 +2,25 @@
 
 ## 2026-03-17
 
+### Added initial skills and dashboard MVP foundation
+
+Added in repo:
+
+- four Hobbes skills:
+  - `openclaw-ops`
+  - `routing-regression`
+  - `agent-contract-linter`
+  - `dashboard-product`
+- `docs/Skills_And_MCP_Plan.md`
+- `docs/Dashboard_MVP_Architecture.md`
+- `dashboard-mvp/` Next.js scaffold for a Railway-ready observability UI
+
+Product direction:
+
+- dashboard path chosen: fast web-first MVP on Railway
+- one app handles both UI and ingest endpoints in the first version
+- Postgres remains the next integration step after mock-data iteration
+
 ### Completed the Phase 3 workhorse installation baseline
 
 Changed:
