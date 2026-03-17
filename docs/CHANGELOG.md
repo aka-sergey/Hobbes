@@ -2,6 +2,30 @@
 
 ## 2026-03-17
 
+### Added the Phase 4 user-skill rollout kit
+
+Added in repo:
+
+- ten new product skills:
+  - `vision-intake`
+  - `pdf-workbench`
+  - `web-research`
+  - `reminders-and-followups`
+  - `persona-router`
+  - `voice-notes`
+  - `contacts-crm-lite`
+  - `meeting-prep`
+  - `document-drafter`
+  - `personal-memory`
+- `docs/Phase_04_Skills_Rollout_Plan.md`
+
+Planning decisions:
+
+- selected these ten skills for immediate rollout
+- explicitly postponed `mailbox-ops`
+- explicitly postponed outbound calling to the final phase
+- mapped the new skills to `main`, `chief`, `research`, `memorykeeper`, and `comms`
+
 ### Shipped live dashboard ingestion from VPS to Railway
 
 Changed:

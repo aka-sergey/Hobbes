@@ -38,6 +38,30 @@ Use for:
 - queue and approval UX
 - token and cost visibility
 
+## Selected product skills for the next rollout
+
+Chosen now:
+
+- `vision-intake`
+- `pdf-workbench`
+- `web-research`
+- `reminders-and-followups`
+- `persona-router`
+- `voice-notes`
+- `contacts-crm-lite`
+- `meeting-prep`
+- `document-drafter`
+- `personal-memory`
+
+Postponed:
+
+- `mailbox-ops`
+- outbound calling
+
+See:
+
+- `docs/Phase_04_Skills_Rollout_Plan.md`
+
 ## MCP Recommendation
 
 Current recommendation:
@@ -52,7 +76,7 @@ Current recommendation:
 ### Add later
 
 - GitHub MCP for repo and issue workflows
-- Calendar or mail MCP only when `booking` or `inbox` needs real external actions
+- Calendar or mail MCP only when reminders, `booking`, or later `mailbox-ops` need real external actions
 
 ### Avoid for now
 
@@ -65,3 +89,16 @@ For Hobbes today:
 
 - skills should provide the reusable workflow layer
 - MCP should be added only where structured external data or action is genuinely needed
+
+## Immediate MCP stance for the chosen rollout
+
+Add only when the skill reaches real execution:
+
+- calendar or scheduler integration for `reminders-and-followups`
+- image/document extraction support for `vision-intake` and `pdf-workbench`
+
+Do not add yet:
+
+- mailbox integration
+- telephony
+- broad unmanaged external MCP fleets
