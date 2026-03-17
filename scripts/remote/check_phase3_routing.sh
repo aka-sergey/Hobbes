@@ -24,7 +24,7 @@ run_chief_local() {
     HUID=\$(id -u)
     HRUN=/run/user/\$HUID
     HBUS=unix:path=\$HRUN/bus
-    timeout 180s env \
+    timeout 120s env \
       HOME=/home/hobbes \
       OPENAI_API_KEY=\"\$OPENAI_API_KEY\" \
       XDG_RUNTIME_DIR=\"\$HRUN\" \
@@ -50,7 +50,7 @@ ts="$(date +%s)"
 echo "== research =="
 run_chief_local \
   "phase3-chief-research-${ts}" \
-  "Use sessions_spawn with runtime subagent and agentId research to handle this task: create one short research-oriented brief about how to improve source quality for future Hobbes reports. Return only the resulting draft."
+  "Spawn research for one short brief on improving source quality in future Hobbes reports. Return only the resulting draft."
 research_after="$(count_sessions research)"
 echo "research_session_counts research:${research_before}->${research_after}"
 
@@ -58,7 +58,7 @@ echo
 echo "== memory =="
 run_chief_local \
   "phase3-chief-memory-${ts}" \
-  "Use sessions_spawn with runtime subagent and agentId memorykeeper to classify this durable fact for Hobbes: Sergey prefers short Telegram answers with clear action steps. Return only the resulting structured memory draft."
+  "Spawn memorykeeper to classify this durable fact: Sergey prefers short Telegram answers with clear action steps. Return only the structured memory draft."
 memory_after="$(count_sessions memorykeeper)"
 echo "memory_session_counts memory:${memory_before}->${memory_after}"
 
@@ -66,6 +66,6 @@ echo
 echo "== booking =="
 run_chief_local \
   "phase3-chief-booking-${ts}" \
-  "Use sessions_spawn with runtime subagent and agentId bookingprep to prepare a short checklist of inputs needed before booking travel for a future work trip. Return only the resulting draft."
+  "Spawn bookingprep to prepare a short checklist of inputs needed before booking a future work trip. Return only the resulting draft."
 booking_after="$(count_sessions bookingprep)"
 echo "booking_session_counts booking:${booking_before}->${booking_after}"

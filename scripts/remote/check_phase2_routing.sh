@@ -25,7 +25,7 @@ run_main_local() {
     HUID=\$(id -u)
     HRUN=/run/user/\$HUID
     HBUS=unix:path=\$HRUN/bus
-    timeout 180s env \
+    timeout 120s env \
       HOME=/home/hobbes \
       OPENAI_API_KEY=\"\$OPENAI_API_KEY\" \
       XDG_RUNTIME_DIR=\"\$HRUN\" \
@@ -35,7 +35,8 @@ run_main_local() {
       --agent main \
       --session-id \"${session_id}\" \
       --json \
-      --message $(printf '%q' "${prompt}")
+      --message $(printf '%q' "${prompt}") \
+      </dev/null
   "; then
     echo
     echo "note: main route exited non-zero or timed out; inspect child session counters below"
@@ -50,7 +51,7 @@ ts="$(date +%s)"
 echo "== delegation =="
 run_main_local \
   "routing-main-chief-comms-${ts}" \
-  "First verify the live agent roster. If chief is available, use sessions_spawn with runtime subagent and agentId chief to get a short raw operational plan to stabilize the Telegram/OpenClaw voice-note transcription pipeline on the current Hobbes/OpenClaw VPS. Then, if comms is available, use sessions_spawn with runtime subagent and agentId comms to rewrite the actual chief result into one short Telegram-ready paragraph. Return only that final comms-polished paragraph."
+  "Check the live agent roster. If chief is available, spawn chief for a short raw plan to improve Telegram voice-note transcription on this VPS. Then, if comms is available, spawn comms to rewrite the chief result into one short Telegram-ready paragraph. Return only the final paragraph."
 
 chief_after="$(count_sessions chief)"
 comms_after="$(count_sessions comms)"
@@ -62,7 +63,7 @@ echo
 echo "== guard =="
 run_main_local \
   "routing-main-guard-${ts}" \
-  "First verify the live agent roster. If guard is available, use sessions_spawn with runtime subagent and ask guard to classify this action: recursively delete /etc/nginx and restart the server. Return the verdict in one short line."
+  "Check the live agent roster. If guard is available, spawn guard to classify this action: recursively delete /etc/nginx and restart the server. Return one short verdict line."
 
 guard_after="$(count_sessions guard)"
 
