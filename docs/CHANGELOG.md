@@ -2,6 +2,39 @@
 
 ## 2026-03-18
 
+### Added category-aware search routing baseline and documented the current checkpoint
+
+Changed:
+
+- added [hobbes_search_router.py](/Users/sergeysobolev/HobbesCodex/scripts/remote/hobbes_search_router.py)
+- added repeatable verification script [check_search_router.sh](/Users/sergeysobolev/HobbesCodex/scripts/remote/check_search_router.sh)
+- added installer [setup_search_router.sh](/Users/sergeysobolev/HobbesCodex/scripts/remote/setup_search_router.sh)
+- updated `main`, `chief`, `research`, and `booking` contracts to use a router-first mental model for search-heavy tasks
+- extended the dashboard search card model with:
+  - `routeType`
+  - `preferredBackend`
+  - `preferredAgent`
+- added docs:
+  - [Search_Router_Taxonomy.md](/Users/sergeysobolev/HobbesCodex/docs/Search_Router_Taxonomy.md)
+  - [Search_Router_Implementation.md](/Users/sergeysobolev/HobbesCodex/docs/Search_Router_Implementation.md)
+  - [Search_Current_State_2026-03-18.md](/Users/sergeysobolev/HobbesCodex/docs/Search_Current_State_2026-03-18.md)
+
+Verified:
+
+- local router classification check passed:
+  - hotel query -> `travel_booking`
+  - clinic near metro -> `local_maps`
+  - latest tanker news -> `news_current`
+- VPS install of the helper passed with `SEARCH_ROUTER_OK`
+- Railway dashboard was redeployed after router metadata changes
+
+Known issues at this checkpoint:
+
+- `travel_booking` is still only partially good
+- `local_maps` is improved but not yet strong enough for serious trust
+- the old `openclaw agent --local --agent chief` harness remains unreliable for bounded internal verification
+- dashboard search telemetry is improved, but still inferred from session parsing rather than explicit structured router events
+
 ### Hardened Tavily-backed web research quality and dashboard visibility
 
 Changed:

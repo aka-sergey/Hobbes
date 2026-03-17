@@ -71,3 +71,15 @@ This should make it easier to debug whether a bad answer came from:
 1. wrong classification
 2. right classification but weak backend results
 3. right backend but poor synthesis
+
+## Current checkpoint
+
+Detailed checkpoint:
+
+- [Search_Current_State_2026-03-18.md](/Users/sergeysobolev/HobbesCodex/docs/Search_Current_State_2026-03-18.md)
+
+Important current reality:
+
+- the router baseline is implemented and rolled out
+- `travel_booking` and `local_maps` are still the weakest verticals
+- the next improvement should target backend selection per route, not generic prompt tuning

@@ -113,6 +113,26 @@ Why:
 - these increase Hobbes' practical usefulness immediately
 - they improve what the system can understand before adding more output complexity
 
+Current checkpoint:
+
+- `voice-notes`, `vision-intake`, `pdf-workbench`, and `web-research` are installed as a baseline
+- `web-research` has since been reworked into a search-router-driven architecture
+- Wave 4A should currently be treated as:
+  - deployed
+  - partially stabilized
+  - not yet fully polished for all search verticals
+
+Main remaining issue inside Wave 4A:
+
+- search quality is still uneven across categories
+- best current performance is in:
+  - current-info
+  - general research
+  - known-site lookup
+- weakest current performance is in:
+  - `travel_booking`
+  - `local_maps`
+
 ### Wave 4B. Delivery and operator UX
 
 Install next:
@@ -231,3 +251,19 @@ Every skill should pass:
 8. `document-drafter`
 9. `contacts-crm-lite`
 10. `personal-memory`
+
+## Current stop point before Wave 4B
+
+Do not move to Wave 4B as if Wave 4A were fully complete.
+
+The current stop point is:
+
+1. Wave 4A is structurally deployed
+2. a category-aware search router was added
+3. dashboard search telemetry was extended
+4. travel and local-business search still need stronger backend choices
+
+Meaning:
+
+- Wave 4B can be started only if we accept that search is “good enough for baseline”
+- if we want search to feel genuinely strong, one more iteration on `travel_booking` and `local_maps` is recommended before heavy Wave 4B expansion
