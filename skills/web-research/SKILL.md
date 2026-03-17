@@ -21,6 +21,7 @@ Use this skill for current external information.
 2. If `TAVILY_API_KEY` is available, prefer Tavily first via `exec` and `hobbes-tavily-search`.
 3. Prefer primary or official sources first.
 4. Collect a small number of strong sources, not a noisy list.
+If Tavily returns an `answer`, treat it as a lead only; base the final synthesis on the filtered source list.
 5. Separate:
    - confirmed facts
    - interpretations

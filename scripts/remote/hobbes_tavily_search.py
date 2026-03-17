@@ -5,6 +5,108 @@ import os
 import sys
 import urllib.error
 import urllib.request
+from urllib.parse import urlparse
+
+
+PREFERRED_DOMAIN_WEIGHTS = {
+    "reuters.com": 120,
+    "apnews.com": 115,
+    "bloomberg.com": 110,
+    "ft.com": 108,
+    "wsj.com": 108,
+    "nytimes.com": 106,
+    "bbc.com": 104,
+    "bbc.co.uk": 104,
+    "aljazeera.com": 103,
+    "cnbc.com": 100,
+    "npr.org": 99,
+    "gcaptain.com": 96,
+}
+
+LOW_SIGNAL_DOMAIN_PENALTIES = {
+    "unn.ua": -25,
+}
+
+
+def normalize_domain(url: str) -> str:
+    try:
+        return urlparse(url).netloc.lower().replace("www.", "")
+    except Exception:
+        return ""
+
+
+def normalize_url(url: str) -> str:
+    cleaned = (url or "").strip().lower()
+    cleaned = cleaned.replace("https://", "").replace("http://", "")
+    cleaned = cleaned.rstrip("/")
+    if cleaned.startswith("www."):
+        cleaned = cleaned[4:]
+    cleaned = cleaned.replace("/amp", "")
+    return cleaned
+
+
+def normalize_title(title: str) -> str:
+    return " ".join((title or "").lower().split())
+
+
+def domain_weight(domain: str) -> int:
+    if domain in PREFERRED_DOMAIN_WEIGHTS:
+        return PREFERRED_DOMAIN_WEIGHTS[domain]
+    for candidate, weight in PREFERRED_DOMAIN_WEIGHTS.items():
+        if domain.endswith(f".{candidate}"):
+            return weight
+    if domain in LOW_SIGNAL_DOMAIN_PENALTIES:
+        return LOW_SIGNAL_DOMAIN_PENALTIES[domain]
+    for candidate, penalty in LOW_SIGNAL_DOMAIN_PENALTIES.items():
+        if domain.endswith(f".{candidate}"):
+            return penalty
+    return 0
+
+
+def score_result(item: dict) -> float:
+    domain = normalize_domain(item.get("url") or "")
+    base = float(item.get("score") or 0.0)
+    weight = domain_weight(domain) / 1000.0
+    title = normalize_title(item.get("title") or "")
+    content = (item.get("content") or "").lower()
+    if "explainer" in title or "why " in title:
+        weight -= 0.08
+    if "2023/" in (item.get("url") or ""):
+        weight -= 0.12
+    if "2024/" in (item.get("url") or ""):
+        weight -= 0.06
+    if "attack" in content or "attacked" in content or "seizing" in content:
+        weight += 0.02
+    return base + weight
+
+
+def filter_and_rank_results(items: list[dict], max_results: int) -> list[dict]:
+    ranked = sorted(items, key=score_result, reverse=True)
+    filtered = []
+    seen_urls = set()
+    seen_title_domain = set()
+
+    for item in ranked:
+        url = item.get("url") or ""
+        title = item.get("title") or ""
+        if not url or not title:
+            continue
+
+        url_key = normalize_url(url)
+        domain = normalize_domain(url)
+        title_domain_key = (normalize_title(title), domain)
+
+        if url_key in seen_urls or title_domain_key in seen_title_domain:
+            continue
+
+        seen_urls.add(url_key)
+        seen_title_domain.add(title_domain_key)
+        filtered.append(item)
+
+        if len(filtered) >= max_results:
+            break
+
+    return filtered
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -69,9 +171,11 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def compact_result(item: dict) -> dict:
+    domain = normalize_domain(item.get("url") or "")
     return {
         "title": item.get("title"),
         "url": item.get("url"),
+        "domain": domain,
         "content": item.get("content"),
         "score": item.get("score"),
         "published_date": item.get("published_date"),
@@ -157,13 +261,15 @@ def main() -> int:
         )
         return 1
 
+    ranked_results = filter_and_rank_results(data.get("results", []), max_results)
+
     result = {
         "ok": True,
         "query": data.get("query", args.query),
         "answer": data.get("answer"),
         "response_time": data.get("response_time"),
         "request_id": data.get("request_id"),
-        "results": [compact_result(item) for item in data.get("results", [])],
+        "results": [compact_result(item) for item in ranked_results],
     }
 
     if args.pretty:
