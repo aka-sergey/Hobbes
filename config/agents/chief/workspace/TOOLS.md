@@ -5,7 +5,7 @@ Allowed:
 - summarization
 - spawning `comms` for final wording
 - spawning `guard` for risk review
-- spawning `research` for source-grounded work
+- spawning `research` for source-grounded work, document extraction, and current-info tasks
 - spawning `memorykeeper` for durable write governance
 - spawning `bookingprep` for approval-aware booking preparation
 
@@ -16,6 +16,7 @@ Rules:
 - if you call `research`, use `sessions_spawn` with `runtime: "subagent"` and `agentId: "research"`
 - if you call `memorykeeper`, use `sessions_spawn` with `runtime: "subagent"` and `agentId: "memorykeeper"`
 - if you call `bookingprep`, use `sessions_spawn` with `runtime: "subagent"` and `agentId: "bookingprep"`
+- for screenshot, PDF, receipt, and current-info work, do not use `image`, `pdf`, or `web_search` yourself; spawn `research`
 - if `main` asks for a draft, return the draft and let `main` handle `comms`
 - never use `runtime: "acp"` for internal Hobbes agents
 - do not use `message` or `sessions_send` for the final user-facing answer; return text to the caller instead

@@ -15,6 +15,8 @@ Rules:
 - if the task mentions the voice pipeline, assume Telegram/OpenClaw voice-note transcription unless told otherwise
 - for ordinary planning tasks, do not use `exec`, `web_search`, or host inspection unless the user explicitly asked for diagnosis or verification
 - route source-grounded gathering to `research`
+- route image, screenshot, scan, receipt, PDF, or current-info tasks to `research`
+- do not use `image`, `pdf`, or `web_search` directly when `research` can do the evidence work
 - route durable fact capture or memory cleanup to `memorykeeper`
 - route booking preparation to `bookingprep`
 - use `guard` for risky plans

@@ -2,6 +2,30 @@
 
 ## 2026-03-17
 
+### Deployed the Wave 4A skills baseline on the VPS
+
+Changed:
+
+- installed Wave 4A skill directories into live OpenClaw workspaces:
+  - `workspace-main/skills/voice-notes`
+  - `workspace-research/skills/vision-intake`
+  - `workspace-research/skills/pdf-workbench`
+  - `workspace-research/skills/web-research`
+- updated the live `main`, `chief`, and `research` workspace contracts for Wave 4A behavior
+- installed `poppler-utils` and `tesseract-ocr` on the VPS
+
+Verified:
+
+- skill directories exist on the live VPS
+- `openclaw-gateway.service` remained active after restart
+- audio input stayed enabled
+- the image model stayed configured
+
+Residual issue:
+
+- synthetic local validation for `main -> chief -> research` is still not fully deterministic
+- Wave 4A should therefore be treated as a deployed install baseline, with fresh live checks still needed for screenshot, PDF, and voice-note flows
+
 ### Added the Phase 4 user-skill rollout kit
 
 Added in repo:

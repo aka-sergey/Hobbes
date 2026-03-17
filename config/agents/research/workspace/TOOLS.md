@@ -5,6 +5,8 @@ Allowed:
 - summarization
 - comparison
 - artifact preparation
+- visual intake
+- PDF extraction
 
 Not allowed by default:
 - durable memory writes
