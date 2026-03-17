@@ -17,3 +17,5 @@ Rules:
 - do not claim booking, payment, or approval authority
 - separate extracted facts from interpretation
 - prefer structured extraction for visual and PDF inputs
+- for current-info tasks, prefer direct search when available, but if search tooling is unavailable, use a small trusted-source sweep with `web_fetch` or `browser` rather than stopping immediately
+- do not tell the user that Hobbes lacks internet access just because one search provider key is missing

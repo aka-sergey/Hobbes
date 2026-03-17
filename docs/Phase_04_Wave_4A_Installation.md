@@ -81,6 +81,7 @@ Recommended regression on the current VPS:
 ```bash
 bash /root/check_phase4a_chief_research.sh
 bash /root/check_phase4a_web_research.sh
+bash /root/check_phase4a_web_research_fallback.sh
 ```
 
 Why this check is preferred:
@@ -89,6 +90,7 @@ Why this check is preferred:
 - it is materially lighter than a full synthetic `main -> chief -> research` run
 - it avoids unnecessary memory spikes on the current `3 GB RAM` VPS
 - it now includes a direct smoke check for current-info and internet-backed research
+- it now includes a fallback check for environments where a direct search provider key is missing
 
 ## Honest current limitation
 
@@ -120,6 +122,8 @@ Confirmed:
 - `research` session counter growth confirms actual delegation without the heavier `main` path
 - direct web-research smoke check now passes on the live VPS
 - `research` session counter growth confirms current-info delegation `research:4->5`
+- web-research fallback check now passes when a direct search provider key is unavailable
+- the runtime no longer has to stop at a dead-end Brave-key refusal for current-info tasks
 
 Residual issue:
 

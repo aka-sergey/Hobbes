@@ -243,3 +243,10 @@ Added:
   - added [check_phase4a_web_research.sh](/Users/sergeysobolev/HobbesCodex/scripts/remote/check_phase4a_web_research.sh)
   - added [apply_phase4a_web_routing_hotfix.sh](/Users/sergeysobolev/HobbesCodex/scripts/remote/apply_phase4a_web_routing_hotfix.sh)
   - confirmed VPS smoke result `WEB_RESEARCH_OK` with session counter growth `research:4->5`
+- Wave 4A web-research fallback:
+  - taught `research` to fall back to a trusted-source sweep with `web_fetch` or `browser` when direct search provider credentials are missing
+  - taught `chief` and `main` not to surface a missing-provider error as the final user answer when fallback work is still possible
+  - updated [skills/web-research/SKILL.md](/Users/sergeysobolev/HobbesCodex/skills/web-research/SKILL.md)
+  - added [check_phase4a_web_research_fallback.sh](/Users/sergeysobolev/HobbesCodex/scripts/remote/check_phase4a_web_research_fallback.sh)
+  - added [apply_phase4a_web_fallback_hotfix.sh](/Users/sergeysobolev/HobbesCodex/scripts/remote/apply_phase4a_web_fallback_hotfix.sh)
+  - confirmed VPS smoke result `WEB_RESEARCH_FALLBACK_OK`

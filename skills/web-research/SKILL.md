@@ -25,6 +25,17 @@ Use this skill for current external information.
    - interpretations
    - open questions
 5. Return a short digest with links.
+6. If direct search is unavailable, fall back to a small trusted-source sweep with `web_fetch` or `browser` instead of stopping immediately.
+
+## Fallback sources
+
+When direct search is unavailable, prefer a short sweep of high-signal sources such as:
+
+- Reuters
+- AP News
+- BBC
+- official company or government notices
+- regulator or port authority updates when relevant
 
 ## Output pattern
 
