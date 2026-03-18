@@ -26,10 +26,10 @@ What works now:
 - `channels.telegram.groupPolicy` is no longer `disabled`; it is now compiled as `allowlist`
 - enabled group chats now compile into per-group Telegram entries with:
   - `groupPolicy: open`
-  - `agentId: main`
   - `requireMention` derived from the reply policy
   - per-group `systemPrompt`
 - `main.groupChat.mentionPatterns` is now compiled from the union of activation keywords
+- `channels.telegram.groupAllowFrom` is now compiled as `["*"]` for enabled allowlisted groups so group messages are not silently dropped
 
 What is not yet production-ready:
 
@@ -96,6 +96,8 @@ Current state:
   - `/home/hobbes/.openclaw/runtime/telegram-group-runtime.json`
   - `/home/hobbes/.openclaw/runtime/TELEGRAM_GROUP_POLICIES.md`
 - the live config now depends on clean `chatId` uniqueness and valid JSON
+- the first compiler version incorrectly wrote `agentId` inside `channels.telegram.groups.*`; this broke Telegram startup and had to be removed
+- the first live group rollout also left `groupAllowFrom` empty, which caused group messages to be silently dropped until `["*"]` was compiled for enabled allowlisted groups
 - one real group should be tested first before wider rollout
 
 ### 2. Reminder execution is still partial

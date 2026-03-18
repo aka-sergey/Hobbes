@@ -14,6 +14,7 @@ Changed:
   - `/usr/local/bin/compile-telegram-group-policies.py`
 - compiled Telegram group policies into live `openclaw.json` with:
   - top-level `channels.telegram.groupPolicy = allowlist`
+  - top-level `channels.telegram.groupAllowFrom = ["*"]` for enabled allowlisted groups
   - per-group compiled entries under `channels.telegram.groups`
   - `main.groupChat.mentionPatterns` built from activation keywords
 - added runtime artifacts:
@@ -30,6 +31,11 @@ Verified:
   - compiled group entries for the enabled chats
   - compiled `main.groupChat.mentionPatterns`
 - `openclaw-gateway.service` restarted and returned to `active`
+
+Hotfix follow-up:
+
+- removed invalid `agentId` keys from compiled Telegram group entries after they caused `Config invalid` and broke even direct Telegram replies
+- corrected group sender allowlisting so enabled groups no longer silently drop every incoming message
 
 Residual risk:
 

@@ -153,12 +153,12 @@ def build_runtime(policies: dict, openclaw: dict):
 
         compiled_groups[chat_id] = {
             "groupPolicy": "open",
-            "agentId": "main",
             "requireMention": require_mention,
             "systemPrompt": compile_group_system_prompt(chat)
         }
 
     telegram["groups"] = compiled_groups
+    telegram["groupAllowFrom"] = ["*"] if enabled_chats else []
 
     agents = openclaw.setdefault("agents", {})
     agent_list = agents.setdefault("list", [])
