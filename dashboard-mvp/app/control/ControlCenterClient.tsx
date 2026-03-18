@@ -45,6 +45,11 @@ type HistoryItem = {
   htmlUrl: string | null;
 };
 
+type ConfigHint = {
+  key: string;
+  meaning: string;
+};
+
 function diffSummary(source: string, draft: string): DiffSummary {
   const sourceLines = source.split("\n");
   const draftLines = draft.split("\n");
@@ -175,6 +180,39 @@ function FilePreview({ kind, content }: { kind: "markdown" | "json"; content: st
   return <MarkdownPreview content={content} />;
 }
 
+function getConfigHints(path: string, kind: "markdown" | "json"): ConfigHint[] {
+  if (kind !== "json") {
+    return [];
+  }
+
+  if (path.includes("chat_policies")) {
+    return [
+      { key: "chatId", meaning: "ID Telegram-чата или группы, для которой действует правило." },
+      { key: "enabled", meaning: "Включено ли правило для этого чата." },
+      { key: "persona", meaning: "Роль, в которой бот должен говорить в этом чате." },
+      { key: "replyPolicy.mode", meaning: "Общий режим включения бота: по упоминанию, ответу, ключевым словам." },
+      { key: "activationKeywords", meaning: "Слова-триггеры, по которым бот может включаться сам." },
+      { key: "topicPolicy.allow", meaning: "Темы, на которые бот может реагировать." },
+      { key: "topicPolicy.deny", meaning: "Темы, на которые бот не должен отвечать." },
+      { key: "style", meaning: "Язык, тон и форма ответа." }
+    ];
+  }
+
+  if (path.includes("test_mode")) {
+    return [
+      { key: "enabled", meaning: "Включен ли режим тестирования других ботов." },
+      { key: "allowedOperators", meaning: "Кто имеет право запускать тестовый режим." },
+      { key: "targetChats", meaning: "Какие чаты или боты можно тестировать." },
+      { key: "questionSet", meaning: "Какой набор вопросов использовать для проверки." },
+      { key: "reporting", meaning: "Как сохранять и показывать результаты теста." }
+    ];
+  }
+
+  return [
+    { key: "JSON", meaning: "Конфигурационный файл. Сначала правим смысл, потом применяем в GitHub, затем при необходимости делаем Sync на VPS." }
+  ];
+}
+
 export function ControlCenterClient() {
   const [files, setFiles] = useState<ControlFileListItem[]>([]);
   const [selectedPath, setSelectedPath] = useState<string>("");
@@ -242,6 +280,14 @@ export function ControlCenterClient() {
     }
     return diffSummary(selectedFile.sourceContent, draft);
   }, [draft, selectedFile]);
+
+  const configHints = useMemo(() => {
+    if (!selectedFile) {
+      return [];
+    }
+
+    return getConfigHints(selectedFile.path, selectedFile.kind);
+  }, [selectedFile]);
 
   const hasUnsyncedChanges = useMemo(() => {
     if (!selectedFile) {
@@ -443,16 +489,16 @@ export function ControlCenterClient() {
               </div>
               <div className="control-meta">
                 <span className={selectedFile?.available ? "pill ok" : "pill warn"}>
-                  {selectedFile?.available ? "файл доступен" : "файл недоступен в окружении"}
+                  {selectedFile?.available ? "файл доступен" : "файл недоступен в текущем окружении"}
                 </span>
                 {selectedFile ? (
                   <span className="pill ok">
-                    {selectedFile.sourceBackend === "github" ? "источник: GitHub" : "источник: filesystem"}
+                    {selectedFile.sourceBackend === "github" ? "источник: GitHub" : "источник: локальный файл"}
                   </span>
                 ) : null}
                 {selectedFile ? (
                   <span className="pill ok">
-                    {selectedFile.scope === "repo_and_runtime" ? "repo + runtime" : "только repo"}
+                    {selectedFile.scope === "repo_and_runtime" ? "репозиторий + runtime" : "только репозиторий"}
                   </span>
                 ) : null}
               </div>
@@ -527,7 +573,7 @@ export function ControlCenterClient() {
           </section>
 
           <aside className="card control-preview-card">
-            <h2 className="section-title">Preview и статус</h2>
+            <h2 className="section-title">Предпросмотр и статус</h2>
             {selectedFile?.draftUpdatedAt ? (
               <div className="muted" style={{ marginBottom: "0.75rem" }}>
                 Последний черновик: {new Date(selectedFile.draftUpdatedAt).toLocaleString("ru-RU")}
@@ -552,6 +598,20 @@ export function ControlCenterClient() {
                   открыть файл
                 </a>
                 {selectedFile.repoBranch ? ` • ветка ${selectedFile.repoBranch}` : ""}
+              </div>
+            ) : null}
+
+            {configHints.length > 0 ? (
+              <div className="config-hints-card">
+                <div className="section-title" style={{ marginBottom: "10px" }}>Расшифровка конфига</div>
+                <div className="config-hints-list">
+                  {configHints.map((hint) => (
+                    <div key={hint.key} className="config-hint-item">
+                      <strong className="mono">{hint.key}</strong>
+                      <div className="muted">{hint.meaning}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : null}
 
