@@ -301,7 +301,8 @@ Every file should have one of these scopes:
 Examples:
 
 - `docs/*.md` -> `repo_only`
-- `config/telegram/*.json` -> `repo_only` until wiring is live
+- `config/telegram/chat_policies.example.json` -> `repo_and_runtime` through the Telegram group compiler path
+- `config/telegram/test_mode.example.json` -> `repo_only` until bot-evaluator wiring is live
 - `config/agents/*/workspace/*.md` -> `repo_and_runtime`
 
 ### Two-step apply

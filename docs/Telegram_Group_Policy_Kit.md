@@ -148,7 +148,7 @@ Hobbes should stay silent when:
 
 ## Recommended rollout order
 
-1. keep `groupPolicy` disabled in production
+1. keep top-level Telegram groups on `allowlist`, not globally open
 2. define the chat in [chat_policies.example.json](/Users/sergeysobolev/HobbesCodex/config/telegram/chat_policies.example.json)
 3. enable exactly one small allowlisted group
 4. start in `mention_or_reply`
@@ -163,13 +163,15 @@ Hobbes should stay silent when:
 - owner knows the chat id
 - group members understand when Hobbes will speak
 
-## Honest current limitation
+## Current runtime note
 
-This policy kit is the source of truth and design baseline.
+This policy kit is now connected to a compiler path:
 
-It is not yet proof that:
+- `chat_policies` can be synchronized to the VPS
+- the VPS compiler writes group runtime entries into live `openclaw.json`
+- top-level `groupPolicy` is compiled as `allowlist`
 
-- OpenClaw runtime already consumes the file automatically
-- persistent per-chat routing is fully wired in production
+Still true:
 
-That wiring is the next Telegram implementation step.
+- production quality still depends on live validation in the real target group
+- over-broad keywords can still create noisy activation if the policy is poorly chosen

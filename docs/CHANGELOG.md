@@ -2,6 +2,40 @@
 
 ## 2026-03-18
 
+### Wired Telegram group policy runtime through a compiler-backed sync path
+
+Changed:
+
+- promoted `config/telegram/chat_policies.example.json` from `repo_only` to `repo_and_runtime`
+- added [compile_telegram_group_policies.py](/Users/sergeysobolev/HobbesCodex/scripts/remote/compile_telegram_group_policies.py)
+- taught the runtime sync layer to copy Telegram chat policies to:
+  - `/home/hobbes/.openclaw/policies/chat_policies.json`
+- taught the VPS worker and direct runtime sync path to run:
+  - `/usr/local/bin/compile-telegram-group-policies.py`
+- compiled Telegram group policies into live `openclaw.json` with:
+  - top-level `channels.telegram.groupPolicy = allowlist`
+  - per-group compiled entries under `channels.telegram.groups`
+  - `main.groupChat.mentionPatterns` built from activation keywords
+- added runtime artifacts:
+  - `/home/hobbes/.openclaw/runtime/telegram-group-runtime.json`
+  - `/home/hobbes/.openclaw/runtime/TELEGRAM_GROUP_POLICIES.md`
+- tightened dashboard validation so duplicate `chatId` values in Telegram policy JSON are rejected
+
+Verified:
+
+- the compiler passed locally against `chat_policies + openclaw.phase1.example.json`
+- the updated Telegram runtime compiler was installed on the VPS
+- the live VPS `openclaw.json` now shows:
+  - `groupPolicy: allowlist`
+  - compiled group entries for the enabled chats
+  - compiled `main.groupChat.mentionPatterns`
+- `openclaw-gateway.service` restarted and returned to `active`
+
+Residual risk:
+
+- live validation is still needed in the real Telegram target group
+- keyword triggers are currently compiled as a global union for `main.groupChat.mentionPatterns`, so overly broad keywords can still create noisy activation if the policy is poorly chosen
+
 ### Added a crypto exchange specialist persona template
 
 Changed:

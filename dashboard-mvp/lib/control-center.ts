@@ -93,7 +93,7 @@ const CONTROL_FILE_ITEMS: ControlFileItem[] = [
     section: "Политики",
     description: "Роли и правила реакции Hobbes по группам Telegram.",
     kind: "json",
-    scope: "repo_only"
+    scope: "repo_and_runtime"
   },
   {
     path: "config/telegram/test_mode.example.json",
@@ -494,6 +494,18 @@ export function validateControlContent(kind: ControlFileKind, content: string, p
             ok: false as const,
             message: "Каждый чат в chat policies должен содержать chatId, persona и enabled."
           };
+        }
+
+        const seenChatIds = new Set<string>();
+        for (const entry of parsed.chats as Record<string, unknown>[]) {
+          const chatId = String(entry.chatId ?? "");
+          if (seenChatIds.has(chatId)) {
+            return {
+              ok: false as const,
+              message: `Повторяющийся chatId в chat policies: ${chatId}. Для каждой группы нужна одна уникальная запись.`
+            };
+          }
+          seenChatIds.add(chatId);
         }
       }
 

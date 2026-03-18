@@ -21,6 +21,10 @@ export type RuntimeSyncResult = {
 };
 
 const RUNTIME_TARGETS: Record<string, RuntimeTarget> = {
+  "config/telegram/chat_policies.example.json": {
+    remotePath: "/home/hobbes/.openclaw/policies/chat_policies.json",
+    restartRequired: true
+  },
   "config/agents/main/workspace/PERSONAS.md": {
     remotePath: "/home/hobbes/.openclaw/workspace-main/PERSONAS.md",
     restartRequired: true
@@ -61,6 +65,14 @@ function getRuntimeSyncConfig(): RuntimeSyncConfig | null {
   }
 
   return { host, user, password };
+}
+
+function getPostSyncHook(pathValue: string) {
+  if (pathValue === "config/telegram/chat_policies.example.json") {
+    return "python3 /usr/local/bin/compile-telegram-group-policies.py";
+  }
+
+  return null;
 }
 
 export function hasRuntimeSync() {
@@ -199,6 +211,11 @@ export async function syncRuntimeFile(pathValue: string, content: string): Promi
         client,
         `install -o hobbes -g hobbes -m 644 ${JSON.stringify(remoteTmp)} ${JSON.stringify(target.remotePath)} && rm -f ${JSON.stringify(remoteTmp)}`
       );
+
+      const postSyncHook = getPostSyncHook(pathValue);
+      if (postSyncHook) {
+        await execCommand(client, postSyncHook);
+      }
 
       let serviceState = "not_restarted";
       let healthState = "not_checked";

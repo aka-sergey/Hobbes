@@ -10,7 +10,8 @@ Enable the dashboard `Sync на VPS` button for `repo_and_runtime` files even wh
 2. The dashboard creates a runtime sync job in Postgres.
 3. A small worker on the VPS polls the dashboard queue over HTTPS.
 4. The worker writes the file into the live OpenClaw workspace.
-5. The worker restarts `openclaw-gateway.service`.
+5. For Telegram chat policies, the worker runs the policy compiler first.
+6. The worker restarts `openclaw-gateway.service`.
 
 This is safer than mutating runtime files directly from the Railway container.
 
@@ -69,6 +70,9 @@ WantedBy=timers.target
 - direct SSH sync from Railway is still attempted first
 - if Railway cannot complete the SSH handshake, the dashboard falls back to a queued runtime sync job
 - the VPS worker is then expected to apply that queued job
+- for Telegram group chat policies, the worker also runs:
+  - `/usr/local/bin/compile-telegram-group-policies.py`
+  before the gateway restart
 
 ## Readiness note
 
@@ -85,6 +89,7 @@ For that reason, the worker currently treats the sync as successful when:
 
 Only allowlisted files are eligible:
 
+- `config/telegram/chat_policies.example.json`
 - `config/agents/main/workspace/PERSONAS.md`
 - `config/agents/main/workspace/REMINDERS.md`
 - `config/agents/chief/workspace/REMINDERS.md`

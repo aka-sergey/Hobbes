@@ -22,10 +22,18 @@ What works now:
 - routed Telegram work is possible
 - Russian can now be treated as the default operator language for Sergey
 - Wave 4B behavior contracts for persona, reminders, meeting prep, and document shaping are prepared and installed as a baseline
+- Telegram group transport is now compiled into live `openclaw.json` from `chat_policies`
+- `channels.telegram.groupPolicy` is no longer `disabled`; it is now compiled as `allowlist`
+- enabled group chats now compile into per-group Telegram entries with:
+  - `groupPolicy: open`
+  - `agentId: main`
+  - `requireMention` derived from the reply policy
+  - per-group `systemPrompt`
+- `main.groupChat.mentionPatterns` is now compiled from the union of activation keywords
 
 What is not yet production-ready:
 
-- group-chat behavior by persona is not yet enabled in production
+- group-chat behavior is now wired at the transport/config level, but still needs live user validation in the real target group
 - durable reminders are not yet proven as a real scheduler-backed delivery system
 - bot-to-bot test mode is not yet wired into a live Telegram runtime path
 - search quality in Telegram still remains mixed for:
@@ -71,7 +79,7 @@ It is not yet the same thing as:
 
 ## Telegram gaps still open
 
-### 1. Group personas are not yet activated
+### 1. Group personas are now compiled, but still need live validation
 
 Needed before activation:
 
@@ -80,6 +88,15 @@ Needed before activation:
 - topic allow and deny lists
 - clear "when Hobbes speaks" triggers
 - clear "when Hobbes stays silent" rules
+
+Current state:
+
+- the compiler now turns `config/telegram/chat_policies.example.json` into live Telegram group config
+- runtime artifacts are written to:
+  - `/home/hobbes/.openclaw/runtime/telegram-group-runtime.json`
+  - `/home/hobbes/.openclaw/runtime/TELEGRAM_GROUP_POLICIES.md`
+- the live config now depends on clean `chatId` uniqueness and valid JSON
+- one real group should be tested first before wider rollout
 
 ### 2. Reminder execution is still partial
 
@@ -118,10 +135,10 @@ Still weak:
 
 The safest next implementation step is:
 
-1. keep production groups disabled
+1. keep Telegram groups on `allowlist`, not open globally
 2. define explicit chat policy in a config file
 3. define test mode separately from normal chats
-4. enable one allowlisted group at a time
+4. validate exactly one real allowlisted group at a time
 
 ## Artifacts added for the next Telegram pass
 
