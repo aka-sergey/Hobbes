@@ -1,7 +1,8 @@
 import { access, readFile } from "node:fs/promises";
 import path from "node:path";
 import { ensureSchema, getSql, hasDatabase } from "./db";
-import { getGitHubFile, hasGitHubControl, updateGitHubFile } from "./github-control";
+import { getGitHubFile, hasGitHubControl, listGitHubFileHistory, updateGitHubFile } from "./github-control";
+import { getRuntimeTarget, hasRuntimeSync, syncRuntimeFile } from "./runtime-sync";
 
 export type ControlFileScope = "repo_only" | "repo_and_runtime";
 export type ControlFileKind = "markdown" | "json";
@@ -240,6 +241,16 @@ export async function getControlFile(pathValue: string) {
   };
 }
 
+export async function getControlFileHistory(pathValue: string) {
+  const item = CONTROL_FILE_ITEMS.find((entry) => entry.path === pathValue);
+
+  if (!item) {
+    return null;
+  }
+
+  return listGitHubFileHistory(item.path, 10);
+}
+
 export async function applyControlFileToRepo(pathValue: string, content: string) {
   const item = CONTROL_FILE_ITEMS.find((entry) => entry.path === pathValue);
 
@@ -251,7 +262,7 @@ export async function applyControlFileToRepo(pathValue: string, content: string)
     throw new Error("github_control_not_configured");
   }
 
-  const validation = validateControlContent(item.kind, content);
+  const validation = validateControlContent(item.kind, content, item.path);
 
   if (!validation.ok) {
     throw new Error(validation.message);
@@ -264,6 +275,38 @@ export async function applyControlFileToRepo(pathValue: string, content: string)
     ...result,
     validation
   };
+}
+
+export async function syncControlFileToRuntime(pathValue: string) {
+  const item = CONTROL_FILE_ITEMS.find((entry) => entry.path === pathValue);
+
+  if (!item) {
+    throw new Error("file_not_allowed");
+  }
+
+  if (item.scope !== "repo_and_runtime") {
+    throw new Error("runtime_sync_not_allowed_for_scope");
+  }
+
+  if (!hasGitHubControl()) {
+    throw new Error("github_control_not_configured");
+  }
+
+  if (!hasRuntimeSync()) {
+    throw new Error("runtime_sync_not_configured");
+  }
+
+  if (!getRuntimeTarget(item.path)) {
+    throw new Error("runtime_target_not_allowed");
+  }
+
+  const file = await getControlFile(item.path);
+
+  if (!file?.available) {
+    throw new Error("source_not_available");
+  }
+
+  return syncRuntimeFile(item.path, file.sourceContent);
 }
 
 export async function getDraft(pathValue: string) {
@@ -306,10 +349,50 @@ export async function saveDraft(pathValue: string, kind: ControlFileKind, conten
   return rows[0];
 }
 
-export function validateControlContent(kind: ControlFileKind, content: string) {
+export function validateControlContent(kind: ControlFileKind, content: string, pathValue?: string) {
   if (kind === "json") {
     try {
-      JSON.parse(content);
+      const parsed = JSON.parse(content) as Record<string, unknown>;
+
+      if (pathValue === "config/telegram/chat_policies.example.json") {
+        if (typeof parsed.version !== "number") {
+          return { ok: false as const, message: "В chat policies должен быть числовой version." };
+        }
+
+        if (!Array.isArray(parsed.chats)) {
+          return { ok: false as const, message: "В chat policies должен быть массив chats." };
+        }
+
+        const invalidChat = parsed.chats.find((entry) => {
+          if (!entry || typeof entry !== "object") {
+            return true;
+          }
+
+          const row = entry as Record<string, unknown>;
+          return typeof row.chatId !== "string" || typeof row.persona !== "string" || typeof row.enabled !== "boolean";
+        });
+
+        if (invalidChat) {
+          return {
+            ok: false as const,
+            message: "Каждый чат в chat policies должен содержать chatId, persona и enabled."
+          };
+        }
+      }
+
+      if (pathValue === "config/telegram/test_mode.example.json") {
+        const requiredKeys = ["trigger", "target", "execution", "questionnaire", "report"];
+
+        for (const key of requiredKeys) {
+          if (!(key in parsed)) {
+            return {
+              ok: false as const,
+              message: `В test mode отсутствует обязательный раздел: ${key}.`
+            };
+          }
+        }
+      }
+
       return {
         ok: true as const,
         message: "JSON валиден."
@@ -326,6 +409,43 @@ export function validateControlContent(kind: ControlFileKind, content: string) {
     return {
       ok: false as const,
       message: "Markdown не должен быть пустым."
+    };
+  }
+
+  if (!content.includes("# ")) {
+    return {
+      ok: false as const,
+      message: "В Markdown должен быть хотя бы один заголовок первого уровня."
+    };
+  }
+
+  if (pathValue?.endsWith("PERSONAS.md") && !content.includes("## `")) {
+    return {
+      ok: false as const,
+      message: "В PERSONAS.md ожидаются секции персон вида ## `persona_name`."
+    };
+  }
+
+  if (pathValue?.endsWith("REMINDERS.md")) {
+    if (!content.includes("Normalize into:") || !content.includes("Rules:")) {
+      return {
+        ok: false as const,
+        message: "В REMINDERS.md должны быть блоки Normalize into: и Rules:."
+      };
+    }
+  }
+
+  if (pathValue?.endsWith("MEETING_PREP.md") && !content.toLowerCase().includes("meeting")) {
+    return {
+      ok: false as const,
+      message: "В MEETING_PREP.md ожидается явное упоминание meeting/встреч."
+    };
+  }
+
+  if (pathValue?.endsWith("DOCUMENT_SHAPES.md") && !content.toLowerCase().includes("draft")) {
+    return {
+      ok: false as const,
+      message: "В DOCUMENT_SHAPES.md ожидается описание draft/document shapes."
     };
   }
 

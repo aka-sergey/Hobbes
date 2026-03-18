@@ -222,17 +222,19 @@ Implemented in the current baseline:
 
 - `Сохранить черновик`
 - `Применить в GitHub`
+- `Sync на VPS`
 - `Сбросить к исходнику`
+- история commit'ов по выбранному файлу
 
 Current behavior:
 
 - drafts are stored in Postgres
 - source-of-truth editing on Railway is now GitHub-backed, not filesystem-backed
 - allowlisted files can be read from GitHub and committed back through the dashboard
+- selected `repo_and_runtime` files can be explicitly synced to the Hobbes VPS from the same UI
 
 Still not in scope of the current baseline:
 
-- direct VPS runtime sync from the UI
 - arbitrary file editing outside the allowlist
 - secret management
 - destructive operations without a dedicated safe workflow
@@ -243,7 +245,7 @@ For the control center, the source of truth is now:
 
 1. GitHub repo for editable policy/docs/config files
 2. PostgreSQL for temporary drafts and UI state
-3. VPS runtime only after an explicit future sync/deploy action
+3. VPS runtime only after an explicit sync/deploy action
 
 This separation is intentional:
 
@@ -253,7 +255,7 @@ This separation is intentional:
 
 ## Current limitation
 
-`repo_and_runtime` files can now be edited safely in the repo from the dashboard, but they are **not** automatically propagated to the VPS runtime yet.
+`repo_and_runtime` files can now be edited safely in the repo from the dashboard and then propagated to the VPS runtime through an explicit sync action.
 
 That means the current control center is suitable for:
 
@@ -261,10 +263,10 @@ That means the current control center is suitable for:
 - editing policies
 - editing agent behavior contracts
 - committing changes safely to GitHub
+- syncing selected runtime-facing policy files to the live Hobbes VPS
 
 But not yet sufficient for:
 
-- one-click production sync to OpenClaw workspaces
 - runtime rollback on the VPS
 - full deployment orchestration from the dashboard
 Recommended buttons:

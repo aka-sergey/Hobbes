@@ -18,15 +18,21 @@ Changed:
   - show whether a file is sourced from GitHub or local filesystem
   - keep draft save in Postgres
   - apply edited content directly to the repo through a dedicated `Применить в GitHub` action
+  - show recent file commit history inside `/control`
+  - allow explicit `Sync на VPS` for selected `repo_and_runtime` files
+- added runtime sync support for allowlisted workspace policy files used by `main`, `chief`, and `comms`
+- made validation stricter:
+  - structural markdown validation for persona/reminder/meeting/document files
+  - path-aware JSON validation for Telegram policy files
 
 Verified:
 
-- local `dashboard-mvp` build passed with the new GitHub-backed control flow
+- local `dashboard-mvp` build passed with the new GitHub-backed control flow and runtime sync routes
 
 Operational note:
 
 - the Railway dashboard can now edit the allowlisted repo files even though the service does not mount the full repository root locally
-- runtime sync to the VPS is still a separate concern for `repo_and_runtime` files
+- runtime sync to the VPS is now an explicit control-center action after the GitHub version is updated
 
 ### Added category-aware search routing baseline and documented the current checkpoint
 

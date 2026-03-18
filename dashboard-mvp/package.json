@@ -13,12 +13,14 @@
     "postgres": "3.4.7",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "ssh2": "^1.15.0",
     "zod": "3.24.3"
   },
   "devDependencies": {
     "@types/node": "22.15.3",
     "@types/react": "19.1.2",
     "@types/react-dom": "19.1.2",
+    "@types/ssh2": "^1.15.5",
     "typescript": "5.8.3"
   }
 }

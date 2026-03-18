@@ -37,6 +37,14 @@ type DiffSummary = {
   changedLines: number;
 };
 
+type HistoryItem = {
+  sha: string;
+  message: string;
+  authorName: string | null;
+  committedAt: string | null;
+  htmlUrl: string | null;
+};
+
 function diffSummary(source: string, draft: string): DiffSummary {
   const sourceLines = source.split("\n");
   const draftLines = draft.split("\n");
@@ -175,7 +183,9 @@ export function ControlCenterClient() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [applying, setApplying] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const [message, setMessage] = useState<string>("");
+  const [history, setHistory] = useState<HistoryItem[]>([]);
 
   useEffect(() => {
     const run = async () => {
@@ -199,12 +209,20 @@ export function ControlCenterClient() {
 
     const run = async () => {
       setMessage("");
-      const response = await fetch(`/api/control/file?path=${encodeURIComponent(selectedPath)}`, {
-        cache: "no-store"
-      });
-      const data = await response.json();
+      const [fileResponse, historyResponse] = await Promise.all([
+        fetch(`/api/control/file?path=${encodeURIComponent(selectedPath)}`, {
+          cache: "no-store"
+        }),
+        fetch(`/api/control/history?path=${encodeURIComponent(selectedPath)}`, {
+          cache: "no-store"
+        })
+      ]);
+
+      const data = await fileResponse.json();
+      const historyData = await historyResponse.json();
       setSelectedFile(data.file ?? null);
       setDraft(data.file?.draftContent ?? "");
+      setHistory(historyData.history ?? []);
     };
 
     void run();
@@ -223,6 +241,14 @@ export function ControlCenterClient() {
       return null;
     }
     return diffSummary(selectedFile.sourceContent, draft);
+  }, [draft, selectedFile]);
+
+  const hasUnsyncedChanges = useMemo(() => {
+    if (!selectedFile) {
+      return false;
+    }
+
+    return draft !== selectedFile.sourceContent;
   }, [draft, selectedFile]);
 
   async function handleSaveDraft() {
@@ -289,15 +315,58 @@ export function ControlCenterClient() {
       return;
     }
 
-    const refreshedResponse = await fetch(`/api/control/file?path=${encodeURIComponent(selectedFile.path)}`, {
-      cache: "no-store"
-    });
+    const [refreshedResponse, historyResponse] = await Promise.all([
+      fetch(`/api/control/file?path=${encodeURIComponent(selectedFile.path)}`, {
+        cache: "no-store"
+      }),
+      fetch(`/api/control/history?path=${encodeURIComponent(selectedFile.path)}`, {
+        cache: "no-store"
+      })
+    ]);
     const refreshedData = await refreshedResponse.json();
+    const historyData = await historyResponse.json();
     setSelectedFile(refreshedData.file ?? null);
     setDraft(refreshedData.file?.draftContent ?? draft);
+    setHistory(historyData.history ?? []);
 
     const commitSha = data.result?.commitSha ? String(data.result.commitSha).slice(0, 7) : null;
     setMessage(commitSha ? `Изменения записаны в GitHub. Коммит: ${commitSha}` : "Изменения записаны в GitHub.");
+  }
+
+  async function handleSyncRuntime() {
+    if (!selectedFile) {
+      return;
+    }
+
+    if (hasUnsyncedChanges) {
+      setMessage("Сначала примените правки в GitHub, затем синхронизируйте VPS.");
+      return;
+    }
+
+    setSyncing(true);
+    setMessage("");
+
+    const response = await fetch("/api/control/sync-runtime", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        path: selectedFile.path
+      })
+    });
+
+    const data = await response.json();
+    setSyncing(false);
+
+    if (!response.ok) {
+      setMessage(data.message ?? "Не удалось синхронизировать файл на VPS.");
+      return;
+    }
+
+    setMessage(
+      `Файл отправлен на VPS. Сервис: ${data.result?.serviceState ?? "unknown"}, health: ${data.result?.healthState ?? "unknown"}.`
+    );
   }
 
   return (
@@ -326,6 +395,10 @@ export function ControlCenterClient() {
             <div className="help-item">
               <strong>3. Сохраните черновик</strong>
               <p>Черновик можно сохранить в базе, а затем отдельно применить изменения в GitHub одной кнопкой.</p>
+            </div>
+            <div className="help-item">
+              <strong>4. Sync на VPS</strong>
+              <p>Для runtime-файлов сначала примените правки в GitHub, а затем докатите их на рабочий сервер Hobbes.</p>
             </div>
           </div>
         </section>
@@ -407,6 +480,14 @@ export function ControlCenterClient() {
                 {applying ? "Применяю…" : "Применить в GitHub"}
               </button>
               <button
+                className="action-button primary"
+                type="button"
+                onClick={() => void handleSyncRuntime()}
+                disabled={!selectedFile || selectedFile.scope !== "repo_and_runtime" || syncing}
+              >
+                {syncing ? "Синхронизирую…" : "Sync на VPS"}
+              </button>
+              <button
                 className="action-button"
                 type="button"
                 onClick={() => setDraft(selectedFile?.sourceContent ?? "")}
@@ -417,6 +498,12 @@ export function ControlCenterClient() {
             </div>
 
             {message ? <div className="control-message">{message}</div> : null}
+
+            {hasUnsyncedChanges ? (
+              <div className="control-warning" style={{ marginTop: "0.75rem" }}>
+                В редакторе есть изменения, которых еще нет в GitHub. `Sync на VPS` лучше делать только после `Применить в GitHub`.
+              </div>
+            ) : null}
 
             {summary ? (
               <div className="control-summary">
@@ -466,6 +553,38 @@ export function ControlCenterClient() {
             ) : null}
 
             <FilePreview kind={selectedFile?.kind ?? "markdown"} content={draft} />
+
+            <div style={{ marginTop: "1.5rem" }}>
+              <h3 className="section-title">История изменений</h3>
+              {history.length === 0 ? (
+                <div className="muted">История по этому файлу пока не найдена.</div>
+              ) : (
+                <div className="control-history-list">
+                  {history.map((entry) => (
+                    <div key={entry.sha} className="control-history-item">
+                      <div className="row" style={{ justifyContent: "space-between", gap: "0.75rem" }}>
+                        <strong className="mono">{entry.sha.slice(0, 7)}</strong>
+                        <span className="muted">
+                          {entry.committedAt ? new Date(entry.committedAt).toLocaleString("ru-RU") : "дата неизвестна"}
+                        </span>
+                      </div>
+                      <div style={{ marginTop: "0.35rem" }}>{entry.message}</div>
+                      <div className="muted" style={{ marginTop: "0.35rem" }}>
+                        {entry.authorName ?? "автор неизвестен"}
+                        {entry.htmlUrl ? (
+                          <>
+                            {" • "}
+                            <a href={entry.htmlUrl} target="_blank" rel="noreferrer">
+                              открыть commit
+                            </a>
+                          </>
+                        ) : null}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </aside>
         </section>
       </div>

@@ -21,6 +21,14 @@ type GitHubCommitResult = {
   branch: string;
 };
 
+export type GitHubFileHistoryItem = {
+  sha: string;
+  message: string;
+  authorName: string | null;
+  committedAt: string | null;
+  htmlUrl: string | null;
+};
+
 function getGitHubConfig(): GitHubControlConfig | null {
   const token = process.env.GITHUB_TOKEN;
   const owner = process.env.GITHUB_REPO_OWNER;
@@ -153,3 +161,37 @@ export async function updateGitHubFile(pathValue: string, content: string, messa
   };
 }
 
+export async function listGitHubFileHistory(pathValue: string, limit = 10): Promise<GitHubFileHistoryItem[]> {
+  const config = getGitHubConfig();
+
+  if (!config) {
+    return [];
+  }
+
+  const url = `https://api.github.com/repos/${config.owner}/${config.repo}/commits?path=${encodeURIComponent(pathValue)}&sha=${encodeURIComponent(config.branch)}&per_page=${limit}`;
+  const response = await requestGitHub(url);
+
+  if (!response.ok) {
+    throw new Error(`github_history_failed:${response.status}`);
+  }
+
+  const payload = (await response.json()) as Array<{
+    sha: string;
+    html_url?: string;
+    commit?: {
+      message?: string;
+      author?: {
+        name?: string;
+        date?: string;
+      };
+    };
+  }>;
+
+  return payload.map((entry) => ({
+    sha: entry.sha,
+    message: entry.commit?.message ?? "",
+    authorName: entry.commit?.author?.name ?? null,
+    committedAt: entry.commit?.author?.date ?? null,
+    htmlUrl: entry.html_url ?? null
+  }));
+}

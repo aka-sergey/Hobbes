@@ -329,6 +329,18 @@ main {
   border: 1px solid color-mix(in srgb, var(--warn) 32%, white 68%);
 }
 
+.control-history-list {
+  display: grid;
+  gap: 10px;
+}
+
+.control-history-item {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--line);
+}
+
 .preview-markdown {
   display: grid;
   gap: 10px;
