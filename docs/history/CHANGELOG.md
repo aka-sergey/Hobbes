@@ -2,11 +2,40 @@
 
 ## 2026-03-18
 
+### Verified live Telegram behavior-profile rollout on the VPS
+
+Changed:
+
+- confirmed that Telegram sharp-tone and persona profiles are now live runtime inputs, not only repo schema
+- installed the updated VPS-side copies of:
+  - `/usr/local/bin/compile-telegram-group-policies.py`
+  - `/usr/local/bin/hobbes-control-sync-worker.py`
+- copied `behavior_profiles` to the live VPS path:
+  - `/home/hobbes/.openclaw/policies/behavior_profiles.json`
+- recompiled Telegram runtime and restarted `openclaw-gateway.service`
+- verified the target crypto group now resolves to:
+  - `profileId = unfiltered_ham`
+  - `persona = unfiltered_ham`
+  - `tone = unfiltered_ham`
+  - `allowSharpTone = true`
+  - `usesSlang = true`
+
+Verified:
+
+- `/home/hobbes/.openclaw/runtime/telegram-group-runtime.json` now contains resolved behavior-profile metadata
+- live `openclaw.json` now carries the compiled prompt built from profile + chat overrides
+- a direct model probe against the live compiled prompt produced a clearly harsh, slang-heavy answer instead of a soft neutral one
+
+Operational note:
+
+- the dashboard `Sync на VPS` path can appear successful while the VPS still runs an older compiler if the server-side scripts were not updated
+- when Telegram group style looks wrong, inspect the live runtime artifacts on the VPS before assuming the dashboard JSON is the final truth
+
 ### Added a Russian user guide for the dashboard control center
 
 Changed:
 
-- added [Dashboard_Control_Center_Guide_RU.md](/Users/sergeysobolev/HobbesCodex/docs/Dashboard_Control_Center_Guide_RU.md)
+- added [Dashboard_Control_Center_Guide_RU.md](/Users/sergeysobolev/HobbesCodex/docs/dashboard/Dashboard_Control_Center_Guide_RU.md)
 
 Purpose:
 
@@ -128,9 +157,9 @@ Changed:
   - `preferredBackend`
   - `preferredAgent`
 - added docs:
-  - [Search_Router_Taxonomy.md](/Users/sergeysobolev/HobbesCodex/docs/Search_Router_Taxonomy.md)
-  - [Search_Router_Implementation.md](/Users/sergeysobolev/HobbesCodex/docs/Search_Router_Implementation.md)
-  - [Search_Current_State_2026-03-18.md](/Users/sergeysobolev/HobbesCodex/docs/Search_Current_State_2026-03-18.md)
+  - [Search_Router_Taxonomy.md](/Users/sergeysobolev/HobbesCodex/docs/architecture/Search_Router_Taxonomy.md)
+  - [Search_Router_Implementation.md](/Users/sergeysobolev/HobbesCodex/docs/architecture/Search_Router_Implementation.md)
+  - [Search_Current_State_2026-03-18.md](/Users/sergeysobolev/HobbesCodex/docs/current-state/Search_Current_State_2026-03-18.md)
 
 Verified:
 
@@ -204,7 +233,7 @@ Added in repo:
   - `meeting-prep`
   - `document-drafter`
   - `personal-memory`
-- `docs/Phase_04_Skills_Rollout_Plan.md`
+- `docs/rollout/Phase_04_Skills_Rollout_Plan.md`
 
 Planning decisions:
 
@@ -242,7 +271,7 @@ Current limitations:
 
 Artifacts:
 
-- implementation notes recorded in `docs/Dashboard_LiveIngest_Installation.md`
+- implementation notes recorded in `docs/dashboard/Dashboard_LiveIngest_Installation.md`
 
 ### Added initial skills and dashboard MVP foundation
 
@@ -253,8 +282,8 @@ Added in repo:
   - `routing-regression`
   - `agent-contract-linter`
   - `dashboard-product`
-- `docs/Skills_And_MCP_Plan.md`
-- `docs/Dashboard_MVP_Architecture.md`
+- `docs/architecture/Skills_And_MCP_Plan.md`
+- `docs/architecture/Dashboard_MVP_Architecture.md`
 - `dashboard-mvp/` Next.js scaffold for a Railway-ready observability UI
 
 Product direction:
@@ -288,7 +317,7 @@ Residual issue:
 
 Artifacts:
 
-- Phase 3 closeout recorded in `docs/Phase_03_Closeout.md`
+- Phase 3 closeout recorded in `docs/rollout/Phase_03_Closeout.md`
 
 ### Prepared the Phase 3 workhorse rollout kit
 
@@ -307,7 +336,7 @@ Design decision:
 Status:
 
 - prepared in the repo
-- later deployed and validated as recorded in `docs/Phase_03_Closeout.md`
+- later deployed and validated as recorded in `docs/rollout/Phase_03_Closeout.md`
 
 ### Completed the first Phase 2 control-layer rollout
 
@@ -339,7 +368,7 @@ Stabilization work:
 Artifacts:
 
 - Phase 2 session-reset backup stored on VPS at `/root/openclaw-main-session-reset-20260316-235351`
-- Phase 2 closeout recorded in `docs/Phase_02_Closeout.md`
+- Phase 2 closeout recorded in `docs/rollout/Phase_02_Closeout.md`
 
 Residual Phase 2 work:
 
@@ -418,33 +447,33 @@ Added:
   - added installer [setup_tavily_integration.sh](/Users/sergeysobolev/HobbesCodex/scripts/remote/setup_tavily_integration.sh)
   - added check script [check_tavily_integration.sh](/Users/sergeysobolev/HobbesCodex/scripts/remote/check_tavily_integration.sh)
   - updated `web-research`, `research`, and `chief` contracts to prefer Tavily when available
-  - documented the rollout in [Tavily_Integration_Plan.md](/Users/sergeysobolev/HobbesCodex/docs/Tavily_Integration_Plan.md)
+  - documented the rollout in [Tavily_Integration_Plan.md](/Users/sergeysobolev/HobbesCodex/docs/architecture/Tavily_Integration_Plan.md)
 - 2026-03-17: removed Brave-style `web_search` from Hobbes production routing in practice by hardening `main`, `chief`, and `research` contracts around `Tavily-first` search, non-invented `web_fetch` fallbacks, and internal-session reset guidance for stale routing behavior.
 - Added category-aware search routing baseline:
   - new helper [hobbes_search_router.py](/Users/sergeysobolev/HobbesCodex/scripts/remote/hobbes_search_router.py)
-  - new docs [Search_Router_Taxonomy.md](/Users/sergeysobolev/HobbesCodex/docs/Search_Router_Taxonomy.md) and [Search_Router_Implementation.md](/Users/sergeysobolev/HobbesCodex/docs/Search_Router_Implementation.md)
+  - new docs [Search_Router_Taxonomy.md](/Users/sergeysobolev/HobbesCodex/docs/architecture/Search_Router_Taxonomy.md) and [Search_Router_Implementation.md](/Users/sergeysobolev/HobbesCodex/docs/architecture/Search_Router_Implementation.md)
   - `chief` now has an explicit router-first pattern for search-heavy tasks
   - `research` and `booking` now accept router hints and domain bias
   - dashboard search cards now include route metadata
 # 2026-03-18
 
 - Wave 4B behavior baseline prepared:
-  - added [Phase_04_Wave_4B_Installation.md](/Users/sergeysobolev/HobbesCodex/docs/Phase_04_Wave_4B_Installation.md)
+  - added [Phase_04_Wave_4B_Installation.md](/Users/sergeysobolev/HobbesCodex/docs/rollout/Phase_04_Wave_4B_Installation.md)
   - added installer [setup_phase4b_wave_b.sh](/Users/sergeysobolev/HobbesCodex/scripts/remote/setup_phase4b_wave_b.sh)
   - added checker [check_phase4b_wave_b.sh](/Users/sergeysobolev/HobbesCodex/scripts/remote/check_phase4b_wave_b.sh)
   - added explicit reminder, persona, meeting, and document-shape files for `main`, `chief`, and `comms`
   - updated `main`, `chief`, and `comms` contracts to default to Russian for Sergey in Telegram, keep persona behavior explicit, and avoid false reminder-scheduling claims
   - documented that Wave 4B should be treated as a behavior-layer baseline while Wave 4A search quality still remains mixed in `travel_booking` and `local_maps`
 - Telegram policy and test-mode kit added:
-  - added [Telegram_Current_State_2026-03-18.md](/Users/sergeysobolev/HobbesCodex/docs/Telegram_Current_State_2026-03-18.md)
-  - added [Telegram_Group_Policy_Kit.md](/Users/sergeysobolev/HobbesCodex/docs/Telegram_Group_Policy_Kit.md)
-  - added [Telegram_Test_Mode.md](/Users/sergeysobolev/HobbesCodex/docs/Telegram_Test_Mode.md)
-  - added [Telegram_Bot_Test_Questionnaire.md](/Users/sergeysobolev/HobbesCodex/docs/Telegram_Bot_Test_Questionnaire.md)
+  - added [Telegram_Current_State_2026-03-18.md](/Users/sergeysobolev/HobbesCodex/docs/current-state/Telegram_Current_State_2026-03-18.md)
+  - added [Telegram_Group_Policy_Kit.md](/Users/sergeysobolev/HobbesCodex/docs/telegram/Telegram_Group_Policy_Kit.md)
+  - added [Telegram_Test_Mode.md](/Users/sergeysobolev/HobbesCodex/docs/telegram/Telegram_Test_Mode.md)
+  - added [Telegram_Bot_Test_Questionnaire.md](/Users/sergeysobolev/HobbesCodex/docs/telegram/Telegram_Bot_Test_Questionnaire.md)
   - added [chat_policies.example.json](/Users/sergeysobolev/HobbesCodex/config/telegram/chat_policies.example.json)
   - added [test_mode.example.json](/Users/sergeysobolev/HobbesCodex/config/telegram/test_mode.example.json)
   - expanded Telegram personas with `medical_peer_general`, `logistics_operator`, and `bot_evaluator`
 - Dashboard control-center architecture added:
-  - added [Dashboard_Control_Center_Architecture.md](/Users/sergeysobolev/HobbesCodex/docs/Dashboard_Control_Center_Architecture.md)
+  - added [Dashboard_Control_Center_Architecture.md](/Users/sergeysobolev/HobbesCodex/docs/architecture/Dashboard_Control_Center_Architecture.md)
   - defined the editor UX, safety model, API surface, rollout stages, and allowlisted first file scopes for a real Hobbes operations console
 - Dashboard control-center v1 implemented in `dashboard-mvp`:
   - added `/control`

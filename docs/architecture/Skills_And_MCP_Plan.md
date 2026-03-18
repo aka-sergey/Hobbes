@@ -60,7 +60,7 @@ Postponed:
 
 See:
 
-- `docs/Phase_04_Skills_Rollout_Plan.md`
+- `docs/rollout/Phase_04_Skills_Rollout_Plan.md`
 
 ## MCP Recommendation
 

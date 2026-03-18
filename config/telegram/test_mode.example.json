@@ -29,7 +29,7 @@
     "stopOnRepeatedNonsense": true
   },
   "questionnaire": {
-    "path": "docs/Telegram_Bot_Test_Questionnaire.md",
+    "path": "docs/telegram/Telegram_Bot_Test_Questionnaire.md",
     "selectedSuites": [
       "basic_dialogue",
       "instruction_following",

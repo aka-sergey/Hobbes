@@ -337,11 +337,11 @@ For each Phase 2 agent:
 
 For routing:
 
-- `docs/Phase_02_AgentRouting.md`
+- `docs/rollout/Phase_02_AgentRouting.md`
 
 For approvals:
 
-- `docs/Phase_02_GuardPolicies.md`
+- `docs/rollout/Phase_02_Guard_Contract.md`
 
 ## Testing Plan
 
@@ -460,15 +460,15 @@ That gives you a stable Phase 2 foundation without pretending the whole 9-agent 
 
 Use these during Phase 2A:
 
-- `docs/Phase_02_Chief_Contract.md`
-- `docs/Phase_02_Chief_Installation.md`
+- `docs/rollout/Phase_02_Chief_Contract.md`
+- `docs/rollout/Phase_02_Chief_Installation.md`
 
 Use these during Phase 2B:
 
-- `docs/Phase_02_Comms_Contract.md`
-- `docs/Phase_02_Comms_Installation.md`
+- `docs/rollout/Phase_02_Comms_Contract.md`
+- `docs/rollout/Phase_02_Comms_Installation.md`
 
 Use these during Phase 2C:
 
-- `docs/Phase_02_Guard_Contract.md`
-- `docs/Phase_02_Guard_Installation.md`
+- `docs/rollout/Phase_02_Guard_Contract.md`
+- `docs/rollout/Phase_02_Guard_Installation.md`

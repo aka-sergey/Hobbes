@@ -76,6 +76,58 @@ Not allowed:
 
 If a chat wants a "хам" style, choose one of the three bounded profiles above instead of open-ended toxicity.
 
+## Live rollout status
+
+As of `2026-03-18`, the profile system is no longer only a schema draft.
+
+Verified live on the VPS:
+
+- `/home/hobbes/.openclaw/policies/chat_policies.json` receives dashboard-applied chat config
+- `/home/hobbes/.openclaw/policies/behavior_profiles.json` must exist on the VPS for profile resolution to work
+- `/usr/local/bin/compile-telegram-group-policies.py` must be the new profile-aware compiler
+- `/home/hobbes/.openclaw/runtime/telegram-group-runtime.json` now contains:
+  - resolved `profileId`
+  - resolved `persona`
+  - resolved `memoryPolicy`
+  - resolved `moderation`
+  - resolved `style`
+  - `compiledPrompt`
+- `openclaw-gateway.service` was restarted after the profile-aware rollout and returned to `active`
+
+The `unfiltered_ham` crypto chat was verified in live runtime with:
+
+- `profileId = unfiltered_ham`
+- `persona = unfiltered_ham`
+- `tone = unfiltered_ham`
+- `allowSharpTone = true`
+- `usesSlang = true`
+
+## Important override behavior
+
+Chat-level overrides still win over the selected profile.
+
+This means a chat can accidentally "polish away" a sharp profile if the chat entry contains softer local values such as:
+
+- `moderation.allowSharpTone = false`
+- `style.tone = practical_risk_aware`
+- `style.usesSlang = false`
+
+For sharp profiles, operators should either:
+
+- leave `style` and `moderation` empty at chat level
+- or set them explicitly to match the intended sharp profile
+
+## Practical validation note
+
+The most reliable verification path right now is:
+
+1. apply the config in GitHub
+2. sync to VPS
+3. inspect `/home/hobbes/.openclaw/runtime/telegram-group-runtime.json`
+4. confirm the target chat has the expected resolved fields and `compiledPrompt`
+
+The dashboard preview is useful, but the runtime artifact on the VPS is the final truth.
+
 ## Dashboard workflow
 
 Recommended operator flow:

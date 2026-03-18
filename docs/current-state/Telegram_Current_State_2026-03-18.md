@@ -23,17 +23,35 @@ What works now:
 - Russian can now be treated as the default operator language for Sergey
 - Wave 4B behavior contracts for persona, reminders, meeting prep, and document shaping are prepared and installed as a baseline
 - Telegram group transport is now compiled into live `openclaw.json` from `chat_policies`
+- Telegram behavior profiles are now compiled into live runtime from:
+  - `chat_policies`
+  - `behavior_profiles`
 - `channels.telegram.groupPolicy` is no longer `disabled`; it is now compiled as `allowlist`
 - enabled group chats now compile into per-group Telegram entries with:
   - `groupPolicy: open`
   - `requireMention` derived from the reply policy
   - per-group `systemPrompt`
+- enabled group chats now also compile into runtime snapshot entries with:
+  - resolved `profileId`
+  - resolved `persona`
+  - resolved `memoryPolicy`
+  - resolved `moderation`
+  - resolved `style`
+  - `compiledPrompt`
 - `main.groupChat.mentionPatterns` is now compiled from the union of activation keywords
 - `channels.telegram.groupAllowFrom` is now compiled as `["*"]` for enabled allowlisted groups so group messages are not silently dropped
+- the dashboard control panel now includes a Telegram constructor for:
+  - per-chat policy editing
+  - reusable behavior profile editing
+- the `unfiltered_ham` rollout path has been verified at runtime level on the VPS:
+  - profile resolution works
+  - sharp tone flags survive sync
+  - the final compiled prompt contains the harsh-tone instructions
 
 What is not yet production-ready:
 
 - group-chat behavior is now wired at the transport/config level, but still needs live user validation in the real target group
+- direct CLI simulation of a Telegram group turn is still awkward and should not be treated as the primary proof path
 - durable reminders are not yet proven as a real scheduler-backed delivery system
 - bot-to-bot test mode is not yet wired into a live Telegram runtime path
 - search quality in Telegram still remains mixed for:
@@ -92,12 +110,19 @@ Needed before activation:
 Current state:
 
 - the compiler now turns `config/telegram/chat_policies.example.json` into live Telegram group config
+- the compiler now also depends on:
+  - `config/telegram/behavior_profiles.example.json`
 - runtime artifacts are written to:
   - `/home/hobbes/.openclaw/runtime/telegram-group-runtime.json`
   - `/home/hobbes/.openclaw/runtime/TELEGRAM_GROUP_POLICIES.md`
 - the live config now depends on clean `chatId` uniqueness and valid JSON
+- the profile-aware rollout also depends on:
+  - `/home/hobbes/.openclaw/policies/behavior_profiles.json` existing on the VPS
+  - `/usr/local/bin/compile-telegram-group-policies.py` being the updated profile-aware version
+  - `/usr/local/bin/hobbes-control-sync-worker.py` being the updated sync worker version
 - the first compiler version incorrectly wrote `agentId` inside `channels.telegram.groups.*`; this broke Telegram startup and had to be removed
 - the first live group rollout also left `groupAllowFrom` empty, which caused group messages to be silently dropped until `["*"]` was compiled for enabled allowlisted groups
+- one later rollout gap was that the VPS still had the old compiler and no `behavior_profiles.json`; this caused chat policies to sync while profile resolution silently stayed old until the VPS scripts were updated
 - one real group should be tested first before wider rollout
 
 ### 2. Reminder execution is still partial
@@ -145,7 +170,9 @@ The safest next implementation step is:
 ## Artifacts added for the next Telegram pass
 
 - [chat_policies.example.json](/Users/sergeysobolev/HobbesCodex/config/telegram/chat_policies.example.json)
+- [behavior_profiles.example.json](/Users/sergeysobolev/HobbesCodex/config/telegram/behavior_profiles.example.json)
 - [test_mode.example.json](/Users/sergeysobolev/HobbesCodex/config/telegram/test_mode.example.json)
-- [Telegram_Group_Policy_Kit.md](/Users/sergeysobolev/HobbesCodex/docs/Telegram_Group_Policy_Kit.md)
-- [Telegram_Test_Mode.md](/Users/sergeysobolev/HobbesCodex/docs/Telegram_Test_Mode.md)
-- [Telegram_Bot_Test_Questionnaire.md](/Users/sergeysobolev/HobbesCodex/docs/Telegram_Bot_Test_Questionnaire.md)
+- [Telegram_Group_Policy_Kit.md](/Users/sergeysobolev/HobbesCodex/docs/telegram/Telegram_Group_Policy_Kit.md)
+- [Telegram_Behavior_Profiles.md](/Users/sergeysobolev/HobbesCodex/docs/telegram/Telegram_Behavior_Profiles.md)
+- [Telegram_Test_Mode.md](/Users/sergeysobolev/HobbesCodex/docs/telegram/Telegram_Test_Mode.md)
+- [Telegram_Bot_Test_Questionnaire.md](/Users/sergeysobolev/HobbesCodex/docs/telegram/Telegram_Bot_Test_Questionnaire.md)

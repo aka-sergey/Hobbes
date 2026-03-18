@@ -295,8 +295,8 @@ Core files added:
 - [hobbes_search_router.py](/Users/sergeysobolev/HobbesCodex/scripts/remote/hobbes_search_router.py)
 - [check_search_router.sh](/Users/sergeysobolev/HobbesCodex/scripts/remote/check_search_router.sh)
 - [setup_search_router.sh](/Users/sergeysobolev/HobbesCodex/scripts/remote/setup_search_router.sh)
-- [Search_Router_Taxonomy.md](/Users/sergeysobolev/HobbesCodex/docs/Search_Router_Taxonomy.md)
-- [Search_Router_Implementation.md](/Users/sergeysobolev/HobbesCodex/docs/Search_Router_Implementation.md)
+- [Search_Router_Taxonomy.md](/Users/sergeysobolev/HobbesCodex/docs/architecture/Search_Router_Taxonomy.md)
+- [Search_Router_Implementation.md](/Users/sergeysobolev/HobbesCodex/docs/architecture/Search_Router_Implementation.md)
 
 ## Where we stopped
 

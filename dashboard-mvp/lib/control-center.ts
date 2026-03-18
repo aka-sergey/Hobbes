@@ -51,7 +51,7 @@ const COMMS_PERSONAS_PATH = "config/agents/comms/workspace/PERSONAS.md";
 
 const CONTROL_FILE_ITEMS: ControlFileItem[] = [
   {
-    path: "docs/Telegram_Current_State_2026-03-18.md",
+    path: "docs/current-state/Telegram_Current_State_2026-03-18.md",
     label: "Текущий статус Telegram",
     section: "Документы",
     description: "Актуальный checkpoint по Telegram-слою Hobbes.",
@@ -59,7 +59,7 @@ const CONTROL_FILE_ITEMS: ControlFileItem[] = [
     scope: "repo_only"
   },
   {
-    path: "docs/Telegram_Group_Policy_Kit.md",
+    path: "docs/telegram/Telegram_Group_Policy_Kit.md",
     label: "Политики групп Telegram",
     section: "Политики",
     description: "Правила ролей, триггеров включения и молчания бота в группах.",
@@ -67,7 +67,7 @@ const CONTROL_FILE_ITEMS: ControlFileItem[] = [
     scope: "repo_only"
   },
   {
-    path: "docs/Telegram_Behavior_Profiles.md",
+    path: "docs/telegram/Telegram_Behavior_Profiles.md",
     label: "Профили поведения Telegram",
     section: "Документы",
     description: "Описание новой модели профилей поведения и памяти по чатам.",
@@ -75,7 +75,7 @@ const CONTROL_FILE_ITEMS: ControlFileItem[] = [
     scope: "repo_only"
   },
   {
-    path: "docs/Telegram_Test_Mode.md",
+    path: "docs/telegram/Telegram_Test_Mode.md",
     label: "Режим теста ботов",
     section: "Тестирование",
     description: "Описание безопасного bot evaluator режима.",
@@ -83,7 +83,7 @@ const CONTROL_FILE_ITEMS: ControlFileItem[] = [
     scope: "repo_only"
   },
   {
-    path: "docs/Telegram_Bot_Test_Questionnaire.md",
+    path: "docs/telegram/Telegram_Bot_Test_Questionnaire.md",
     label: "Вопросник для тестов",
     section: "Тестирование",
     description: "Набор вопросов для проверки другого Telegram-бота.",
@@ -91,7 +91,7 @@ const CONTROL_FILE_ITEMS: ControlFileItem[] = [
     scope: "repo_only"
   },
   {
-    path: "docs/Search_Current_State_2026-03-18.md",
+    path: "docs/current-state/Search_Current_State_2026-03-18.md",
     label: "Статус поиска",
     section: "Документы",
     description: "Честный статус search/router и открытых проблем.",
@@ -99,7 +99,7 @@ const CONTROL_FILE_ITEMS: ControlFileItem[] = [
     scope: "repo_only"
   },
   {
-    path: "docs/Dashboard_Control_Center_Architecture.md",
+    path: "docs/architecture/Dashboard_Control_Center_Architecture.md",
     label: "Архитектура пульта",
     section: "Документы",
     description: "Концепция Control Center и этапы развития.",

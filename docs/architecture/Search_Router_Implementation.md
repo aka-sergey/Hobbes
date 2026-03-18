@@ -76,7 +76,7 @@ This should make it easier to debug whether a bad answer came from:
 
 Detailed checkpoint:
 
-- [Search_Current_State_2026-03-18.md](/Users/sergeysobolev/HobbesCodex/docs/Search_Current_State_2026-03-18.md)
+- [Search_Current_State_2026-03-18.md](/Users/sergeysobolev/HobbesCodex/docs/current-state/Search_Current_State_2026-03-18.md)
 
 Important current reality:
 

@@ -1,0 +1,868 @@
+metadata:
+  pack_name: hobbes_full_context
+  status: active
+  generated_on: "2026-03-19"
+  format_version: 1
+  intended_consumer: ai_agents_and_automation
+  repo_root: "/Users/sergeysobolev/HobbesCodex"
+  canonical_machine_files:
+    - "docs/For_AI/Hobbes_Full_Context.yaml"
+    - "docs/For_AI/Hobbes_Full_Context.json"
+  human_bridge_file: "docs/overview/Hobbes_AI_Context_Pack.md"
+  purpose:
+    - "Fast context recovery if chat history is lost"
+    - "Machine-readable map of current Hobbes architecture"
+    - "Operational reference for routes, services, paths, timings, limits, and current gaps"
+  caution:
+    - "Concrete hostnames, IPs, and URLs are current known values from repo/docs as of 2026-03-19."
+    - "If infrastructure changed after 2026-03-19, re-verify deployment targets."
+    - "Project-Passport is historical and must not override newer current-state docs."
+
+truth_priority:
+  - "docs/For_AI/Hobbes_Full_Context.yaml"
+  - "docs/For_AI/Hobbes_Full_Context.json"
+  - "docs/overview/Hobbes_AI_Context_Pack.md"
+  - "docs/overview/Hobbes_Current_State.md"
+  - "docs/current-state/Telegram_Current_State_2026-03-18.md"
+  - "docs/current-state/Search_Current_State_2026-03-18.md"
+  - "docs/history/CHANGELOG.md"
+  - "docs/history/PROJECT-PASSPORT.md"
+
+source_of_truth:
+  human_docs_root: "docs/"
+  runtime_agent_contracts_root: "config/agents/"
+  skill_manifests_root: "skills/"
+  dashboard_app_root: "dashboard-mvp/"
+  remote_ops_scripts_root: "scripts/remote/"
+  repo_editing_via_control_center:
+    backend: github_api
+    required_env:
+      - GITHUB_TOKEN
+      - GITHUB_REPO_OWNER
+      - GITHUB_REPO_NAME
+      - GITHUB_REPO_BRANCH
+    default_branch_if_unspecified: "master"
+    commit_message_format: "Control Center: update <path>"
+
+system_summary:
+  one_sentence: "Hobbes is a role-based AI system on top of OpenClaw, with Telegram as user ingress, OpenClaw on a VPS as live runtime, Railway + Postgres as dashboard/operations layer, and GitHub as source of truth for human-managed files."
+  main_runtime_path:
+    - "Telegram -> OpenClaw gateway -> main -> chief/specialists/guard -> comms -> main -> Telegram"
+  main_observability_path:
+    - "VPS snapshot script -> POST /api/ingest -> Railway dashboard -> Postgres -> overview UI"
+  main_change_management_path:
+    - "Control Center -> GitHub file update -> optional direct SSH sync or queued runtime sync -> VPS runtime file update -> openclaw-gateway restart"
+
+deployment_targets:
+  dashboard_railway:
+    provider: railway
+    project_name: "Hobbes Dashboard"
+    services:
+      - "hobbes-dashboard-web"
+      - "Postgres"
+    public_url: "https://hobbes-dashboard-web-production.up.railway.app"
+    app_root_in_repo: "dashboard-mvp/"
+    purpose:
+      - "Overview UI"
+      - "Control Center"
+      - "Ingest receiver"
+      - "Runtime sync queue"
+  vps_openclaw:
+    provider: vps
+    known_host_label: "72.56.112.63"
+    runtime_root: "/home/hobbes/.openclaw"
+    purpose:
+      - "Live OpenClaw gateway"
+      - "Agent workspaces"
+      - "Telegram runtime"
+      - "Policy compiler outputs"
+      - "Snapshot sender"
+      - "Queued runtime sync worker"
+  github_repo:
+    provider: github
+    role:
+      - "Canonical source for docs"
+      - "Canonical source for allowlisted control files"
+      - "History for Control Center file changes"
+
+known_hosts:
+  - name: railway_public_dashboard
+    value: "https://hobbes-dashboard-web-production.up.railway.app"
+    kind: public_url
+    confidence: high
+    source: "docs/dashboard/Dashboard_LiveIngest_Installation.md"
+  - name: hobbes_vps_known_ip
+    value: "72.56.112.63"
+    kind: host_or_ip
+    confidence: medium
+    source: "scripts/remote/hobbes_dashboard_snapshot.sh"
+    caveat: "Known value from repo/docs, not guaranteed if infrastructure changed later."
+
+network_endpoints:
+  railway:
+    dashboard_root: "https://hobbes-dashboard-web-production.up.railway.app/"
+    control_center: "https://hobbes-dashboard-web-production.up.railway.app/control"
+    api_overview: "https://hobbes-dashboard-web-production.up.railway.app/api/overview"
+    api_ingest: "https://hobbes-dashboard-web-production.up.railway.app/api/ingest"
+  vps_loopback:
+    openclaw_gateway_ws: "ws://127.0.0.1:18789"
+    browser_control_http: "http://127.0.0.1:18791"
+    openclaw_health_http: "http://127.0.0.1:18792"
+    hobbes_backend_http: "http://127.0.0.1:8081"
+
+service_matrix:
+  - name: "openclaw-gateway.service"
+    host: vps_openclaw
+    manager: "systemctl --user"
+    status_role: "authoritative runtime service"
+    purpose:
+      - "Telegram ingress"
+      - "Gateway runtime"
+      - "Agent orchestration"
+    restart_triggers:
+      - "Direct runtime sync"
+      - "Queued runtime sync worker"
+      - "Telegram policy refresh"
+    health_checks:
+      - "systemctl --user is-active openclaw-gateway.service"
+      - "HTTP health on 127.0.0.1:18792"
+    nuance: "Service can become active before HTTP health endpoint is ready."
+  - name: "hobbes-backend.service"
+    host: vps_openclaw
+    manager: "systemd"
+    status_role: "secondary backend service"
+    purpose:
+      - "Backend listener on 127.0.0.1:8081"
+    caveat: "Documented as current relevant service name, but less detailed than openclaw-gateway."
+  - name: "hobbes-dashboard-snapshot.service"
+    host: vps_openclaw
+    manager: "systemd"
+    status_role: "installed_by_docs"
+    purpose:
+      - "Capture current runtime state and send overview snapshot to Railway dashboard"
+  - name: "hobbes-dashboard-snapshot.timer"
+    host: vps_openclaw
+    manager: "systemd"
+    status_role: "installed_by_docs"
+    purpose:
+      - "Periodic snapshot trigger"
+    interval_seconds: 120
+    source: "docs/dashboard/Dashboard_LiveIngest_Installation.md"
+  - name: "hobbes-control-sync.service"
+    host: vps_openclaw
+    manager: "systemd"
+    status_role: "suggested/expected by docs"
+    purpose:
+      - "Poll queued runtime sync jobs from dashboard over HTTPS"
+  - name: "hobbes-control-sync.timer"
+    host: vps_openclaw
+    manager: "systemd"
+    status_role: "suggested/expected by docs"
+    purpose:
+      - "Run queued runtime sync worker every minute"
+    on_boot_seconds: 30
+    interval_seconds: 60
+    source: "docs/dashboard/Dashboard_Runtime_Sync_Installation.md"
+  - name: "hobbes-dashboard-web"
+    host: dashboard_railway
+    manager: railway
+    status_role: "web app"
+    purpose:
+      - "Overview UI"
+      - "Control Center UI"
+      - "REST API endpoints"
+  - name: "Postgres"
+    host: dashboard_railway
+    manager: railway
+    status_role: "dashboard persistence"
+    purpose:
+      - "Snapshots"
+      - "Events"
+      - "Control drafts"
+      - "Runtime sync queue"
+  - name: "openclaw.service"
+    host: historical
+    manager: unknown
+    status_role: "legacy name"
+    purpose:
+      - "Historical reference only"
+    caveat: "Appears in older docs and should not override the newer openclaw-gateway baseline."
+
+filesystem_map:
+  repo:
+    docs_root: "docs/"
+    machine_context_root: "docs/For_AI/"
+    human_ai_context: "docs/overview/Hobbes_AI_Context_Pack.md"
+    agents_root: "config/agents/"
+    openclaw_config_root: "config/openclaw/"
+    telegram_config_root: "config/telegram/"
+    skills_root: "skills/"
+    dashboard_root: "dashboard-mvp/"
+    dashboard_api_root: "dashboard-mvp/app/api/"
+    dashboard_lib_root: "dashboard-mvp/lib/"
+    remote_scripts_root: "scripts/remote/"
+  vps:
+    openclaw_root: "/home/hobbes/.openclaw"
+    openclaw_config: "/home/hobbes/.openclaw/openclaw.json"
+    openclaw_env: "/home/hobbes/.openclaw/.env"
+    agents_root: "/home/hobbes/.openclaw/agents"
+    policies_root: "/home/hobbes/.openclaw/policies"
+    runtime_root: "/home/hobbes/.openclaw/runtime"
+    workspaces:
+      main: "/home/hobbes/.openclaw/workspace-main"
+      chief: "/home/hobbes/.openclaw/workspace-chief"
+      comms: "/home/hobbes/.openclaw/workspace-comms"
+      guard: "/home/hobbes/.openclaw/workspace-guard"
+      research: "/home/hobbes/.openclaw/workspace-research"
+      memory: "/home/hobbes/.openclaw/workspace-memory"
+      booking: "/home/hobbes/.openclaw/workspace-booking"
+    compiled_policy_outputs:
+      runtime_json: "/home/hobbes/.openclaw/runtime/telegram-group-runtime.json"
+      runtime_markdown: "/home/hobbes/.openclaw/runtime/TELEGRAM_GROUP_POLICIES.md"
+    helper_binaries:
+      snapshot_sender: "/usr/local/bin/hobbes-dashboard-snapshot.sh"
+      runtime_sync_worker: "/usr/local/bin/hobbes-control-sync-worker.py"
+      telegram_policy_compiler: "/usr/local/bin/compile-telegram-group-policies.py"
+      search_router: "/usr/local/bin/hobbes-search-router"
+      tavily_search: "/usr/local/bin/hobbes-tavily-search"
+      health_helper: "/usr/local/bin/hobbes-health.sh"
+      backup_helper: "/usr/local/bin/hobbes-backup.sh"
+    worker_env_file: "/etc/hobbes-control-sync.env"
+
+agents:
+  repo_defined_ids:
+    - main
+    - chief
+    - comms
+    - guard
+    - research
+    - memory
+    - booking
+  runtime_current_ids:
+    - main
+    - chief
+    - comms
+    - guard
+    - research
+    - memorykeeper
+    - bookingprep
+  details:
+    - repo_id: main
+      runtime_id: main
+      role: "Telegram front door"
+      inbound_from:
+        - telegram
+      outbound_to:
+        - chief
+        - comms
+        - telegram
+      repo_paths:
+        workspace_root: "config/agents/main/workspace"
+        auth_profile: "config/agents/main/agent/auth-profiles.example.json"
+      vps_workspace: "/home/hobbes/.openclaw/workspace-main"
+      notable_workspace_files:
+        - "AGENTS.md"
+        - "PERSONAS.md"
+        - "REMINDERS.md"
+        - "TOOLS.md"
+    - repo_id: chief
+      runtime_id: chief
+      role: "Planner, router, decomposition layer"
+      inbound_from:
+        - main
+      outbound_to:
+        - research
+        - bookingprep
+        - memorykeeper
+        - guard
+        - comms
+      repo_paths:
+        workspace_root: "config/agents/chief/workspace"
+        auth_profile: "config/agents/chief/agent/auth-profiles.example.json"
+      vps_workspace: "/home/hobbes/.openclaw/workspace-chief"
+      notable_workspace_files:
+        - "AGENTS.md"
+        - "REMINDERS.md"
+        - "MEETING_PREP.md"
+        - "DOCUMENT_SHAPES.md"
+        - "TOOLS.md"
+    - repo_id: comms
+      runtime_id: comms
+      role: "Final user-facing answer shaping"
+      inbound_from:
+        - main
+        - chief
+      outbound_to:
+        - main
+      repo_paths:
+        workspace_root: "config/agents/comms/workspace"
+        auth_profile: "config/agents/comms/agent/auth-profiles.example.json"
+      vps_workspace: "/home/hobbes/.openclaw/workspace-comms"
+      notable_workspace_files:
+        - "AGENTS.md"
+        - "PERSONAS.md"
+        - "DOCUMENT_SHAPES.md"
+        - "TOOLS.md"
+    - repo_id: guard
+      runtime_id: guard
+      role: "Risk gate and verdict layer"
+      inbound_from:
+        - main
+        - chief
+      outbound_to:
+        - chief
+        - main
+      repo_paths:
+        workspace_root: "config/agents/guard/workspace"
+        auth_profile: "config/agents/guard/agent/auth-profiles.example.json"
+      vps_workspace: "/home/hobbes/.openclaw/workspace-guard"
+      notable_workspace_files:
+        - "AGENTS.md"
+        - "TOOLS.md"
+    - repo_id: research
+      runtime_id: research
+      role: "Source-backed search and evidence work"
+      inbound_from:
+        - chief
+      outbound_to:
+        - chief
+      repo_paths:
+        workspace_root: "config/agents/research/workspace"
+        auth_profile: "config/agents/research/agent/auth-profiles.example.json"
+      vps_workspace: "/home/hobbes/.openclaw/workspace-research"
+      notable_workspace_files:
+        - "AGENTS.md"
+        - "TOOLS.md"
+    - repo_id: memory
+      runtime_id: memorykeeper
+      role: "Durable memory governance"
+      inbound_from:
+        - chief
+      outbound_to:
+        - chief
+      repo_paths:
+        workspace_root: "config/agents/memory/workspace"
+        auth_profile: "config/agents/memory/agent/auth-profiles.example.json"
+      vps_workspace: "/home/hobbes/.openclaw/workspace-memory"
+      notable_workspace_files:
+        - "AGENTS.md"
+        - "MEMORY.md"
+        - "TOOLS.md"
+      nuance: "Repo directory is still named memory, but runtime naming is memorykeeper."
+    - repo_id: booking
+      runtime_id: bookingprep
+      role: "Travel and booking preparation"
+      inbound_from:
+        - chief
+      outbound_to:
+        - chief
+      repo_paths:
+        workspace_root: "config/agents/booking/workspace"
+        auth_profile: "config/agents/booking/agent/auth-profiles.example.json"
+      vps_workspace: "/home/hobbes/.openclaw/workspace-booking"
+      notable_workspace_files:
+        - "AGENTS.md"
+        - "TOOLS.md"
+      nuance: "Repo directory is still named booking, but runtime naming is bookingprep."
+
+skills:
+  product_skills:
+    - name: "vision-intake"
+      path: "skills/vision-intake/SKILL.md"
+      attached_agents:
+        - research
+    - name: "pdf-workbench"
+      path: "skills/pdf-workbench/SKILL.md"
+      attached_agents:
+        - research
+    - name: "web-research"
+      path: "skills/web-research/SKILL.md"
+      attached_agents:
+        - research
+    - name: "reminders-and-followups"
+      path: "skills/reminders-and-followups/SKILL.md"
+      attached_agents:
+        - main
+        - chief
+    - name: "persona-router"
+      path: "skills/persona-router/SKILL.md"
+      attached_agents:
+        - main
+        - comms
+    - name: "voice-notes"
+      path: "skills/voice-notes/SKILL.md"
+      attached_agents:
+        - main
+    - name: "contacts-crm-lite"
+      path: "skills/contacts-crm-lite/SKILL.md"
+      attached_agents:
+        - memorykeeper
+    - name: "meeting-prep"
+      path: "skills/meeting-prep/SKILL.md"
+      attached_agents:
+        - chief
+    - name: "document-drafter"
+      path: "skills/document-drafter/SKILL.md"
+      attached_agents:
+        - chief
+        - comms
+    - name: "personal-memory"
+      path: "skills/personal-memory/SKILL.md"
+      attached_agents:
+        - memorykeeper
+  internal_skills:
+    - name: "agent-contract-linter"
+      path: "skills/agent-contract-linter/SKILL.md"
+    - name: "dashboard-product"
+      path: "skills/dashboard-product/SKILL.md"
+    - name: "openclaw-ops"
+      path: "skills/openclaw-ops/SKILL.md"
+    - name: "routing-regression"
+      path: "skills/routing-regression/SKILL.md"
+
+telegram_layer:
+  status_summary:
+    direct_messages: "primary working ingress"
+    groups: "partially wired, not yet fully production-proven"
+    test_mode: "documented and configurable"
+  config_files:
+    openclaw_example: "config/openclaw/openclaw.phase1.example.json"
+    chat_policies: "config/telegram/chat_policies.example.json"
+    behavior_profiles: "config/telegram/behavior_profiles.example.json"
+    test_mode: "config/telegram/test_mode.example.json"
+  openclaw_example_defaults:
+    gateway_port: 18789
+    gateway_bind: loopback
+    gateway_auth_mode: token
+    channel: telegram
+    telegram_dm_policy: pairing
+    telegram_group_policy: disabled
+    telegram_streaming: partial
+    audio_enabled: true
+    audio_max_bytes: 20971520
+    audio_language: ru
+    audio_model: "gpt-4o-mini-transcribe"
+    agent_default_workspace: "/home/hobbes/.openclaw/workspace-main"
+    default_model_primary: "openai/gpt-4.1-mini"
+    default_model_fallbacks:
+      - "openai/gpt-4.1-mini"
+      - "openai/gpt-4o-mini"
+  behavior_profile_model:
+    default_memory_modes:
+      - "off"
+      - chat_isolated
+      - chat_plus_user
+      - shared_domain
+    validation_links:
+      - "Behavior profiles are validated together with chat policies."
+      - "Profile persona IDs are checked against PERSONAS.md persona sections."
+      - "Chat policy profileId values must resolve to known profiles unless explicit persona override exists."
+  policy_compilation:
+    compiler_script: "scripts/remote/compile_telegram_group_policies.py"
+    remote_binary: "/usr/local/bin/compile-telegram-group-policies.py"
+    inputs:
+      chat_policies: "/home/hobbes/.openclaw/policies/chat_policies.json"
+      behavior_profiles: "/home/hobbes/.openclaw/policies/behavior_profiles.json"
+      openclaw_config: "/home/hobbes/.openclaw/openclaw.json"
+    outputs:
+      compiled_json: "/home/hobbes/.openclaw/runtime/telegram-group-runtime.json"
+      compiled_markdown: "/home/hobbes/.openclaw/runtime/TELEGRAM_GROUP_POLICIES.md"
+    notable_rules:
+      - "Use explicit allowlisted chat IDs only."
+      - "Group policy should stay disabled until reviewed."
+      - "Sharp tone profiles must still respect system guardrails."
+
+search_layer:
+  router_helper_script: "scripts/remote/hobbes_search_router.py"
+  remote_helpers:
+    - "/usr/local/bin/hobbes-search-router"
+    - "/usr/local/bin/hobbes-tavily-search"
+  route_categories:
+    - news_current
+    - general_research
+    - official_lookup
+    - technical_docs
+    - troubleshooting
+    - law_policy
+    - finance_market
+    - local_maps
+    - travel_booking
+    - shopping_product
+    - community_reviews
+    - media_search
+    - people_company_lookup
+    - internal_source_search
+  primary_owner: research
+  delegated_vertical_owner:
+    travel_booking: bookingprep
+  weak_verticals:
+    - local_maps
+    - travel_booking
+  search_event_visibility:
+    dashboard_search_cards: true
+    full_structured_run_telemetry: false
+
+dashboard_layer:
+  app_root: "dashboard-mvp/"
+  framework: "Next.js"
+  operational_role: "operations console, not end-user product UI"
+  overview_data_source:
+    primary: postgres_latest_snapshot
+    fallback: mock_data_if_database_missing_or_empty
+  control_center:
+    code_path: "dashboard-mvp/lib/control-center.ts"
+    model: allowlist_only
+    edit_scopes:
+      - repo_only
+      - repo_and_runtime
+    allowlisted_repo_only_files:
+      - "docs/current-state/Telegram_Current_State_2026-03-18.md"
+      - "docs/telegram/Telegram_Group_Policy_Kit.md"
+      - "docs/telegram/Telegram_Behavior_Profiles.md"
+      - "docs/telegram/Telegram_Test_Mode.md"
+      - "docs/telegram/Telegram_Bot_Test_Questionnaire.md"
+      - "docs/current-state/Search_Current_State_2026-03-18.md"
+      - "docs/architecture/Dashboard_Control_Center_Architecture.md"
+      - "config/telegram/test_mode.example.json"
+    allowlisted_repo_and_runtime_files:
+      - "config/telegram/chat_policies.example.json"
+      - "config/telegram/behavior_profiles.example.json"
+      - "config/agents/main/workspace/PERSONAS.md"
+      - "config/agents/main/workspace/REMINDERS.md"
+      - "config/agents/chief/workspace/REMINDERS.md"
+      - "config/agents/chief/workspace/MEETING_PREP.md"
+      - "config/agents/chief/workspace/DOCUMENT_SHAPES.md"
+      - "config/agents/comms/workspace/PERSONAS.md"
+      - "config/agents/comms/workspace/DOCUMENT_SHAPES.md"
+    draft_storage: postgres_control_drafts
+    history_backend: github_commits
+    repo_root_resolution:
+      env_override: HOBBES_CONTROL_ROOT
+      fallback_logic: "path.resolve(process.cwd(), '..')"
+      caveat: "Correct when app cwd is dashboard-mvp; risky if launched from an unexpected cwd without HOBBES_CONTROL_ROOT."
+  runtime_sync:
+    code_path: "dashboard-mvp/lib/runtime-sync.ts"
+    modes:
+      - direct_ssh
+      - queued_worker_fallback
+    direct_ssh_requires_env:
+      - HOBBES_VPS_HOST
+      - HOBBES_VPS_USER
+      - HOBBES_VPS_PASSWORD
+    queued_worker_requires_env_on_vps:
+      - HOBBES_CONTROL_BASE_URL
+      - HOBBES_CONTROL_TOKEN
+    target_files_to_remote_paths:
+      "config/telegram/chat_policies.example.json": "/home/hobbes/.openclaw/policies/chat_policies.json"
+      "config/telegram/behavior_profiles.example.json": "/home/hobbes/.openclaw/policies/behavior_profiles.json"
+      "config/agents/main/workspace/PERSONAS.md": "/home/hobbes/.openclaw/workspace-main/PERSONAS.md"
+      "config/agents/main/workspace/REMINDERS.md": "/home/hobbes/.openclaw/workspace-main/REMINDERS.md"
+      "config/agents/chief/workspace/REMINDERS.md": "/home/hobbes/.openclaw/workspace-chief/REMINDERS.md"
+      "config/agents/chief/workspace/MEETING_PREP.md": "/home/hobbes/.openclaw/workspace-chief/MEETING_PREP.md"
+      "config/agents/chief/workspace/DOCUMENT_SHAPES.md": "/home/hobbes/.openclaw/workspace-chief/DOCUMENT_SHAPES.md"
+      "config/agents/comms/workspace/PERSONAS.md": "/home/hobbes/.openclaw/workspace-comms/PERSONAS.md"
+      "config/agents/comms/workspace/DOCUMENT_SHAPES.md": "/home/hobbes/.openclaw/workspace-comms/DOCUMENT_SHAPES.md"
+    post_sync_hooks:
+      telegram_policy_files:
+        - "python3 /usr/local/bin/compile-telegram-group-policies.py"
+    authoritative_success_gate: "systemctl --user is-active openclaw-gateway.service"
+    nuance: "Queued worker intentionally treats active systemd state as success even if HTTP health is not yet ready."
+  ingest_pipeline:
+    sender_script: "scripts/remote/hobbes_dashboard_snapshot.sh"
+    auth_header: "x-ingest-token"
+    event_schema_support: true
+    overview_snapshot_support: true
+    current_real_usage:
+      - "Overview snapshots are live"
+      - "Full event telemetry is partial"
+      - "Usage/cost/approvals are placeholders or incomplete"
+
+api_routes:
+  - path: "/api/health"
+    method: GET
+    auth: none
+    purpose: "Simple health response for dashboard service"
+    response_shape:
+      ok: true
+      service: "hobbes-dashboard-mvp"
+  - path: "/api/overview"
+    method: GET
+    auth: none
+    purpose: "Return latest overview snapshot"
+    backing_logic: "Select latest row from dashboard_snapshots; fallback to mock data if DB missing or empty"
+    cache_control: "no-store"
+  - path: "/api/ingest"
+    method: POST
+    auth: "x-ingest-token must equal INGEST_TOKEN"
+    purpose:
+      - "Insert overview snapshots"
+      - "Insert operational events"
+    snapshot_type_supported: "overview_snapshot"
+    event_type_supported: true
+    failure_modes:
+      - unauthorized
+      - invalid_payload
+      - database_not_configured
+  - path: "/api/control/files"
+    method: GET
+    auth: none
+    purpose: "List allowlisted control files and their availability"
+  - path: "/api/control/file"
+    method: GET
+    auth: none
+    query_params:
+      - path
+    purpose: "Read one allowlisted control file"
+    failure_modes:
+      - missing_path
+      - file_not_allowed
+  - path: "/api/control/history"
+    method: GET
+    auth: none
+    query_params:
+      - path
+    purpose: "Read GitHub history for one allowlisted file"
+    failure_modes:
+      - missing_path
+      - file_not_allowed
+  - path: "/api/control/draft"
+    method: POST
+    auth: none
+    body_keys:
+      - path
+      - content
+      - kind
+    purpose: "Validate and save draft in control_drafts"
+    failure_modes:
+      - invalid_payload
+      - file_not_allowed
+      - validation_failed
+      - database_not_configured
+  - path: "/api/control/apply-repo"
+    method: POST
+    auth: none
+    body_keys:
+      - path
+      - content
+    purpose: "Validate and write allowlisted file to GitHub repo"
+    failure_modes:
+      - invalid_payload
+      - file_not_allowed
+      - apply_failed
+      - github_control_not_configured
+  - path: "/api/control/sync-runtime"
+    method: POST
+    auth: none
+    body_keys:
+      - path
+    purpose: "Sync allowlisted repo_and_runtime file to VPS"
+    modes:
+      direct: "SSH upload + optional compiler hook + gateway restart + health checks"
+      queued: "Fallback if direct SSH handshake times out"
+    fallback_trigger: "error message contains 'Timed out while waiting for handshake'"
+    failure_modes:
+      - invalid_payload
+      - file_not_allowed
+      - runtime_sync_failed
+  - path: "/api/control/runtime-sync/claim"
+    method: POST
+    auth: "Authorization: Bearer <INGEST_TOKEN>"
+    purpose: "Worker claims next pending runtime sync job"
+    failure_modes:
+      - unauthorized
+  - path: "/api/control/runtime-sync/complete"
+    method: POST
+    auth: "Authorization: Bearer <INGEST_TOKEN>"
+    body_keys:
+      - id
+      - status
+      - lastError
+    purpose: "Worker marks queued runtime sync job as applied or failed"
+    allowed_status_values:
+      - applied
+      - failed
+    failure_modes:
+      - unauthorized
+      - invalid_payload
+
+db_schema_summary:
+  client_config:
+    library: postgres_js
+    prepare: false
+    max_connections: 5
+    idle_timeout_seconds: 10
+    url_resolution_order:
+      - DATABASE_URL
+      - DATABASE_PRIVATE_URL
+  tables:
+    dashboard_snapshots:
+      primary_key: id
+      columns:
+        - "id BIGSERIAL"
+        - "source TEXT"
+        - "captured_at TIMESTAMPTZ"
+        - "summary JSONB"
+        - "agents JSONB"
+        - "runs JSONB"
+        - "events JSONB"
+        - "searches JSONB default []"
+        - "created_at TIMESTAMPTZ default now()"
+      indexes:
+        - "dashboard_snapshots_captured_at_idx on captured_at desc"
+      role: "Primary latest-state source for overview screen"
+    dashboard_events:
+      primary_key: id
+      columns:
+        - "id BIGSERIAL"
+        - "source TEXT"
+        - "event_type TEXT"
+        - "agent_id TEXT nullable"
+        - "run_id TEXT nullable"
+        - "severity TEXT"
+        - "event_ts TIMESTAMPTZ"
+        - "payload JSONB"
+        - "created_at TIMESTAMPTZ default now()"
+      indexes:
+        - "dashboard_events_event_ts_idx on event_ts desc"
+      role: "Operational event log, but current product usage is still partial"
+    control_drafts:
+      primary_key: id
+      uniqueness:
+        - "file_path unique"
+      columns:
+        - "id BIGSERIAL"
+        - "file_path TEXT unique"
+        - "content_type TEXT"
+        - "content TEXT"
+        - "updated_at TIMESTAMPTZ default now()"
+        - "created_at TIMESTAMPTZ default now()"
+      indexes:
+        - "control_drafts_updated_at_idx on updated_at desc"
+      role: "Stored drafts per allowlisted file"
+    control_runtime_sync_jobs:
+      primary_key: id
+      columns:
+        - "id BIGSERIAL"
+        - "file_path TEXT"
+        - "remote_path TEXT"
+        - "content TEXT"
+        - "status TEXT default pending"
+        - "created_at TIMESTAMPTZ default now()"
+        - "claimed_at TIMESTAMPTZ nullable"
+        - "applied_at TIMESTAMPTZ nullable"
+        - "updated_at TIMESTAMPTZ default now()"
+        - "last_error TEXT nullable"
+      indexes:
+        - "control_runtime_sync_jobs_status_created_at_idx on (status, created_at asc)"
+      statuses:
+        - pending
+        - in_progress
+        - applied
+        - failed
+      queue_logic:
+        - "claim uses FOR UPDATE SKIP LOCKED"
+        - "oldest pending job is claimed first"
+      role: "Fallback queue when Railway cannot finish direct SSH runtime sync"
+
+timing_and_consistency:
+  configured_intervals:
+    snapshot_timer_seconds: 120
+    snapshot_health_probe_timeout_seconds: 3
+    snapshot_log_tail_lines: 200
+    queued_sync_on_boot_seconds: 30
+    queued_sync_poll_interval_seconds: 60
+    worker_http_timeout_seconds: 30
+    direct_sync_health_probe_attempts: 6
+    direct_sync_health_probe_sleep_seconds: 2
+    direct_sync_total_health_window_seconds: 12
+  inferred_consistency_windows:
+    dashboard_overview_freshness:
+      min_seconds: 0
+      max_seconds: 180
+      inferred: true
+      reason: "Snapshot timer is 120s; add script execution, ingest, and DB read lag."
+    queued_runtime_sync_latency:
+      min_seconds: 30
+      max_seconds: 120
+      inferred: true
+      reason: "Worker can wait until next 60s poll and then still needs file apply + restart time."
+    direct_sync_false_negative_risk:
+      inferred: true
+      reason: "HTTP health may still fail during the first seconds after restart even when systemd already reports active."
+  user_visible_implications:
+    - "Dashboard can show a healthy but slightly stale overview."
+    - "Queued runtime sync is not immediate even when functioning correctly."
+    - "Systemd-active is currently a stronger runtime-sync success signal than HTTP health."
+
+operational_nuances:
+  - "Overview UI reads only the latest snapshot row, not a reconstructed live graph from normalized run tables."
+  - "Dashboard falls back to mock overview data when DATABASE_URL is missing or when no snapshot rows exist."
+  - "Control Center validates Telegram behavior as a bundle: behavior_profiles + chat_policies + comms PERSONAS."
+  - "Control Center syncs sourceContent from GitHub/filesystem; unsaved draftContent is not what gets pushed to runtime."
+  - "Queued runtime sync job captures file content at enqueue time; later repo changes do not mutate that already-queued payload."
+  - "Direct runtime sync uses password-based SSH from Railway-side code."
+  - "Runtime sync queue worker uses INGEST_TOKEN as Bearer token against claim/complete endpoints."
+  - "Snapshot sender intentionally filters logs toward operational signals and avoids full conversational content."
+  - "Current dashboard snapshot sender publishes overview snapshots, not full structured multi-agent telemetry."
+
+env_matrix:
+  dashboard:
+    - DATABASE_URL
+    - DATABASE_PRIVATE_URL
+    - INGEST_TOKEN
+    - APP_BASE_URL
+    - NEXT_PUBLIC_APP_NAME
+    - GITHUB_TOKEN
+    - GITHUB_REPO_OWNER
+    - GITHUB_REPO_NAME
+    - GITHUB_REPO_BRANCH
+    - HOBBES_VPS_HOST
+    - HOBBES_VPS_USER
+    - HOBBES_VPS_PASSWORD
+    - HOBBES_CONTROL_ROOT
+  vps_worker:
+    - HOBBES_CONTROL_BASE_URL
+    - HOBBES_CONTROL_TOKEN
+  openclaw_vps:
+    - BOT_TOKEN
+    - GATEWAY_TOKEN
+    - OPENAI_API_KEY
+    - TAVILY_API_KEY
+  telegram_policy_compiler:
+    - HOBBES_CHAT_POLICIES_PATH
+    - HOBBES_BEHAVIOR_PROFILES_PATH
+    - HOBBES_OPENCLAW_PATH
+    - HOBBES_COMPILED_DIR
+
+known_gaps:
+  - "No full event bus or first-class run/approval telemetry yet."
+  - "Usage/cost/approvals in dashboard remain incomplete or placeholder-level."
+  - "Telegram groups are compiled and modeled, but not fully proven as broad production mode."
+  - "Search is structurally improved, but local_maps and travel_booking remain weak."
+  - "Memory governance role exists, but full durable memory lifecycle is still thin."
+  - "Reminder intake is normalized, but durable scheduler-backed delivery is not proven."
+  - "Local test harness for routed multi-agent flows remains unreliable."
+  - "Historical docs can still conflict on service names and rollout maturity."
+
+historical_caveats:
+  project_passport:
+    path: "docs/history/PROJECT-PASSPORT.md"
+    status: historical
+    date_context: "older checkpoint than 2026-03-18 current-state docs"
+    superseded_by:
+      - "docs/overview/Hobbes_Current_State.md"
+      - "docs/current-state/Telegram_Current_State_2026-03-18.md"
+      - "docs/current-state/Search_Current_State_2026-03-18.md"
+      - "docs/history/CHANGELOG.md"
+    known_drift_examples:
+      - "Older emphasis on openclaw.service instead of openclaw-gateway.service"
+      - "Earlier topology before fuller multi-agent rollout"
+      - "Older dashboard/control-center maturity assumptions"
+
+recovery_order:
+  - "Read docs/For_AI/Hobbes_Full_Context.yaml"
+  - "Verify docs/For_AI/Hobbes_Full_Context.json matches"
+  - "Read docs/overview/Hobbes_AI_Context_Pack.md for narrative cross-check"
+  - "Read docs/overview/Hobbes_Current_State.md"
+  - "Read dated current-state docs for Telegram and Search"
+  - "Inspect dashboard-mvp/lib/control-center.ts, dashboard-mvp/lib/runtime-sync.ts, dashboard-mvp/lib/db.ts if operational behavior matters"

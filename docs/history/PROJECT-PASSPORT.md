@@ -1,5 +1,22 @@
 # Hobbes Project Passport
 
+Historical checkpoint note:
+
+- Status: `historical`
+- This document reflects a production checkpoint captured on `2026-03-16`.
+- It remains useful as a recovery / audit snapshot.
+- For the current cross-system view, prefer:
+  - [Hobbes_Current_State.md](/Users/sergeysobolev/HobbesCodex/docs/overview/Hobbes_Current_State.md)
+  - [Hobbes_System_Map.md](/Users/sergeysobolev/HobbesCodex/docs/overview/Hobbes_System_Map.md)
+  - [CHANGELOG.md](/Users/sergeysobolev/HobbesCodex/docs/history/CHANGELOG.md)
+
+Known areas now superseded by later docs:
+
+- service naming here still emphasizes `openclaw.service`, while the later operational baseline centers on `openclaw-gateway.service`
+- the topology here is intentionally earlier and more degraded than the later multi-agent rollout documents
+- dashboard and observability sections here understate later progress made in the Railway dashboard and Control Center
+- Telegram group behavior and search routing are both materially more advanced in later March 2026 documents than in this snapshot
+
 Updated: 2026-03-16
 Scope: production OpenClaw deployment on Timeweb VPS
 

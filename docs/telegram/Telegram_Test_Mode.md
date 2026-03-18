@@ -99,4 +99,4 @@ It does not yet prove that the live Telegram runtime already executes this mode 
 Use together with:
 
 - [test_mode.example.json](/Users/sergeysobolev/HobbesCodex/config/telegram/test_mode.example.json)
-- [Telegram_Bot_Test_Questionnaire.md](/Users/sergeysobolev/HobbesCodex/docs/Telegram_Bot_Test_Questionnaire.md)
+- [Telegram_Bot_Test_Questionnaire.md](/Users/sergeysobolev/HobbesCodex/docs/telegram/Telegram_Bot_Test_Questionnaire.md)
