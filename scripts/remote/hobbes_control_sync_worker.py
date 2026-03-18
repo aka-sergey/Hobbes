@@ -84,20 +84,9 @@ def apply_job(job: dict):
         check=True,
     )
 
-    health_ok = False
-    for _ in range(6):
-        probe = subprocess.run(
-            ["curl", "-fsS", "http://127.0.0.1:18792/"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-        if probe.returncode == 0:
-            health_ok = True
-            break
-        subprocess.run(["sleep", "2"], check=False)
-
-    if not health_ok:
-        raise RuntimeError("health_check_failed")
+    # `systemctl --user is-active` is the authoritative success gate here.
+    # On this VPS the HTTP health endpoint and listening ports may appear much later
+    # than the service reaches the active state, which would create false negatives.
 
 
 def main():

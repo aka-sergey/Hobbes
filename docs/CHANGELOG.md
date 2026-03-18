@@ -33,6 +33,8 @@ Operational note:
 
 - the Railway dashboard can now edit the allowlisted repo files even though the service does not mount the full repository root locally
 - runtime sync to the VPS is now an explicit control-center action after the GitHub version is updated
+- when direct SSH from Railway cannot complete the handshake, the dashboard now falls back to a queued runtime sync job
+- the VPS runtime sync worker was installed and confirmed to consume queued sync jobs successfully
 
 ### Added category-aware search routing baseline and documented the current checkpoint
 

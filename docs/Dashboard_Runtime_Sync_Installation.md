@@ -70,6 +70,17 @@ WantedBy=timers.target
 - if Railway cannot complete the SSH handshake, the dashboard falls back to a queued runtime sync job
 - the VPS worker is then expected to apply that queued job
 
+## Readiness note
+
+On the current VPS, `openclaw-gateway.service` may become `active` before the HTTP health endpoint is available.
+
+For that reason, the worker currently treats the sync as successful when:
+
+- the file is written successfully
+- ownership and mode are corrected
+- `openclaw-gateway.service` restarts successfully
+- `systemctl --user is-active openclaw-gateway.service` returns `active`
+
 ## Scope
 
 Only allowlisted files are eligible:
