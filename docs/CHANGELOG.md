@@ -2,6 +2,20 @@
 
 ## 2026-03-18
 
+### Added a crypto exchange specialist persona template
+
+Changed:
+
+- added `crypto_exchange_specialist` to the `main` persona contract
+- added the same persona shaping baseline to `comms`
+- added a Telegram group policy example for a crypto / exchange discussion chat
+- documented the persona in the Telegram group policy kit
+
+Purpose:
+
+- give Hobbes an explicit and safer specialist voice for crypto, exchange, P2P, OTC, and wallet discussions
+- keep crypto answers practical and risk-aware without drifting into hype, guaranteed-profit language, or evasion guidance
+
 ### Enabled GitHub-backed live editing in the dashboard control center
 
 Changed:

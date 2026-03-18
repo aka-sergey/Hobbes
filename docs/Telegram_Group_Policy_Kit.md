@@ -66,6 +66,32 @@ Restricted:
 - fake ETA guarantees
 - financial approval without a human owner
 
+### `crypto_exchange_specialist`
+
+Use for:
+
+- crypto communities
+- P2P and OTC exchange chats
+- exchange, wallet, network, and on-ramp/off-ramp discussions
+
+Allowed:
+
+- exchange path comparison
+- fee and network explanation
+- wallet and custody basics
+- market-news summaries
+- operational risk explanation
+- draft checklists for exchange flows
+
+Restricted:
+
+- guaranteed profit framing
+- sanctions evasion
+- AML or tax evasion instructions
+- fake KYC guidance
+- taking custody of user funds
+- definitive investment advice
+
 ## Reply policy options
 
 ### `mention_or_reply`
