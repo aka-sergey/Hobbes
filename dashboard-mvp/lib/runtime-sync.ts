@@ -25,6 +25,10 @@ const RUNTIME_TARGETS: Record<string, RuntimeTarget> = {
     remotePath: "/home/hobbes/.openclaw/policies/chat_policies.json",
     restartRequired: true
   },
+  "config/telegram/behavior_profiles.example.json": {
+    remotePath: "/home/hobbes/.openclaw/policies/behavior_profiles.json",
+    restartRequired: true
+  },
   "config/agents/main/workspace/PERSONAS.md": {
     remotePath: "/home/hobbes/.openclaw/workspace-main/PERSONAS.md",
     restartRequired: true
@@ -68,7 +72,10 @@ function getRuntimeSyncConfig(): RuntimeSyncConfig | null {
 }
 
 function getPostSyncHook(pathValue: string) {
-  if (pathValue === "config/telegram/chat_policies.example.json") {
+  if (
+    pathValue === "config/telegram/chat_policies.example.json" ||
+    pathValue === "config/telegram/behavior_profiles.example.json"
+  ) {
     return "python3 /usr/local/bin/compile-telegram-group-policies.py";
   }
 

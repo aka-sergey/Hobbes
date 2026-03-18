@@ -2,6 +2,10 @@
 
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
+import {
+  TelegramBehaviorProfilesBuilder,
+  TelegramChatPoliciesBuilder
+} from "./TelegramPolicyBuilders";
 
 type ControlFileListItem = {
   path: string;
@@ -49,6 +53,10 @@ type ConfigHint = {
   key: string;
   meaning: string;
 };
+
+const CHAT_POLICIES_PATH = "config/telegram/chat_policies.example.json";
+const BEHAVIOR_PROFILES_PATH = "config/telegram/behavior_profiles.example.json";
+const COMMS_PERSONAS_PATH = "config/agents/comms/workspace/PERSONAS.md";
 
 function diffSummary(source: string, draft: string): DiffSummary {
   const sourceLines = source.split("\n");
@@ -189,12 +197,25 @@ function getConfigHints(path: string, kind: "markdown" | "json"): ConfigHint[] {
     return [
       { key: "chatId", meaning: "ID Telegram-чата или группы, для которой действует правило." },
       { key: "enabled", meaning: "Включено ли правило для этого чата." },
-      { key: "persona", meaning: "Роль, в которой бот должен говорить в этом чате." },
+      { key: "profileId", meaning: "Идентификатор профиля поведения, который назначен чату." },
+      { key: "promptOverride", meaning: "Локальная инструкция поверх профиля только для этого чата." },
+      { key: "memoryPolicy.mode", meaning: "Режим памяти: off, chat_isolated, chat_plus_user, shared_domain." },
       { key: "replyPolicy.mode", meaning: "Общий режим включения бота: по упоминанию, ответу, ключевым словам." },
       { key: "activationKeywords", meaning: "Слова-триггеры, по которым бот может включаться сам." },
       { key: "topicPolicy.allow", meaning: "Темы, на которые бот может реагировать." },
       { key: "topicPolicy.deny", meaning: "Темы, на которые бот не должен отвечать." },
       { key: "style", meaning: "Язык, тон и форма ответа." }
+    ];
+  }
+
+  if (path.includes("behavior_profiles")) {
+    return [
+      { key: "id", meaning: "Уникальный идентификатор профиля, который назначается чатам." },
+      { key: "persona", meaning: "Базовая persona, которую должен применять comms/main." },
+      { key: "systemPrompt", meaning: "Основной текст профиля поведения." },
+      { key: "moderation", meaning: "Границы резкого тона, abuse и harassment." },
+      { key: "memoryDefaults", meaning: "Память по умолчанию для чатов, использующих профиль." },
+      { key: "topicPolicy", meaning: "Базовые allow/deny темы профиля." }
     ];
   }
 
@@ -217,6 +238,7 @@ export function ControlCenterClient() {
   const [files, setFiles] = useState<ControlFileListItem[]>([]);
   const [selectedPath, setSelectedPath] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<ControlFileResponse | null>(null);
+  const [linkedFiles, setLinkedFiles] = useState<Record<string, ControlFileResponse | null>>({});
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -224,6 +246,7 @@ export function ControlCenterClient() {
   const [syncing, setSyncing] = useState(false);
   const [message, setMessage] = useState<string>("");
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [editorMode, setEditorMode] = useState<"constructor" | "json">("constructor");
 
   useEffect(() => {
     const run = async () => {
@@ -247,23 +270,52 @@ export function ControlCenterClient() {
 
     const run = async () => {
       setMessage("");
-      const [fileResponse, historyResponse] = await Promise.all([
+      const builderDeps =
+        selectedPath === CHAT_POLICIES_PATH
+          ? [BEHAVIOR_PROFILES_PATH]
+          : selectedPath === BEHAVIOR_PROFILES_PATH
+            ? [CHAT_POLICIES_PATH, COMMS_PERSONAS_PATH]
+            : [];
+
+      const requests = [
         fetch(`/api/control/file?path=${encodeURIComponent(selectedPath)}`, {
           cache: "no-store"
         }),
         fetch(`/api/control/history?path=${encodeURIComponent(selectedPath)}`, {
           cache: "no-store"
-        })
-      ]);
+        }),
+        ...builderDeps.map((pathValue) =>
+          fetch(`/api/control/file?path=${encodeURIComponent(pathValue)}`, {
+            cache: "no-store"
+          })
+        )
+      ];
+      const [fileResponse, historyResponse, ...linkedResponses] = await Promise.all(requests);
 
       const data = await fileResponse.json();
       const historyData = await historyResponse.json();
+      const linkedEntries = await Promise.all(linkedResponses.map((response) => response.json()));
+      const linkedRecord = builderDeps.reduce<Record<string, ControlFileResponse | null>>((acc, pathValue, index) => {
+        acc[pathValue] = linkedEntries[index]?.file ?? null;
+        return acc;
+      }, {});
+
       setSelectedFile(data.file ?? null);
       setDraft(data.file?.draftContent ?? "");
       setHistory(historyData.history ?? []);
+      setLinkedFiles(linkedRecord);
     };
 
     void run();
+  }, [selectedPath]);
+
+  useEffect(() => {
+    if (selectedPath === CHAT_POLICIES_PATH || selectedPath === BEHAVIOR_PROFILES_PATH) {
+      setEditorMode("constructor");
+      return;
+    }
+
+    setEditorMode("json");
   }, [selectedPath]);
 
   const groupedFiles = useMemo(() => {
@@ -296,6 +348,11 @@ export function ControlCenterClient() {
 
     return draft !== selectedFile.sourceContent;
   }, [draft, selectedFile]);
+
+  const supportsConstructor = selectedFile?.path === CHAT_POLICIES_PATH || selectedFile?.path === BEHAVIOR_PROFILES_PATH;
+  const behaviorProfilesContent = linkedFiles[BEHAVIOR_PROFILES_PATH]?.draftContent ?? linkedFiles[BEHAVIOR_PROFILES_PATH]?.sourceContent ?? "";
+  const chatPoliciesContent = linkedFiles[CHAT_POLICIES_PATH]?.draftContent ?? linkedFiles[CHAT_POLICIES_PATH]?.sourceContent ?? "";
+  const personasContent = linkedFiles[COMMS_PERSONAS_PATH]?.draftContent ?? linkedFiles[COMMS_PERSONAS_PATH]?.sourceContent ?? "";
 
   async function handleSaveDraft() {
     if (!selectedFile) {
@@ -508,13 +565,51 @@ export function ControlCenterClient() {
               {selectedFile?.path ?? "—"}
             </div>
 
-            <textarea
-              className="control-editor"
-              value={draft}
-              onChange={(event) => setDraft(event.target.value)}
-              placeholder="Выберите файл слева, чтобы начать редактирование."
-              spellCheck={false}
-            />
+            {supportsConstructor ? (
+              <div className="builder-mode-toggle">
+                <button
+                  className={`action-button ${editorMode === "constructor" ? "primary" : ""}`}
+                  type="button"
+                  onClick={() => setEditorMode("constructor")}
+                >
+                  Конструктор
+                </button>
+                <button
+                  className={`action-button ${editorMode === "json" ? "primary" : ""}`}
+                  type="button"
+                  onClick={() => setEditorMode("json")}
+                >
+                  JSON
+                </button>
+              </div>
+            ) : null}
+
+            {supportsConstructor && editorMode === "constructor" && selectedFile?.path === CHAT_POLICIES_PATH ? (
+              <TelegramChatPoliciesBuilder
+                content={draft}
+                behaviorProfilesContent={behaviorProfilesContent}
+                onChange={setDraft}
+              />
+            ) : null}
+
+            {supportsConstructor && editorMode === "constructor" && selectedFile?.path === BEHAVIOR_PROFILES_PATH ? (
+              <TelegramBehaviorProfilesBuilder
+                content={draft}
+                chatPoliciesContent={chatPoliciesContent}
+                personasContent={personasContent}
+                onChange={setDraft}
+              />
+            ) : null}
+
+            {!supportsConstructor || editorMode === "json" ? (
+              <textarea
+                className="control-editor"
+                value={draft}
+                onChange={(event) => setDraft(event.target.value)}
+                placeholder="Выберите файл слева, чтобы начать редактирование."
+                spellCheck={false}
+              />
+            ) : null}
 
             <div className="control-actions">
               <button className="action-button primary" type="button" onClick={() => void handleSaveDraft()} disabled={!selectedFile || saving}>

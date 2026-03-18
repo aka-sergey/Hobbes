@@ -3,6 +3,13 @@ import path from "node:path";
 import { ensureSchema, getSql, hasDatabase } from "./db";
 import { getGitHubFile, hasGitHubControl, listGitHubFileHistory, updateGitHubFile } from "./github-control";
 import { getRuntimeTarget, hasRuntimeSync, syncRuntimeFile } from "./runtime-sync";
+import {
+  parseBehaviorProfilesContent,
+  parseChatPoliciesContent,
+  parsePersonaIdsFromMarkdown,
+  validateBehaviorProfilesDocument,
+  validateChatPoliciesDocument
+} from "./telegram-policies";
 
 export type ControlFileScope = "repo_only" | "repo_and_runtime";
 export type ControlFileKind = "markdown" | "json";
@@ -38,6 +45,10 @@ type ControlRuntimeSyncJobRow = {
 
 export type ControlSourceBackend = "github" | "filesystem";
 
+const CHAT_POLICIES_PATH = "config/telegram/chat_policies.example.json";
+const BEHAVIOR_PROFILES_PATH = "config/telegram/behavior_profiles.example.json";
+const COMMS_PERSONAS_PATH = "config/agents/comms/workspace/PERSONAS.md";
+
 const CONTROL_FILE_ITEMS: ControlFileItem[] = [
   {
     path: "docs/Telegram_Current_State_2026-03-18.md",
@@ -52,6 +63,14 @@ const CONTROL_FILE_ITEMS: ControlFileItem[] = [
     label: "Политики групп Telegram",
     section: "Политики",
     description: "Правила ролей, триггеров включения и молчания бота в группах.",
+    kind: "markdown",
+    scope: "repo_only"
+  },
+  {
+    path: "docs/Telegram_Behavior_Profiles.md",
+    label: "Профили поведения Telegram",
+    section: "Документы",
+    description: "Описание новой модели профилей поведения и памяти по чатам.",
     kind: "markdown",
     scope: "repo_only"
   },
@@ -88,10 +107,18 @@ const CONTROL_FILE_ITEMS: ControlFileItem[] = [
     scope: "repo_only"
   },
   {
-    path: "config/telegram/chat_policies.example.json",
+    path: CHAT_POLICIES_PATH,
     label: "Конфиг политик чатов",
     section: "Политики",
     description: "Роли и правила реакции Hobbes по группам Telegram.",
+    kind: "json",
+    scope: "repo_and_runtime"
+  },
+  {
+    path: BEHAVIOR_PROFILES_PATH,
+    label: "Конфиг профилей поведения",
+    section: "Политики",
+    description: "Библиотека профилей поведения для разных чатов и групп.",
     kind: "json",
     scope: "repo_and_runtime"
   },
@@ -275,7 +302,7 @@ export async function applyControlFileToRepo(pathValue: string, content: string)
     throw new Error("github_control_not_configured");
   }
 
-  const validation = validateControlContent(item.kind, content, item.path);
+  const validation = await validateControlContent(item.kind, content, item.path);
 
   if (!validation.ok) {
     throw new Error(validation.message);
@@ -466,47 +493,56 @@ export async function saveDraft(pathValue: string, kind: ControlFileKind, conten
   return rows[0];
 }
 
-export function validateControlContent(kind: ControlFileKind, content: string, pathValue?: string) {
+async function loadLinkedControlContent(pathValue: string) {
+  const file = await getControlFile(pathValue);
+  return file?.draftContent ?? file?.sourceContent ?? "";
+}
+
+async function validateTelegramControlBundle(pathValue: string, content: string) {
+  const behaviorProfilesContent =
+    pathValue === BEHAVIOR_PROFILES_PATH ? content : await loadLinkedControlContent(BEHAVIOR_PROFILES_PATH);
+  const chatPoliciesContent =
+    pathValue === CHAT_POLICIES_PATH ? content : await loadLinkedControlContent(CHAT_POLICIES_PATH);
+  const personasContent = await loadLinkedControlContent(COMMS_PERSONAS_PATH);
+
+  const personaIds = personasContent ? parsePersonaIdsFromMarkdown(personasContent) : [];
+  const behaviorProfiles = parseBehaviorProfilesContent(behaviorProfilesContent);
+  const chatPolicies = parseChatPoliciesContent(chatPoliciesContent);
+
+  const profileIssues = validateBehaviorProfilesDocument(behaviorProfiles, personaIds);
+  const chatIssues = validateChatPoliciesDocument(chatPolicies, behaviorProfiles);
+  const issues = [...profileIssues, ...chatIssues];
+  const error = issues.find((issue) => issue.level === "error");
+
+  if (error) {
+    return {
+      ok: false as const,
+      message: error.message
+    };
+  }
+
+  const warning = issues.find((issue) => issue.level === "warning");
+
+  return {
+    ok: true as const,
+    message: warning ? `JSON валиден, но есть предупреждение: ${warning.message}` : "JSON валиден."
+  };
+}
+
+export async function validateControlContent(kind: ControlFileKind, content: string, pathValue?: string) {
   if (kind === "json") {
     try {
       const parsed = JSON.parse(content) as Record<string, unknown>;
 
-      if (pathValue === "config/telegram/chat_policies.example.json") {
+      if (pathValue === CHAT_POLICIES_PATH || pathValue === BEHAVIOR_PROFILES_PATH) {
         if (typeof parsed.version !== "number") {
-          return { ok: false as const, message: "В chat policies должен быть числовой version." };
-        }
-
-        if (!Array.isArray(parsed.chats)) {
-          return { ok: false as const, message: "В chat policies должен быть массив chats." };
-        }
-
-        const invalidChat = parsed.chats.find((entry) => {
-          if (!entry || typeof entry !== "object") {
-            return true;
-          }
-
-          const row = entry as Record<string, unknown>;
-          return typeof row.chatId !== "string" || typeof row.persona !== "string" || typeof row.enabled !== "boolean";
-        });
-
-        if (invalidChat) {
           return {
             ok: false as const,
-            message: "Каждый чат в chat policies должен содержать chatId, persona и enabled."
+            message: "В Telegram policy JSON должен быть числовой version."
           };
         }
 
-        const seenChatIds = new Set<string>();
-        for (const entry of parsed.chats as Record<string, unknown>[]) {
-          const chatId = String(entry.chatId ?? "");
-          if (seenChatIds.has(chatId)) {
-            return {
-              ok: false as const,
-              message: `Повторяющийся chatId в chat policies: ${chatId}. Для каждой группы нужна одна уникальная запись.`
-            };
-          }
-          seenChatIds.add(chatId);
-        }
+        return validateTelegramControlBundle(pathValue, content);
       }
 
       if (pathValue === "config/telegram/test_mode.example.json") {
@@ -529,9 +565,9 @@ export function validateControlContent(kind: ControlFileKind, content: string, p
     } catch (error) {
       return {
         ok: false as const,
-        message: error instanceof Error ? `Ошибка JSON: ${error.message}` : "Ошибка JSON."
-      };
-    }
+      message: error instanceof Error ? `Ошибка JSON: ${error.message}` : "Ошибка JSON."
+    };
+  }
   }
 
   if (!content.trim()) {

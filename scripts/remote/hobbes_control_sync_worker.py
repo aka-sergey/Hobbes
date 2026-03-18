@@ -52,7 +52,10 @@ def apply_job(job: dict):
     subprocess.run(["chown", "hobbes:hobbes", remote_path], check=True)
     subprocess.run(["chmod", "644", remote_path], check=True)
 
-    if remote_path == "/home/hobbes/.openclaw/policies/chat_policies.json":
+    if remote_path in {
+        "/home/hobbes/.openclaw/policies/chat_policies.json",
+        "/home/hobbes/.openclaw/policies/behavior_profiles.json",
+    }:
         subprocess.run(["python3", "/usr/local/bin/compile-telegram-group-policies.py"], check=True)
 
     runtime_dir = f"/run/user/{subprocess.check_output(['id', '-u', 'hobbes'], text=True).strip()}"

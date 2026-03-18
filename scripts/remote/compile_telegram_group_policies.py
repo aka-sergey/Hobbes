@@ -2,11 +2,11 @@
 import json
 import os
 import re
-import sys
 from copy import deepcopy
 
 
 POLICIES_PATH = os.environ.get("HOBBES_CHAT_POLICIES_PATH", "/home/hobbes/.openclaw/policies/chat_policies.json")
+PROFILES_PATH = os.environ.get("HOBBES_BEHAVIOR_PROFILES_PATH", "/home/hobbes/.openclaw/policies/behavior_profiles.json")
 OPENCLAW_PATH = os.environ.get("HOBBES_OPENCLAW_PATH", "/home/hobbes/.openclaw/openclaw.json")
 COMPILED_DIR = os.environ.get("HOBBES_COMPILED_DIR", "/home/hobbes/.openclaw/runtime")
 COMPILED_JSON_PATH = os.path.join(COMPILED_DIR, "telegram-group-runtime.json")
@@ -16,6 +16,12 @@ COMPILED_MD_PATH = os.path.join(COMPILED_DIR, "TELEGRAM_GROUP_POLICIES.md")
 def load_json(path: str):
     with open(path, "r", encoding="utf-8") as handle:
         return json.load(handle)
+
+
+def load_optional_json(path: str, fallback: dict):
+    if not os.path.exists(path):
+        return deepcopy(fallback)
+    return load_json(path)
 
 
 def write_json(path: str, payload: dict):
@@ -34,7 +40,7 @@ def write_text(path: str, content: str):
 def unique_strings(items):
     seen = set()
     result = []
-    for item in items:
+    for item in items or []:
         if not isinstance(item, str):
             continue
         value = item.strip()
@@ -55,8 +61,60 @@ def merge_dict(base: dict | None, override: dict | None):
     return result
 
 
-def validate_policies(payload: dict):
-    chats = payload.get("chats")
+def merge_topic_policy(base: dict | None, profile: dict | None, chat: dict | None):
+    return {
+        "allow": unique_strings(
+            [
+                *((base or {}).get("allow") or []),
+                *((profile or {}).get("allow") or []),
+                *((chat or {}).get("allow") or []),
+            ]
+        ),
+        "deny": unique_strings(
+            [
+                *((base or {}).get("deny") or []),
+                *((profile or {}).get("deny") or []),
+                *((chat or {}).get("deny") or []),
+            ]
+        ),
+    }
+
+
+def normalize_profiles(payload: dict):
+    defaults = payload.get("defaults", {})
+    profiles = payload.get("profiles", [])
+    normalized = {}
+
+    for index, entry in enumerate(profiles):
+        if not isinstance(entry, dict):
+            raise ValueError("behavior_profiles: each profile must be an object")
+
+        profile_id = entry.get("id")
+        if not isinstance(profile_id, str) or not profile_id.strip():
+            raise ValueError(f"behavior_profiles: profile at index {index} must contain a non-empty id")
+
+        if profile_id in normalized:
+            raise ValueError(f"behavior_profiles: duplicate profile id detected: {profile_id}")
+
+        merged = {
+            "id": profile_id,
+            "label": entry.get("label", profile_id),
+            "persona": entry.get("persona", "default_operator"),
+            "description": entry.get("description", ""),
+            "systemPrompt": entry.get("systemPrompt", ""),
+            "expertise": unique_strings(entry.get("expertise", [])),
+            "style": merge_dict(defaults.get("style"), entry.get("style")),
+            "moderation": merge_dict(defaults.get("moderation"), entry.get("moderation")),
+            "topicPolicy": merge_topic_policy(defaults.get("topicPolicy"), {}, entry.get("topicPolicy")),
+            "memoryDefaults": merge_dict(defaults.get("memoryDefaults"), entry.get("memoryDefaults")),
+        }
+        normalized[profile_id] = merged
+
+    return normalized
+
+
+def validate_policies(policies: dict, profiles: dict):
+    chats = policies.get("chats")
     if not isinstance(chats, list):
         raise ValueError("chat_policies: `chats` must be a list")
 
@@ -72,6 +130,11 @@ def validate_policies(payload: dict):
             raise ValueError(f"chat_policies: duplicate chatId detected: {chat_id} ({seen_chat_ids[chat_id]} and {slug})")
         seen_chat_ids[chat_id] = str(slug)
 
+        profile_id = entry.get("profileId")
+        persona = entry.get("persona")
+        if isinstance(profile_id, str) and profile_id and profile_id not in profiles and not isinstance(persona, str):
+            raise ValueError(f"chat_policies: missing profileId {profile_id} for chat {chat_id}")
+
 
 def mode_requires_signal(mode: str, react_without_signal: bool) -> bool:
     if react_without_signal:
@@ -81,6 +144,7 @@ def mode_requires_signal(mode: str, react_without_signal: bool) -> bool:
 
 def compile_group_system_prompt(chat: dict):
     persona = chat.get("persona", "default_operator")
+    profile_id = chat.get("profileId", "inline")
     description = chat.get("description", "")
     language = chat.get("style", {}).get("language", "ru")
     tone = chat.get("style", {}).get("tone", "calm_operator")
@@ -88,20 +152,51 @@ def compile_group_system_prompt(chat: dict):
     allow_topics = unique_strings(chat.get("topicPolicy", {}).get("allow", []))
     deny_topics = unique_strings(chat.get("topicPolicy", {}).get("deny", []))
     keywords = unique_strings(chat.get("activationKeywords", []))
+    prompt_override = chat.get("promptOverride", "")
+    system_prompt = chat.get("systemPrompt", "")
+    memory_mode = chat.get("memoryPolicy", {}).get("mode", "chat_isolated")
+    allow_sharp = bool(chat.get("moderation", {}).get("allowSharpTone", False))
+    uses_slang = bool(chat.get("style", {}).get("usesSlang", False))
+    step_by_step = bool(chat.get("style", {}).get("stepByStep", False))
 
     lines = [
-        "You are Hobbes in a Telegram group chat.",
+        "You are Hobbes in a Telegram chat.",
         f"Primary persona: {persona}.",
+        f"Profile: {profile_id}.",
         f"Chat description: {description}" if description else "Chat description: not specified.",
         f"Preferred answer language: {language}.",
         f"Preferred tone: {tone}.",
         f"Preferred answer shape: {max_shape}.",
+        f"Memory mode: {memory_mode}.",
         "Use concise and useful answers. Do not become noisy.",
-        "Answer only within the role and topic scope of this group.",
+        "Answer only within the role and topic scope of this chat.",
         "If the request is outside the allowed scope or crosses a denied boundary, refuse briefly and safely.",
-        "Do not improvise a different persona for this chat.",
         "Do not pretend you are a licensed professional, regulated advisor, or guaranteed authority beyond the configured persona scope.",
     ]
+
+    lines.append(
+        "Controlled slang is allowed when it improves fit for the chat."
+        if uses_slang
+        else "Avoid unnecessary slang."
+    )
+    lines.append(
+        "Prefer step-by-step answers when useful."
+        if step_by_step
+        else "Do not over-structure short answers."
+    )
+    lines.append(
+        "A sharp or dry tone is allowed, but never turn it into abuse or harassment."
+        if allow_sharp
+        else "Keep the tone controlled and non-hostile."
+    )
+
+    if system_prompt:
+        lines.append("Profile system prompt:")
+        lines.append(system_prompt)
+
+    if prompt_override:
+        lines.append("Chat-specific override:")
+        lines.append(prompt_override)
 
     if allow_topics:
         lines.append("Allowed topics:")
@@ -125,15 +220,39 @@ def keyword_to_pattern(keyword: str):
     return escaped
 
 
-def build_runtime(policies: dict, openclaw: dict):
+def resolve_chat(chat_defaults: dict, raw_chat: dict, profiles: dict):
+    merged = merge_dict(chat_defaults, raw_chat)
+    profile = profiles.get(merged.get("profileId"), {})
+
+    resolved = merge_dict(merged, {})
+    resolved["profileId"] = merged.get("profileId") or profile.get("id") or "default_operator"
+    resolved["persona"] = profile.get("persona") or merged.get("persona") or chat_defaults.get("persona") or "default_operator"
+    resolved["systemPrompt"] = profile.get("systemPrompt", "")
+    resolved["expertise"] = unique_strings(profile.get("expertise", []))
+    resolved["style"] = merge_dict(chat_defaults.get("style"), profile.get("style"))
+    resolved["style"] = merge_dict(resolved.get("style"), raw_chat.get("style"))
+    resolved["moderation"] = merge_dict(chat_defaults.get("moderation"), profile.get("moderation"))
+    resolved["moderation"] = merge_dict(resolved.get("moderation"), raw_chat.get("moderation"))
+    resolved["memoryPolicy"] = merge_dict(chat_defaults.get("memoryPolicy"), profile.get("memoryDefaults"))
+    resolved["memoryPolicy"] = merge_dict(resolved.get("memoryPolicy"), raw_chat.get("memoryPolicy"))
+    if "memoryScope" in raw_chat and "mode" not in raw_chat.get("memoryPolicy", {}):
+        resolved["memoryPolicy"]["mode"] = raw_chat.get("memoryScope")
+    resolved["topicPolicy"] = merge_topic_policy(chat_defaults.get("topicPolicy"), profile.get("topicPolicy"), raw_chat.get("topicPolicy"))
+    resolved["activationKeywords"] = unique_strings(raw_chat.get("activationKeywords", []))
+    resolved["compiledPrompt"] = compile_group_system_prompt(resolved)
+    return resolved
+
+
+def build_runtime(policies: dict, profiles_payload: dict, openclaw: dict):
     defaults = policies.get("defaults", {})
+    profiles = normalize_profiles(profiles_payload)
     chats = policies.get("chats", [])
 
     enabled_chats = []
     for raw_chat in chats:
-        merged = merge_dict(defaults, raw_chat)
-        if merged.get("enabled") is True:
-            enabled_chats.append(merged)
+        resolved = resolve_chat(defaults, raw_chat, profiles)
+        if resolved.get("enabled") is True:
+            enabled_chats.append(resolved)
 
     channels = openclaw.setdefault("channels", {})
     telegram = channels.setdefault("telegram", {})
@@ -141,6 +260,7 @@ def build_runtime(policies: dict, openclaw: dict):
 
     compiled_groups: dict[str, dict] = {}
     activation_keywords: list[str] = []
+    resolved_snapshot_groups: dict[str, dict] = {}
 
     for chat in enabled_chats:
         chat_id = chat["chatId"]
@@ -154,7 +274,31 @@ def build_runtime(policies: dict, openclaw: dict):
         compiled_groups[chat_id] = {
             "groupPolicy": "open",
             "requireMention": require_mention,
-            "systemPrompt": compile_group_system_prompt(chat)
+            "systemPrompt": chat["compiledPrompt"]
+        }
+
+        resolved_snapshot_groups[chat_id] = {
+            "chatId": chat_id,
+            "slug": chat.get("slug", chat_id),
+            "enabled": True,
+            "profileId": chat.get("profileId", "default_operator"),
+            "persona": chat.get("persona", "default_operator"),
+            "description": chat.get("description", ""),
+            "compiledPrompt": chat["compiledPrompt"],
+            "replyPolicy": chat.get("replyPolicy", {}),
+            "memoryPolicy": chat.get("memoryPolicy", {}),
+            "moderation": chat.get("moderation", {}),
+            "topicPolicy": chat.get("topicPolicy", {}),
+            "style": chat.get("style", {}),
+            "activationKeywords": keywords,
+            "expertise": chat.get("expertise", []),
+            "telegramContext": {
+                "chatId": chat_id,
+                "profileId": chat.get("profileId", "default_operator"),
+                "persona": chat.get("persona", "default_operator"),
+                "memoryMode": chat.get("memoryPolicy", {}).get("mode", "chat_isolated"),
+                "replyMode": mode,
+            },
         }
 
     telegram["groups"] = compiled_groups
@@ -188,16 +332,18 @@ def build_runtime(policies: dict, openclaw: dict):
         "enabledChatCount": len(enabled_chats),
         "chatIds": [chat["chatId"] for chat in enabled_chats],
         "mentionPatterns": compiled_patterns,
-        "groups": compiled_groups,
+        "groups": resolved_snapshot_groups,
+        "profiles": sorted(list(profiles.keys())),
     }
 
     markdown_lines = [
         "# Telegram Group Runtime",
         "",
-        "Compiled from `chat_policies.json`.",
+        "Compiled from `chat_policies.json` and `behavior_profiles.json`.",
         "",
         f"- enabled chats: {len(enabled_chats)}",
         f"- top-level groupPolicy: {telegram.get('groupPolicy')}",
+        f"- known profiles: {', '.join(sorted(list(profiles.keys()))) or 'none'}",
         "",
     ]
 
@@ -207,10 +353,16 @@ def build_runtime(policies: dict, openclaw: dict):
                 f"## {chat.get('slug', chat['chatId'])}",
                 "",
                 f"- chatId: `{chat['chatId']}`",
+                f"- profileId: `{chat.get('profileId', 'default_operator')}`",
                 f"- persona: `{chat.get('persona', 'default_operator')}`",
+                f"- memoryMode: `{chat.get('memoryPolicy', {}).get('mode', 'chat_isolated')}`",
                 f"- mode: `{chat.get('replyPolicy', {}).get('mode', 'mention_or_reply')}`",
                 f"- requireMention: `{compiled_groups[chat['chatId']]['requireMention']}`",
                 f"- activation keywords: {', '.join(unique_strings(chat.get('activationKeywords', []))) or 'none'}",
+                "",
+                "### Prompt summary",
+                "",
+                chat["compiledPrompt"],
                 "",
             ]
         )
@@ -220,9 +372,18 @@ def build_runtime(policies: dict, openclaw: dict):
 
 def main():
     policies = load_json(POLICIES_PATH)
-    validate_policies(policies)
+    profiles_payload = load_optional_json(
+        PROFILES_PATH,
+        {
+            "version": 1,
+            "defaults": {},
+            "profiles": []
+        },
+    )
+    profiles = normalize_profiles(profiles_payload)
+    validate_policies(policies, profiles)
     openclaw = load_json(OPENCLAW_PATH)
-    updated_openclaw, runtime_snapshot, markdown = build_runtime(policies, openclaw)
+    updated_openclaw, runtime_snapshot, markdown = build_runtime(policies, profiles_payload, openclaw)
     write_json(OPENCLAW_PATH, updated_openclaw)
     write_json(COMPILED_JSON_PATH, runtime_snapshot)
     write_text(COMPILED_MD_PATH, markdown)

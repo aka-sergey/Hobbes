@@ -3,13 +3,20 @@
   "notes": [
     "This file is the source of truth for Telegram group behavior, not a claim that production is already enabled.",
     "Use explicit allowlisted chat IDs only.",
-    "Keep groupPolicy disabled in production until these rules are reviewed and the target chats are confirmed."
+    "Keep groupPolicy disabled in production until these rules are reviewed and the target chats are confirmed.",
+    "Use profileId for reusable behavior. persona is legacy fallback only."
   ],
   "defaults": {
     "enabled": false,
-    "language": "ru",
-    "persona": "default_operator",
-    "memoryScope": "chat_isolated",
+    "profileId": "default_operator",
+    "promptOverride": "",
+    "memoryPolicy": {
+      "mode": "chat_isolated",
+      "retainRecentMessages": 40,
+      "retainRollingSummary": true,
+      "storeFacts": true,
+      "sharedDomainKey": ""
+    },
     "replyPolicy": {
       "mode": "mention_or_reply",
       "reactOnMention": true,
@@ -27,6 +34,19 @@
         "secret handling"
       ]
     },
+    "moderation": {
+      "allowSharpTone": false,
+      "forbidAbuse": true,
+      "forbidHarassment": true,
+      "forbidHate": true
+    },
+    "style": {
+      "language": "ru",
+      "tone": "calm_operator",
+      "maxAnswerShape": "short_paragraph",
+      "usesSlang": false,
+      "stepByStep": false
+    },
     "silencePolicy": {
       "staySilentIfOffTopic": true,
       "staySilentIfNoSignal": true,
@@ -36,116 +56,121 @@
   "chats": [
     {
       "chatId": "-5086270479",
-  "slug": "crypto_operations_group",
-  "enabled": true,
-  "persona": "crypto_operations_assistant",
-  "description": "Группа по операциям с криптовалютой, обмену, P2P, OTC и оплате зарубежных сервисов из РФ.",
-  "replyPolicy": {
-    "mode": "mention_or_reply_or_keyword",
-    "reactOnMention": true,
-    "reactOnReplyToBot": true,
-    "reactOnDirectQuestionToBot": true,
-    "reactOnKeywords": true,
-    "reactWithoutSignal": false,
-    "maxRepliesPerHour": 10
-  },
-  "activationKeywords": [
-"хлопец",
-    "хоббс",
-    "hobbes",
-    "разбор",
-    "суммируй",
-    "сделай выжимку",
-    "крипта",
-    "криптовалюта",
-    "crypto",
-    "купить крипту",
-    "продать крипту",
-    "обменять крипту",
-    "обменник",
-    "buy crypto",
-    "sell crypto",
-    "usdt",
-    "tether",
-    "btc",
-    "bitcoin",
-    "eth",
-    "ethereum",
-    "trx",
-    "tron",
-    "ton",
-    "p2p",
-    "otc",
-    "bybit",
-    "okx",
-    "wallet",
-    "кошелек",
-    "как купить usdt",
-    "как продать usdt",
-    "как перевести usdt",
-    "как вывести крипту",
-    "как завести крипту",
-    "как оплатить",
-    "как оплатить зарубеж",
-    "оплатить зарубеж",
-    "оплата зарубежного сервиса",
-    "зарубежная оплата",
-    "pay abroad",
-    "international payment",
-    "pay from russia",
-    "foreign payment",
-    "какая сеть",
-    "какая комиссия",
-    "network fee",
-    "transfer fee",
-    "какой способ обмена",
-    "где купить usdt",
-    "где продать usdt"
-  ],
-  "topicPolicy": {
-    "allow": [
-      "buying crypto",
-      "selling crypto",
-      "fiat to crypto exchange",
-      "crypto to fiat exchange",
-      "p2p exchange guidance",
-      "otc exchange guidance",
-      "wallet selection basics",
-      "network selection for transfers",
-      "crypto transfer preparation",
-      "fee and commission comparison",
-      "exchange platform comparison",
-      "foreign payment from russia",
-      "paying for foreign services",
-      "risk-aware payment workflow",
-      "transaction troubleshooting basics"
-    ],
-    "deny": [
-      "guaranteed profit promises",
-      "investment predictions",
-      "definitive investment advice",
-      "aml evasion instructions",
-      "kyc bypass",
-      "sanctions evasion",
-      "tax evasion instructions",
-      "custody of user funds by hobbes",
-      "impersonation for verification",
-      "illegal payment routing",
-      "money laundering guidance"
-    ]
-  },
-  "style": {
-    "language": "ru",
-    "tone": "practical_risk_aware",
-    "maxAnswerShape": "short_paragraph_or_compact_bullets"
-  }
-},
+      "slug": "crypto_operations_group",
+      "enabled": true,
+      "profileId": "crypto_ops",
+      "persona": "crypto_operations_assistant",
+      "description": "Группа по операциям с криптовалютой, обмену, P2P, OTC и оплате зарубежных сервисов из РФ.",
+      "promptOverride": "Если вопрос только про настроение рынка или цену без конкретной операционной задачи, отвечай очень кратко или молчи.",
+      "memoryPolicy": {
+        "mode": "chat_isolated",
+        "retainRecentMessages": 60,
+        "retainRollingSummary": true,
+        "storeFacts": true,
+        "sharedDomainKey": ""
+      },
+      "replyPolicy": {
+        "mode": "mention_or_reply_or_keyword",
+        "reactOnMention": true,
+        "reactOnReplyToBot": true,
+        "reactOnDirectQuestionToBot": true,
+        "reactOnKeywords": true,
+        "reactWithoutSignal": false,
+        "maxRepliesPerHour": 10
+      },
+      "activationKeywords": [
+        "хлопец",
+        "хоббс",
+        "hobbes",
+        "разбор",
+        "суммируй",
+        "сделай выжимку",
+        "крипта",
+        "криптовалюта",
+        "crypto",
+        "купить крипту",
+        "продать крипту",
+        "обменять крипту",
+        "обменник",
+        "buy crypto",
+        "sell crypto",
+        "usdt",
+        "tether",
+        "btc",
+        "bitcoin",
+        "eth",
+        "ethereum",
+        "trx",
+        "tron",
+        "ton",
+        "p2p",
+        "otc",
+        "bybit",
+        "okx",
+        "wallet",
+        "кошелек",
+        "как купить usdt",
+        "как продать usdt",
+        "как перевести usdt",
+        "как вывести крипту",
+        "как завести крипту",
+        "как оплатить",
+        "как оплатить зарубеж",
+        "оплатить зарубеж",
+        "оплата зарубежного сервиса",
+        "зарубежная оплата",
+        "pay abroad",
+        "international payment",
+        "pay from russia",
+        "foreign payment",
+        "какая сеть",
+        "какая комиссия",
+        "network fee",
+        "transfer fee",
+        "какой способ обмена",
+        "где купить usdt",
+        "где продать usdt"
+      ],
+      "topicPolicy": {
+        "allow": [
+          "p2p exchange guidance",
+          "otc exchange guidance",
+          "crypto transfer preparation",
+          "fee and commission comparison",
+          "exchange platform comparison",
+          "risk-aware payment workflow",
+          "transaction troubleshooting basics"
+        ],
+        "deny": [
+          "definitive investment advice",
+          "custody of user funds by hobbes",
+          "impersonation for verification",
+          "illegal payment routing"
+        ]
+      },
+      "style": {
+        "language": "ru",
+        "tone": "practical_risk_aware",
+        "maxAnswerShape": "short_paragraph_or_compact_bullets",
+        "usesSlang": true,
+        "stepByStep": true
+      }
+    },
     {
       "chatId": "-10000",
       "slug": "logistics_group_example",
       "enabled": true,
+      "profileId": "logistics_operator",
       "persona": "logistics_operator",
       "description": "Logistics or dispatch chat.",
+      "promptOverride": "Если нет точных данных по ETA или статусу, явно помечай это как предположение.",
+      "memoryPolicy": {
+        "mode": "chat_isolated",
+        "retainRecentMessages": 30,
+        "retainRollingSummary": true,
+        "storeFacts": true,
+        "sharedDomainKey": ""
+      },
       "replyPolicy": {
         "mode": "mention_or_reply_or_keyword",
         "reactOnMention": true,
@@ -182,7 +207,107 @@
       "style": {
         "language": "ru",
         "tone": "operational_direct",
-        "maxAnswerShape": "compact_bullets"
+        "maxAnswerShape": "compact_bullets",
+        "usesSlang": false,
+        "stepByStep": true
+      }
+    },
+    {
+      "chatId": "-10001",
+      "slug": "it_team_example",
+      "enabled": false,
+      "profileId": "it_specialist",
+      "persona": "it_specialist",
+      "description": "Пример IT-команды для технического режима Hobbes.",
+      "promptOverride": "При разборе технической проблемы сначала дай вероятные причины, потом безопасные шаги проверки.",
+      "memoryPolicy": {
+        "mode": "chat_isolated",
+        "retainRecentMessages": 50,
+        "retainRollingSummary": true,
+        "storeFacts": true,
+        "sharedDomainKey": ""
+      },
+      "replyPolicy": {
+        "mode": "mention_or_reply_or_keyword",
+        "reactOnMention": true,
+        "reactOnReplyToBot": true,
+        "reactOnDirectQuestionToBot": true,
+        "reactOnKeywords": true,
+        "reactWithoutSignal": false,
+        "maxRepliesPerHour": 14
+      },
+      "activationKeywords": [
+        "хоббс",
+        "hobbes",
+        "infra",
+        "deploy",
+        "api",
+        "backend",
+        "integration",
+        "incident",
+        "docker",
+        "k8s"
+      ],
+      "topicPolicy": {
+        "allow": [
+          "incident triage",
+          "backend debugging",
+          "deployment troubleshooting",
+          "system integration"
+        ],
+        "deny": [
+          "credential theft",
+          "destructive intrusion guidance"
+        ]
+      },
+      "style": {
+        "language": "ru",
+        "tone": "technical_direct",
+        "maxAnswerShape": "compact_bullets",
+        "usesSlang": false,
+        "stepByStep": true
+      }
+    },
+    {
+      "chatId": "-10002",
+      "slug": "sharp_banter_example",
+      "enabled": false,
+      "profileId": "sharp_sarcastic_operator",
+      "persona": "sharp_sarcastic_operator",
+      "description": "Пример чата с более резким, но безопасным тоном.",
+      "promptOverride": "Можно быть колким и сухим, но без прямых оскорблений и травли.",
+      "memoryPolicy": {
+        "mode": "off",
+        "retainRecentMessages": 20,
+        "retainRollingSummary": false,
+        "storeFacts": false,
+        "sharedDomainKey": ""
+      },
+      "replyPolicy": {
+        "mode": "mention_or_reply",
+        "reactOnMention": true,
+        "reactOnReplyToBot": true,
+        "reactOnDirectQuestionToBot": true,
+        "reactOnKeywords": false,
+        "reactWithoutSignal": false,
+        "maxRepliesPerHour": 8
+      },
+      "activationKeywords": [
+        "хоббс",
+        "hobbes"
+      ],
+      "moderation": {
+        "allowSharpTone": true,
+        "forbidAbuse": true,
+        "forbidHarassment": true,
+        "forbidHate": true
+      },
+      "style": {
+        "language": "ru",
+        "tone": "sharp_sarcastic",
+        "maxAnswerShape": "short_paragraph",
+        "usesSlang": true,
+        "stepByStep": false
       }
     }
   ]

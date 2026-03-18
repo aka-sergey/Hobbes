@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     return Response.json({ ok: false, error: "file_not_allowed" }, { status: 404 });
   }
 
-  const validation = validateControlContent(parsed.data.kind, parsed.data.content, parsed.data.path);
+  const validation = await validateControlContent(parsed.data.kind, parsed.data.content, parsed.data.path);
 
   if (!validation.ok) {
     return Response.json({ ok: false, error: "validation_failed", message: validation.message }, { status: 400 });
