@@ -1,9 +1,9 @@
 {
   "version": 1,
   "notes": [
-    "This file is the source of truth for Telegram group behavior and is compiled into live group runtime on the VPS.",
+    "This file is the source of truth for Telegram group behavior, not a claim that production is already enabled.",
     "Use explicit allowlisted chat IDs only.",
-    "Keep top-level Telegram groups on allowlist and validate one real group at a time."
+    "Keep groupPolicy disabled in production until these rules are reviewed and the target chats are confirmed."
   ],
   "defaults": {
     "enabled": false,
@@ -38,8 +38,8 @@
       "chatId": "-5086270479",
       "slug": "doctors_group_example",
       "enabled": true,
-      "persona": "medical_peer_general",
-      "description": "Clinical discussion or doctor community chat.",
+      "persona": "crypto_exchange_specialist",
+      "description": "Crypto community of traders",
       "replyPolicy": {
         "mode": "mention_or_reply_or_keyword",
         "reactOnMention": true,
@@ -50,12 +50,17 @@
         "maxRepliesPerHour": 8
       },
       "activationKeywords": [
-        "хоббс",
-        "hobbes",
-        "разбор",
-        "дифдиагноз",
-        "суммируй",
-        "сделай выжимку"
+"хоббс", "hobbes", "разбор", "дифдиагноз", "суммируй", "сделай выжимку",
+"обмен", "обменять", "обменник", "курс", "конвертация", "валюта",
+"рубль", "рубли", "рф", "рубли в доллары", "рубли в евро",
+"доллар", "usd", "евро", "eur", "курс доллара",
+"usdt", "tether", "крипта", "криптовалюта", "crypto",
+"биткоин", "btc", "ethereum", "eth", "trx", "tron",
+"кошелек", "wallet", "адрес", "перевод", "транзакция",
+"оплата", "оплатить", "платеж", "платить", "заплатить",
+"карта не проходит", "платеж не прошел", "санкции",
+"как оплатить", "как перевести", "как купить usdt",
+"обнал", "p2p", "бинанс", "bybit", "okx"
       ],
       "topicPolicy": {
         "allow": [
@@ -79,7 +84,7 @@
       }
     },
     {
-      "chatId": "-1002222222222",
+      "chatId": "-10000",
       "slug": "logistics_group_example",
       "enabled": true,
       "persona": "logistics_operator",
@@ -121,58 +126,6 @@
         "language": "ru",
         "tone": "operational_direct",
         "maxAnswerShape": "compact_bullets"
-      }
-    },
-    {
-      "chatId": "-1003333333333",
-      "slug": "crypto_exchange_group_example",
-      "enabled": true,
-      "persona": "crypto_exchange_specialist",
-      "description": "Crypto, exchange, P2P, OTC, and on-ramp/off-ramp discussion chat.",
-      "replyPolicy": {
-        "mode": "mention_or_reply_or_keyword",
-        "reactOnMention": true,
-        "reactOnReplyToBot": true,
-        "reactOnDirectQuestionToBot": true,
-        "reactOnKeywords": true,
-        "reactWithoutSignal": false,
-        "maxRepliesPerHour": 10
-      },
-      "activationKeywords": [
-        "хоббс",
-        "hobbes",
-        "крипта",
-        "обмен",
-        "биржа",
-        "usdt",
-        "p2p",
-        "otc",
-        "сеть",
-        "комиссия"
-      ],
-      "topicPolicy": {
-        "allow": [
-          "exchange comparison",
-          "network selection",
-          "custody and wallet basics",
-          "fee comparison",
-          "operational risk summary",
-          "market news summary",
-          "travel rule and verification explanation"
-        ],
-        "deny": [
-          "guaranteed profit promises",
-          "illegal sanctions evasion",
-          "aml or tax evasion instructions",
-          "impersonation for KYC",
-          "custody of user funds by Hobbes",
-          "definitive investment advice"
-        ]
-      },
-      "style": {
-        "language": "ru",
-        "tone": "practical_risk_aware",
-        "maxAnswerShape": "short_paragraph_or_compact_bullets"
       }
     }
   ]
