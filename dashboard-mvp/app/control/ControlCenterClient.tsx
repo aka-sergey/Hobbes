@@ -234,6 +234,19 @@ function getConfigHints(path: string, kind: "markdown" | "json"): ConfigHint[] {
   ];
 }
 
+function pickPreferredStartFile(files: ControlFileListItem[]) {
+  const preferredOrder = [CHAT_POLICIES_PATH, BEHAVIOR_PROFILES_PATH];
+
+  for (const pathValue of preferredOrder) {
+    const match = files.find((entry) => entry.path === pathValue && entry.available);
+    if (match) {
+      return match;
+    }
+  }
+
+  return files.find((entry) => entry.available) ?? files[0] ?? null;
+}
+
 export function ControlCenterClient() {
   const [files, setFiles] = useState<ControlFileListItem[]>([]);
   const [selectedPath, setSelectedPath] = useState<string>("");
@@ -253,9 +266,9 @@ export function ControlCenterClient() {
       const response = await fetch("/api/control/files", { cache: "no-store" });
       const data = await response.json();
       setFiles(data.files ?? []);
-      const firstAvailable = (data.files ?? []).find((entry: ControlFileListItem) => entry.available) ?? data.files?.[0];
-      if (firstAvailable) {
-        setSelectedPath(firstAvailable.path);
+      const preferredFile = pickPreferredStartFile(data.files ?? []);
+      if (preferredFile) {
+        setSelectedPath(preferredFile.path);
       }
       setLoading(false);
     };
@@ -492,7 +505,7 @@ export function ControlCenterClient() {
           <div className="control-help-grid">
             <div className="help-item">
               <strong>1. Выберите файл</strong>
-              <p>Слева доступны только разрешенные документы и policy-файлы.</p>
+              <p>Слева доступны только разрешенные документы и policy-файлы. По умолчанию панель открывает Telegram chat policies.</p>
             </div>
             <div className="help-item">
               <strong>2. Внесите правки</strong>
