@@ -35,7 +35,7 @@
   },
   "chats": [
     {
-      "chatId": "-1005086270479",
+      "chatId": "-5086270479",
       "slug": "doctors_group_example",
       "enabled": true,
       "persona": "medical_peer_general",
@@ -79,7 +79,7 @@
       }
     },
     {
-      "chatId": "-1005086270479",
+      "chatId": "-5086270479",
       "slug": "logistics_group_example",
       "enabled": true,
       "persona": "logistics_operator",
@@ -121,58 +121,6 @@
         "language": "ru",
         "tone": "operational_direct",
         "maxAnswerShape": "compact_bullets"
-      }
-    },
-    {
-      "chatId": "-1003333333333",
-      "slug": "crypto_exchange_group_example",
-      "enabled": true,
-      "persona": "crypto_exchange_specialist",
-      "description": "Crypto, exchange, P2P, OTC, and on-ramp/off-ramp discussion chat.",
-      "replyPolicy": {
-        "mode": "mention_or_reply_or_keyword",
-        "reactOnMention": true,
-        "reactOnReplyToBot": true,
-        "reactOnDirectQuestionToBot": true,
-        "reactOnKeywords": true,
-        "reactWithoutSignal": false,
-        "maxRepliesPerHour": 10
-      },
-      "activationKeywords": [
-        "хоббс",
-        "hobbes",
-        "крипта",
-        "обмен",
-        "биржа",
-        "usdt",
-        "p2p",
-        "otc",
-        "сеть",
-        "комиссия"
-      ],
-      "topicPolicy": {
-        "allow": [
-          "exchange comparison",
-          "network selection",
-          "custody and wallet basics",
-          "fee comparison",
-          "operational risk summary",
-          "market news summary",
-          "travel rule and verification explanation"
-        ],
-        "deny": [
-          "guaranteed profit promises",
-          "illegal sanctions evasion",
-          "aml or tax evasion instructions",
-          "impersonation for KYC",
-          "custody of user funds by Hobbes",
-          "definitive investment advice"
-        ]
-      },
-      "style": {
-        "language": "ru",
-        "tone": "practical_risk_aware",
-        "maxAnswerShape": "short_paragraph_or_compact_bullets"
       }
     }
   ]
