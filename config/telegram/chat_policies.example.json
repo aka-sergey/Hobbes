@@ -121,7 +121,7 @@
         "reactOnReplyToBot": true,
         "reactOnDirectQuestionToBot": true,
         "reactOnKeywords": true,
-        "reactWithoutSignal": false,
+        "reactWithoutSignal": true,
         "maxRepliesPerHour": 10
       },
       "topicPolicy": {
