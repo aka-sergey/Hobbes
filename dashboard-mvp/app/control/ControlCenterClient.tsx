@@ -500,28 +500,6 @@ export function ControlCenterClient() {
           </p>
         </section>
 
-        <section className="card" style={{ marginBottom: "16px" }}>
-          <h2 className="section-title">Мини-инструкция</h2>
-          <div className="control-help-grid">
-            <div className="help-item">
-              <strong>1. Выберите файл</strong>
-              <p>Слева доступны только разрешенные документы и policy-файлы. По умолчанию панель открывает Telegram chat policies.</p>
-            </div>
-            <div className="help-item">
-              <strong>2. Внесите правки</strong>
-              <p>В центре редактируется черновик. Справа сразу видно preview и статус файла.</p>
-            </div>
-            <div className="help-item">
-              <strong>3. Сохраните черновик</strong>
-              <p>Черновик можно сохранить в базе, а затем отдельно применить изменения в GitHub одной кнопкой.</p>
-            </div>
-            <div className="help-item">
-              <strong>4. Sync на VPS</strong>
-              <p>Для runtime-файлов сначала примените правки в GitHub, а затем докатите их на рабочий сервер Hobbes.</p>
-            </div>
-          </div>
-        </section>
-
         <section className="control-layout">
           <aside className="card control-sidebar">
             <h2 className="section-title">Файлы</h2>
@@ -680,83 +658,6 @@ export function ControlCenterClient() {
             ) : null}
           </section>
 
-          <aside className="card control-preview-card">
-            <h2 className="section-title">Предпросмотр и статус</h2>
-            {selectedFile?.draftUpdatedAt ? (
-              <div className="muted" style={{ marginBottom: "0.75rem" }}>
-                Последний черновик: {new Date(selectedFile.draftUpdatedAt).toLocaleString("ru-RU")}
-              </div>
-            ) : (
-              <div className="muted" style={{ marginBottom: "0.75rem" }}>
-                Сохраненного черновика еще нет.
-              </div>
-            )}
-
-            {selectedFile && !selectedFile.available ? (
-              <div className="control-warning">
-                Этот файл сейчас недоступен для чтения. Для live-edit на Railway должен быть настроен
-                GitHub-backed control или локальный корень репозитория.
-              </div>
-            ) : null}
-
-            {selectedFile?.repoUrl ? (
-              <div className="muted" style={{ marginBottom: "0.75rem" }}>
-                GitHub:{" "}
-                <a href={selectedFile.repoUrl} target="_blank" rel="noreferrer">
-                  открыть файл
-                </a>
-                {selectedFile.repoBranch ? ` • ветка ${selectedFile.repoBranch}` : ""}
-              </div>
-            ) : null}
-
-            {configHints.length > 0 ? (
-              <div className="config-hints-card">
-                <div className="section-title" style={{ marginBottom: "10px" }}>Расшифровка конфига</div>
-                <div className="config-hints-list">
-                  {configHints.map((hint) => (
-                    <div key={hint.key} className="config-hint-item">
-                      <strong className="mono">{hint.key}</strong>
-                      <div className="muted">{hint.meaning}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-
-            <FilePreview kind={selectedFile?.kind ?? "markdown"} content={draft} />
-
-            <div style={{ marginTop: "1.5rem" }}>
-              <h3 className="section-title">История изменений</h3>
-              {history.length === 0 ? (
-                <div className="muted">История по этому файлу пока не найдена.</div>
-              ) : (
-                <div className="control-history-list">
-                  {history.map((entry) => (
-                    <div key={entry.sha} className="control-history-item">
-                      <div className="row" style={{ justifyContent: "space-between", gap: "0.75rem" }}>
-                        <strong className="mono">{entry.sha.slice(0, 7)}</strong>
-                        <span className="muted">
-                          {entry.committedAt ? new Date(entry.committedAt).toLocaleString("ru-RU") : "дата неизвестна"}
-                        </span>
-                      </div>
-                      <div style={{ marginTop: "0.35rem" }}>{entry.message}</div>
-                      <div className="muted" style={{ marginTop: "0.35rem" }}>
-                        {entry.authorName ?? "автор неизвестен"}
-                        {entry.htmlUrl ? (
-                          <>
-                            {" • "}
-                            <a href={entry.htmlUrl} target="_blank" rel="noreferrer">
-                              открыть commit
-                            </a>
-                          </>
-                        ) : null}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </aside>
         </section>
       </div>
     </main>

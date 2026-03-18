@@ -71,14 +71,16 @@ function BuilderSection({ title, children }: { title: string; children: ReactNod
 function BuilderField({
   label,
   children,
-  description
+  description,
+  fullWidth = false
 }: {
   label: string;
   children: ReactNode;
   description?: string;
+  fullWidth?: boolean;
 }) {
   return (
-    <label className="builder-field">
+    <label className={`builder-field ${fullWidth ? "full-width" : ""}`.trim()}>
       <span className="builder-field-label">{label}</span>
       {children}
       {description ? <span className="builder-field-description">{description}</span> : null}
@@ -310,11 +312,11 @@ export function TelegramChatPoliciesBuilder({ content, behaviorProfilesContent, 
               <BuilderField label="Включен">
                 <CheckboxInput label="Разрешить ответы в этом чате" checked={selectedChat.enabled} onChange={(next) => updateSelectedChat((chat) => ({ ...chat, enabled: next }))} />
               </BuilderField>
-              <BuilderField label="Описание" description="Коротко опишите контекст чата для админов и preview.">
+              <BuilderField label="Описание" description="Коротко опишите контекст чата для админов и preview." fullWidth>
                 <TextAreaInput rows={3} value={selectedChat.description} onChange={(event) => updateSelectedChat((chat) => ({ ...chat, description: event.target.value }))} />
               </BuilderField>
-              <BuilderField label="Prompt override" description="Локальная инструкция поверх выбранного профиля.">
-                <TextAreaInput rows={4} value={selectedChat.promptOverride} onChange={(event) => updateSelectedChat((chat) => ({ ...chat, promptOverride: event.target.value }))} />
+              <BuilderField label="Prompt override" description="Локальная инструкция поверх выбранного профиля." fullWidth>
+                <TextAreaInput rows={5} value={selectedChat.promptOverride} onChange={(event) => updateSelectedChat((chat) => ({ ...chat, promptOverride: event.target.value }))} />
               </BuilderField>
             </BuilderSection>
 
@@ -425,9 +427,9 @@ export function TelegramChatPoliciesBuilder({ content, behaviorProfilesContent, 
                   <CheckboxInput label="React without signal" checked={selectedChat.replyPolicy.reactWithoutSignal} onChange={(next) => updateSelectedChat((chat) => ({ ...chat, replyPolicy: { ...chat.replyPolicy, reactWithoutSignal: next } }))} />
                 </div>
               </BuilderField>
-              <BuilderField label="Activation keywords" description="По одному ключу на строку.">
+              <BuilderField label="Activation keywords" description="По одному ключу на строку." fullWidth>
                 <TextAreaInput
-                  rows={8}
+                  rows={10}
                   value={arrayToLines(selectedChat.activationKeywords)}
                   onChange={(event) => updateSelectedChat((chat) => ({ ...chat, activationKeywords: linesToArray(event.target.value) }))}
                 />
@@ -435,9 +437,9 @@ export function TelegramChatPoliciesBuilder({ content, behaviorProfilesContent, 
             </BuilderSection>
 
             <BuilderSection title="Темы и стиль">
-              <BuilderField label="Allowed topics">
+              <BuilderField label="Allowed topics" fullWidth>
                 <TextAreaInput
-                  rows={6}
+                  rows={7}
                   value={arrayToLines(selectedChat.topicPolicy.allow)}
                   onChange={(event) => updateSelectedChat((chat) => ({
                     ...chat,
@@ -448,9 +450,9 @@ export function TelegramChatPoliciesBuilder({ content, behaviorProfilesContent, 
                   }))}
                 />
               </BuilderField>
-              <BuilderField label="Denied topics">
+              <BuilderField label="Denied topics" fullWidth>
                 <TextAreaInput
-                  rows={6}
+                  rows={7}
                   value={arrayToLines(selectedChat.topicPolicy.deny)}
                   onChange={(event) => updateSelectedChat((chat) => ({
                     ...chat,
@@ -483,7 +485,7 @@ export function TelegramChatPoliciesBuilder({ content, behaviorProfilesContent, 
             </BuilderSection>
 
             <BuilderSection title="Модерация">
-              <BuilderField label="Safety flags">
+              <BuilderField label="Safety flags" fullWidth>
                 <div className="builder-checkbox-grid">
                   <CheckboxInput label="Allow sharp tone" checked={selectedChat.moderation.allowSharpTone} onChange={(next) => updateSelectedChat((chat) => ({ ...chat, moderation: { ...chat.moderation, allowSharpTone: next } }))} />
                   <CheckboxInput label="Forbid abuse" checked={selectedChat.moderation.forbidAbuse} onChange={(next) => updateSelectedChat((chat) => ({ ...chat, moderation: { ...chat.moderation, forbidAbuse: next } }))} />
@@ -724,13 +726,13 @@ export function TelegramBehaviorProfilesBuilder({
                   ))}
                 </SelectInput>
               </BuilderField>
-              <BuilderField label="Description">
+              <BuilderField label="Description" fullWidth>
                 <TextAreaInput rows={3} value={selectedProfile.description} onChange={(event) => updateSelectedProfile((profile) => ({ ...profile, description: event.target.value }))} />
               </BuilderField>
-              <BuilderField label="System prompt">
-                <TextAreaInput rows={5} value={selectedProfile.systemPrompt} onChange={(event) => updateSelectedProfile((profile) => ({ ...profile, systemPrompt: event.target.value }))} />
+              <BuilderField label="System prompt" fullWidth>
+                <TextAreaInput rows={6} value={selectedProfile.systemPrompt} onChange={(event) => updateSelectedProfile((profile) => ({ ...profile, systemPrompt: event.target.value }))} />
               </BuilderField>
-              <BuilderField label="Expertise" description="По одной доменной метке на строку.">
+              <BuilderField label="Expertise" description="По одной доменной метке на строку." fullWidth>
                 <TextAreaInput rows={5} value={arrayToLines(selectedProfile.expertise)} onChange={(event) => updateSelectedProfile((profile) => ({ ...profile, expertise: linesToArray(event.target.value) }))} />
               </BuilderField>
             </BuilderSection>
@@ -758,13 +760,13 @@ export function TelegramBehaviorProfilesBuilder({
             </BuilderSection>
 
             <BuilderSection title="Темы и модерация">
-              <BuilderField label="Allowed topics">
-                <TextAreaInput rows={6} value={arrayToLines(selectedProfile.topicPolicy.allow)} onChange={(event) => updateSelectedProfile((profile) => ({ ...profile, topicPolicy: { ...profile.topicPolicy, allow: linesToArray(event.target.value) } }))} />
+              <BuilderField label="Allowed topics" fullWidth>
+                <TextAreaInput rows={7} value={arrayToLines(selectedProfile.topicPolicy.allow)} onChange={(event) => updateSelectedProfile((profile) => ({ ...profile, topicPolicy: { ...profile.topicPolicy, allow: linesToArray(event.target.value) } }))} />
               </BuilderField>
-              <BuilderField label="Denied topics">
-                <TextAreaInput rows={6} value={arrayToLines(selectedProfile.topicPolicy.deny)} onChange={(event) => updateSelectedProfile((profile) => ({ ...profile, topicPolicy: { ...profile.topicPolicy, deny: linesToArray(event.target.value) } }))} />
+              <BuilderField label="Denied topics" fullWidth>
+                <TextAreaInput rows={7} value={arrayToLines(selectedProfile.topicPolicy.deny)} onChange={(event) => updateSelectedProfile((profile) => ({ ...profile, topicPolicy: { ...profile.topicPolicy, deny: linesToArray(event.target.value) } }))} />
               </BuilderField>
-              <BuilderField label="Moderation">
+              <BuilderField label="Moderation" fullWidth>
                 <div className="builder-checkbox-grid">
                   <CheckboxInput label="Allow sharp tone" checked={selectedProfile.moderation.allowSharpTone} onChange={(next) => updateSelectedProfile((profile) => ({ ...profile, moderation: { ...profile.moderation, allowSharpTone: next } }))} />
                   <CheckboxInput label="Forbid abuse" checked={selectedProfile.moderation.forbidAbuse} onChange={(next) => updateSelectedProfile((profile) => ({ ...profile, moderation: { ...profile.moderation, forbidAbuse: next } }))} />
@@ -788,7 +790,7 @@ export function TelegramBehaviorProfilesBuilder({
               <BuilderField label="Shared domain key">
                 <TextInput value={selectedProfile.memoryDefaults.sharedDomainKey} onChange={(event) => updateSelectedProfile((profile) => ({ ...profile, memoryDefaults: { ...profile.memoryDefaults, sharedDomainKey: event.target.value } }))} />
               </BuilderField>
-              <BuilderField label="Flags">
+              <BuilderField label="Flags" fullWidth>
                 <div className="builder-checkbox-grid">
                   <CheckboxInput label="Rolling summary" checked={selectedProfile.memoryDefaults.retainRollingSummary} onChange={(next) => updateSelectedProfile((profile) => ({ ...profile, memoryDefaults: { ...profile.memoryDefaults, retainRollingSummary: next } }))} />
                   <CheckboxInput label="Store facts" checked={selectedProfile.memoryDefaults.storeFacts} onChange={(next) => updateSelectedProfile((profile) => ({ ...profile, memoryDefaults: { ...profile.memoryDefaults, storeFacts: next } }))} />
