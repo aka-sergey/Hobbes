@@ -2,6 +2,18 @@
 
 ## 2026-03-18
 
+### Added a Russian crypto-operations persona for buy/sell/exchange/payment workflows
+
+Changed:
+
+- added `crypto_operations_assistant` to the `main` persona contract
+- added the same shaping baseline to `comms`
+
+Purpose:
+
+- give Hobbes a better fit for practical crypto operations than the broader `crypto_exchange_specialist`
+- support Russian-language crypto desk style for buy/sell/exchange/transfer/payment tasks without drifting into hype or unsafe guidance
+
 ### Wired Telegram group policy runtime through a compiler-backed sync path
 
 Changed:
