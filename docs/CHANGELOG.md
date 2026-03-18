@@ -2,6 +2,32 @@
 
 ## 2026-03-18
 
+### Enabled GitHub-backed live editing in the dashboard control center
+
+Changed:
+
+- upgraded the dashboard control center from draft-only editing to GitHub-backed repo editing
+- added server-side GitHub integration for allowlisted files using:
+  - `GITHUB_TOKEN`
+  - `GITHUB_REPO_OWNER`
+  - `GITHUB_REPO_NAME`
+  - `GITHUB_REPO_BRANCH`
+- added a new endpoint:
+  - `POST /api/control/apply-repo`
+- updated the control center UI to:
+  - show whether a file is sourced from GitHub or local filesystem
+  - keep draft save in Postgres
+  - apply edited content directly to the repo through a dedicated `Применить в GitHub` action
+
+Verified:
+
+- local `dashboard-mvp` build passed with the new GitHub-backed control flow
+
+Operational note:
+
+- the Railway dashboard can now edit the allowlisted repo files even though the service does not mount the full repository root locally
+- runtime sync to the VPS is still a separate concern for `repo_and_runtime` files
+
 ### Added category-aware search routing baseline and documented the current checkpoint
 
 Changed:

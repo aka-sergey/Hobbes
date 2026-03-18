@@ -1,6 +1,7 @@
 import { access, readFile } from "node:fs/promises";
 import path from "node:path";
 import { ensureSchema, getSql, hasDatabase } from "./db";
+import { getGitHubFile, hasGitHubControl, updateGitHubFile } from "./github-control";
 
 export type ControlFileScope = "repo_only" | "repo_and_runtime";
 export type ControlFileKind = "markdown" | "json";
@@ -20,6 +21,8 @@ export type ControlDraftRow = {
   content: string;
   updated_at: string;
 };
+
+export type ControlSourceBackend = "github" | "filesystem";
 
 const CONTROL_FILE_ITEMS: ControlFileItem[] = [
   {
@@ -175,8 +178,16 @@ export function resolveControlPath(relativePath: string) {
 export async function getControlFiles() {
   const rows = await Promise.all(
     CONTROL_FILE_ITEMS.map(async (item) => {
-      const absolutePath = resolveControlPath(item.path);
-      const available = await exists(absolutePath);
+      let available = false;
+
+      if (hasGitHubControl()) {
+        const githubFile = await getGitHubFile(item.path);
+        available = Boolean(githubFile?.available);
+      } else {
+        const absolutePath = resolveControlPath(item.path);
+        available = await exists(absolutePath);
+      }
+
       return {
         ...item,
         available
@@ -195,8 +206,24 @@ export async function getControlFile(pathValue: string) {
   }
 
   const absolutePath = resolveControlPath(item.path);
-  const available = await exists(absolutePath);
-  const sourceContent = available ? await readFile(absolutePath, "utf8") : "";
+  let available = false;
+  let sourceContent = "";
+  let sourceBackend: ControlSourceBackend = "filesystem";
+  let repoUrl: string | null = null;
+  let repoBranch: string | null = null;
+
+  if (hasGitHubControl()) {
+    const githubFile = await getGitHubFile(item.path);
+    available = Boolean(githubFile?.available);
+    sourceContent = githubFile?.sourceContent ?? "";
+    sourceBackend = "github";
+    repoUrl = githubFile?.htmlUrl ?? null;
+    repoBranch = githubFile?.branch ?? null;
+  } else {
+    available = await exists(absolutePath);
+    sourceContent = available ? await readFile(absolutePath, "utf8") : "";
+  }
+
   const draft = await getDraft(item.path);
 
   return {
@@ -204,9 +231,38 @@ export async function getControlFile(pathValue: string) {
     available,
     absolutePath,
     sourceContent,
+    sourceBackend,
+    repoUrl,
+    repoBranch,
     draftContent: draft?.content ?? sourceContent,
     draftUpdatedAt: draft?.updated_at ?? null,
     hasDraft: Boolean(draft)
+  };
+}
+
+export async function applyControlFileToRepo(pathValue: string, content: string) {
+  const item = CONTROL_FILE_ITEMS.find((entry) => entry.path === pathValue);
+
+  if (!item) {
+    throw new Error("file_not_allowed");
+  }
+
+  if (!hasGitHubControl()) {
+    throw new Error("github_control_not_configured");
+  }
+
+  const validation = validateControlContent(item.kind, content);
+
+  if (!validation.ok) {
+    throw new Error(validation.message);
+  }
+
+  const message = `Control Center: update ${item.path}`;
+  const result = await updateGitHubFile(item.path, content, message);
+
+  return {
+    ...result,
+    validation
   };
 }
 

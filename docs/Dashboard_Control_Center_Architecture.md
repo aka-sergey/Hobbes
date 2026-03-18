@@ -218,6 +218,55 @@ Every save and apply flow should show:
 
 ### Buttons
 
+Implemented in the current baseline:
+
+- `Сохранить черновик`
+- `Применить в GitHub`
+- `Сбросить к исходнику`
+
+Current behavior:
+
+- drafts are stored in Postgres
+- source-of-truth editing on Railway is now GitHub-backed, not filesystem-backed
+- allowlisted files can be read from GitHub and committed back through the dashboard
+
+Still not in scope of the current baseline:
+
+- direct VPS runtime sync from the UI
+- arbitrary file editing outside the allowlist
+- secret management
+- destructive operations without a dedicated safe workflow
+
+## Source of truth model
+
+For the control center, the source of truth is now:
+
+1. GitHub repo for editable policy/docs/config files
+2. PostgreSQL for temporary drafts and UI state
+3. VPS runtime only after an explicit future sync/deploy action
+
+This separation is intentional:
+
+- it keeps edits reviewable
+- it avoids mutating Railway container files
+- it prevents the dashboard from pretending that repo edits and live runtime edits are the same thing
+
+## Current limitation
+
+`repo_and_runtime` files can now be edited safely in the repo from the dashboard, but they are **not** automatically propagated to the VPS runtime yet.
+
+That means the current control center is suitable for:
+
+- editing docs
+- editing policies
+- editing agent behavior contracts
+- committing changes safely to GitHub
+
+But not yet sufficient for:
+
+- one-click production sync to OpenClaw workspaces
+- runtime rollback on the VPS
+- full deployment orchestration from the dashboard
 Recommended buttons:
 
 - `Save Draft`

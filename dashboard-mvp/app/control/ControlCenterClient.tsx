@@ -23,6 +23,9 @@ type ControlFileResponse = {
   available: boolean;
   absolutePath: string;
   sourceContent: string;
+  sourceBackend: "github" | "filesystem";
+  repoUrl: string | null;
+  repoBranch: string | null;
   draftContent: string;
   draftUpdatedAt: string | null;
   hasDraft: boolean;
@@ -171,6 +174,7 @@ export function ControlCenterClient() {
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [applying, setApplying] = useState(false);
   const [message, setMessage] = useState<string>("");
 
   useEffect(() => {
@@ -258,6 +262,44 @@ export function ControlCenterClient() {
     setMessage("Черновик сохранен в базе данных dashboard.");
   }
 
+  async function handleApplyRepo() {
+    if (!selectedFile) {
+      return;
+    }
+
+    setApplying(true);
+    setMessage("");
+
+    const response = await fetch("/api/control/apply-repo", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        path: selectedFile.path,
+        content: draft
+      })
+    });
+
+    const data = await response.json();
+    setApplying(false);
+
+    if (!response.ok) {
+      setMessage(data.message ?? "Не удалось применить изменения в GitHub.");
+      return;
+    }
+
+    const refreshedResponse = await fetch(`/api/control/file?path=${encodeURIComponent(selectedFile.path)}`, {
+      cache: "no-store"
+    });
+    const refreshedData = await refreshedResponse.json();
+    setSelectedFile(refreshedData.file ?? null);
+    setDraft(refreshedData.file?.draftContent ?? draft);
+
+    const commitSha = data.result?.commitSha ? String(data.result.commitSha).slice(0, 7) : null;
+    setMessage(commitSha ? `Изменения записаны в GitHub. Коммит: ${commitSha}` : "Изменения записаны в GitHub.");
+  }
+
   return (
     <main>
       <div className="shell">
@@ -283,7 +325,7 @@ export function ControlCenterClient() {
             </div>
             <div className="help-item">
               <strong>3. Сохраните черновик</strong>
-              <p>Сейчас v1 сохраняет изменения в БД dashboard. Прямой push в git и sync на VPS будут следующим этапом.</p>
+              <p>Черновик можно сохранить в базе, а затем отдельно применить изменения в GitHub одной кнопкой.</p>
             </div>
           </div>
         </section>
@@ -329,6 +371,11 @@ export function ControlCenterClient() {
                 </span>
                 {selectedFile ? (
                   <span className="pill ok">
+                    {selectedFile.sourceBackend === "github" ? "источник: GitHub" : "источник: filesystem"}
+                  </span>
+                ) : null}
+                {selectedFile ? (
+                  <span className="pill ok">
                     {selectedFile.scope === "repo_and_runtime" ? "repo + runtime" : "только repo"}
                   </span>
                 ) : null}
@@ -350,6 +397,14 @@ export function ControlCenterClient() {
             <div className="control-actions">
               <button className="action-button primary" type="button" onClick={() => void handleSaveDraft()} disabled={!selectedFile || saving}>
                 {saving ? "Сохраняю…" : "Сохранить черновик"}
+              </button>
+              <button
+                className="action-button primary"
+                type="button"
+                onClick={() => void handleApplyRepo()}
+                disabled={!selectedFile || applying}
+              >
+                {applying ? "Применяю…" : "Применить в GitHub"}
               </button>
               <button
                 className="action-button"
@@ -395,8 +450,18 @@ export function ControlCenterClient() {
 
             {selectedFile && !selectedFile.available ? (
               <div className="control-warning">
-                Этот файл не найден в текущем окружении сервиса. Для полного control center на Railway
-                сервис должен видеть корень репозитория через `HOBBES_CONTROL_ROOT`.
+                Этот файл сейчас недоступен для чтения. Для live-edit на Railway должен быть настроен
+                GitHub-backed control или локальный корень репозитория.
+              </div>
+            ) : null}
+
+            {selectedFile?.repoUrl ? (
+              <div className="muted" style={{ marginBottom: "0.75rem" }}>
+                GitHub:{" "}
+                <a href={selectedFile.repoUrl} target="_blank" rel="noreferrer">
+                  открыть файл
+                </a>
+                {selectedFile.repoBranch ? ` • ветка ${selectedFile.repoBranch}` : ""}
               </div>
             ) : null}
 
