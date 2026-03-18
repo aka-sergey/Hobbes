@@ -35,7 +35,7 @@
   },
   "chats": [
     {
-      "chatId": "-1001111111111",
+      "chatId": "-1005086270479",
       "slug": "doctors_group_example",
       "enabled": true,
       "persona": "medical_peer_general",
@@ -79,7 +79,7 @@
       }
     },
     {
-      "chatId": "-1002222222222",
+      "chatId": "-1005086270479",
       "slug": "logistics_group_example",
       "enabled": true,
       "persona": "logistics_operator",
