@@ -330,3 +330,6 @@ Added:
   - added [chat_policies.example.json](/Users/sergeysobolev/HobbesCodex/config/telegram/chat_policies.example.json)
   - added [test_mode.example.json](/Users/sergeysobolev/HobbesCodex/config/telegram/test_mode.example.json)
   - expanded Telegram personas with `medical_peer_general`, `logistics_operator`, and `bot_evaluator`
+- Dashboard control-center architecture added:
+  - added [Dashboard_Control_Center_Architecture.md](/Users/sergeysobolev/HobbesCodex/docs/Dashboard_Control_Center_Architecture.md)
+  - defined the editor UX, safety model, API surface, rollout stages, and allowlisted first file scopes for a real Hobbes operations console
