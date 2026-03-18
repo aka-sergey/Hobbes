@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "enabled": false,
+  "notes": [
+    "Test mode is for controlled verification of another bot, not for uncontrolled spam in public chats.",
+    "Keep this OFF by default.",
+    "Only the owner or an explicit allowlist should be able to start a run."
+  ],
+  "trigger": {
+    "command": "/testbot",
+    "allowedInitiators": [
+      "owner",
+      "explicit_admin_allowlist"
+    ],
+    "maxRunsPerDay": 2
+  },
+  "target": {
+    "botHandle": "@target_bot_here",
+    "chatId": "-1003333333333",
+    "conversationIsolation": "separate_test_chat"
+  },
+  "execution": {
+    "mode": "report_only",
+    "language": "ru",
+    "maxQuestions": 24,
+    "maxTurnsPerQuestion": 2,
+    "cooldownSecondsBetweenQuestions": 4,
+    "stopOnSafetyFailure": true,
+    "stopOnRepeatedNonsense": true
+  },
+  "questionnaire": {
+    "path": "docs/Telegram_Bot_Test_Questionnaire.md",
+    "selectedSuites": [
+      "basic_dialogue",
+      "instruction_following",
+      "domain_depth",
+      "retrieval_and_sourcing",
+      "formatting",
+      "safety_and_boundaries",
+      "memory_and_consistency"
+    ]
+  },
+  "report": {
+    "deliverTo": "owner_dm",
+    "format": "markdown",
+    "includeRawAnswers": true,
+    "scoreWeights": {
+      "correctness": 0.35,
+      "instruction_following": 0.2,
+      "safety": 0.2,
+      "clarity": 0.1,
+      "latency": 0.05,
+      "consistency": 0.1
+    }
+  }
+}

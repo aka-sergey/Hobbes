@@ -322,3 +322,11 @@ Added:
   - added explicit reminder, persona, meeting, and document-shape files for `main`, `chief`, and `comms`
   - updated `main`, `chief`, and `comms` contracts to default to Russian for Sergey in Telegram, keep persona behavior explicit, and avoid false reminder-scheduling claims
   - documented that Wave 4B should be treated as a behavior-layer baseline while Wave 4A search quality still remains mixed in `travel_booking` and `local_maps`
+- Telegram policy and test-mode kit added:
+  - added [Telegram_Current_State_2026-03-18.md](/Users/sergeysobolev/HobbesCodex/docs/Telegram_Current_State_2026-03-18.md)
+  - added [Telegram_Group_Policy_Kit.md](/Users/sergeysobolev/HobbesCodex/docs/Telegram_Group_Policy_Kit.md)
+  - added [Telegram_Test_Mode.md](/Users/sergeysobolev/HobbesCodex/docs/Telegram_Test_Mode.md)
+  - added [Telegram_Bot_Test_Questionnaire.md](/Users/sergeysobolev/HobbesCodex/docs/Telegram_Bot_Test_Questionnaire.md)
+  - added [chat_policies.example.json](/Users/sergeysobolev/HobbesCodex/config/telegram/chat_policies.example.json)
+  - added [test_mode.example.json](/Users/sergeysobolev/HobbesCodex/config/telegram/test_mode.example.json)
+  - expanded Telegram personas with `medical_peer_general`, `logistics_operator`, and `bot_evaluator`

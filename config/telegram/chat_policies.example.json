@@ -1,0 +1,127 @@
+{
+  "version": 1,
+  "notes": [
+    "This file is the source of truth for Telegram group behavior, not a claim that production is already enabled.",
+    "Use explicit allowlisted chat IDs only.",
+    "Keep groupPolicy disabled in production until these rules are reviewed and the target chats are confirmed."
+  ],
+  "defaults": {
+    "enabled": false,
+    "language": "ru",
+    "persona": "default_operator",
+    "memoryScope": "chat_isolated",
+    "replyPolicy": {
+      "mode": "mention_or_reply",
+      "reactOnMention": true,
+      "reactOnReplyToBot": true,
+      "reactOnDirectQuestionToBot": true,
+      "reactOnKeywords": false,
+      "reactWithoutSignal": false,
+      "maxRepliesPerHour": 12
+    },
+    "topicPolicy": {
+      "allow": [],
+      "deny": [
+        "regulated professional advice beyond allowed persona scope",
+        "personal data extraction",
+        "secret handling"
+      ]
+    },
+    "silencePolicy": {
+      "staySilentIfOffTopic": true,
+      "staySilentIfNoSignal": true,
+      "staySilentIfAnotherHumanAlreadyAnsweredWell": false
+    }
+  },
+  "chats": [
+    {
+      "chatId": "-1001111111111",
+      "slug": "doctors_group_example",
+      "enabled": true,
+      "persona": "medical_peer_general",
+      "description": "Clinical discussion or doctor community chat.",
+      "replyPolicy": {
+        "mode": "mention_or_reply_or_keyword",
+        "reactOnMention": true,
+        "reactOnReplyToBot": true,
+        "reactOnDirectQuestionToBot": true,
+        "reactOnKeywords": true,
+        "reactWithoutSignal": false,
+        "maxRepliesPerHour": 8
+      },
+      "activationKeywords": [
+        "хоббс",
+        "hobbes",
+        "разбор",
+        "дифдиагноз",
+        "суммируй",
+        "сделай выжимку"
+      ],
+      "topicPolicy": {
+        "allow": [
+          "clinical discussion",
+          "literature summary",
+          "workflow organization",
+          "meeting prep",
+          "document drafting"
+        ],
+        "deny": [
+          "final diagnosis for a real patient",
+          "prescription decisions",
+          "emergency medical directives",
+          "patient personal data retention"
+        ]
+      },
+      "style": {
+        "language": "ru",
+        "tone": "professional_measured",
+        "maxAnswerShape": "short_paragraph_or_compact_bullets"
+      }
+    },
+    {
+      "chatId": "-1002222222222",
+      "slug": "logistics_group_example",
+      "enabled": true,
+      "persona": "logistics_operator",
+      "description": "Logistics or dispatch chat.",
+      "replyPolicy": {
+        "mode": "mention_or_reply_or_keyword",
+        "reactOnMention": true,
+        "reactOnReplyToBot": true,
+        "reactOnDirectQuestionToBot": true,
+        "reactOnKeywords": true,
+        "reactWithoutSignal": false,
+        "maxRepliesPerHour": 16
+      },
+      "activationKeywords": [
+        "хоббс",
+        "hobbes",
+        "маршрут",
+        "поставка",
+        "доставка",
+        "рейс",
+        "окно",
+        "задержка"
+      ],
+      "topicPolicy": {
+        "allow": [
+          "shipment status",
+          "route planning",
+          "operational blockers",
+          "handoff summary",
+          "incident summary"
+        ],
+        "deny": [
+          "financial approval without human owner",
+          "carrier commitment on behalf of a human operator",
+          "fake ETA guarantees"
+        ]
+      },
+      "style": {
+        "language": "ru",
+        "tone": "operational_direct",
+        "maxAnswerShape": "compact_bullets"
+      }
+    }
+  ]
+}
