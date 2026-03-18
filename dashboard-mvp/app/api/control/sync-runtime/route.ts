@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { getControlFile, syncControlFileToRuntime } from "../../../../lib/control-center";
+import { enqueueControlRuntimeSync, getControlFile, syncControlFileToRuntime } from "../../../../lib/control-center";
 
 export const dynamic = "force-dynamic";
 
@@ -26,10 +26,36 @@ export async function POST(request: Request) {
 
     return Response.json({
       ok: true,
+      mode: "direct",
       result
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown_error";
+
+    if (message.includes("Timed out while waiting for handshake")) {
+      try {
+        const queued = await enqueueControlRuntimeSync(parsed.data.path);
+
+        return Response.json({
+          ok: true,
+          mode: "queued",
+          result: {
+            jobId: queued.id,
+            status: queued.status
+          }
+        });
+      } catch (queueError) {
+        const queueMessage = queueError instanceof Error ? queueError.message : "queue_failed";
+        return Response.json(
+          {
+            ok: false,
+            error: "runtime_sync_failed",
+            message: `${message}; queue fallback failed: ${queueMessage}`
+          },
+          { status: 400 }
+        );
+      }
+    }
 
     return Response.json(
       {

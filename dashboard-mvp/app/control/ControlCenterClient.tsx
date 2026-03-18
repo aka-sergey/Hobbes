@@ -364,9 +364,12 @@ export function ControlCenterClient() {
       return;
     }
 
-    setMessage(
-      `Файл отправлен на VPS. Сервис: ${data.result?.serviceState ?? "unknown"}, health: ${data.result?.healthState ?? "unknown"}.`
-    );
+    if (data.mode === "queued") {
+      setMessage(`Задача синхронизации поставлена в очередь на VPS. Job #${data.result?.jobId ?? "?"}.`);
+      return;
+    }
+
+    setMessage(`Файл отправлен на VPS. Сервис: ${data.result?.serviceState ?? "unknown"}, health: ${data.result?.healthState ?? "unknown"}.`);
   }
 
   return (

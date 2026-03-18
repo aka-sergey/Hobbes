@@ -100,6 +100,26 @@ export function ensureSchema() {
         CREATE INDEX IF NOT EXISTS control_drafts_updated_at_idx
         ON control_drafts (updated_at DESC)
       `;
+
+      await sql`
+        CREATE TABLE IF NOT EXISTS control_runtime_sync_jobs (
+          id BIGSERIAL PRIMARY KEY,
+          file_path TEXT NOT NULL,
+          remote_path TEXT NOT NULL,
+          content TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'pending',
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          claimed_at TIMESTAMPTZ,
+          applied_at TIMESTAMPTZ,
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          last_error TEXT
+        )
+      `;
+
+      await sql`
+        CREATE INDEX IF NOT EXISTS control_runtime_sync_jobs_status_created_at_idx
+        ON control_runtime_sync_jobs (status, created_at ASC)
+      `;
     })();
   }
 

@@ -23,6 +23,19 @@ export type ControlDraftRow = {
   updated_at: string;
 };
 
+type ControlRuntimeSyncJobRow = {
+  id: number;
+  file_path: string;
+  remote_path: string;
+  content: string;
+  status: string;
+  created_at: string;
+  claimed_at: string | null;
+  applied_at: string | null;
+  updated_at: string;
+  last_error: string | null;
+};
+
 export type ControlSourceBackend = "github" | "filesystem";
 
 const CONTROL_FILE_ITEMS: ControlFileItem[] = [
@@ -307,6 +320,110 @@ export async function syncControlFileToRuntime(pathValue: string) {
   }
 
   return syncRuntimeFile(item.path, file.sourceContent);
+}
+
+export async function enqueueControlRuntimeSync(pathValue: string) {
+  const item = CONTROL_FILE_ITEMS.find((entry) => entry.path === pathValue);
+
+  if (!item) {
+    throw new Error("file_not_allowed");
+  }
+
+  if (item.scope !== "repo_and_runtime") {
+    throw new Error("runtime_sync_not_allowed_for_scope");
+  }
+
+  const target = getRuntimeTarget(item.path);
+
+  if (!target) {
+    throw new Error("runtime_target_not_allowed");
+  }
+
+  if (!hasDatabase()) {
+    throw new Error("database_not_configured");
+  }
+
+  const file = await getControlFile(item.path);
+
+  if (!file?.available) {
+    throw new Error("source_not_available");
+  }
+
+  await ensureSchema();
+  const sql = getSql();
+
+  const rows = await sql<ControlRuntimeSyncJobRow[]>`
+    INSERT INTO control_runtime_sync_jobs (
+      file_path,
+      remote_path,
+      content,
+      status,
+      created_at,
+      updated_at
+    )
+    VALUES (
+      ${item.path},
+      ${target.remotePath},
+      ${file.sourceContent},
+      'pending',
+      NOW(),
+      NOW()
+    )
+    RETURNING id, file_path, remote_path, content, status, created_at, claimed_at, applied_at, updated_at, last_error
+  `;
+
+  return rows[0];
+}
+
+export async function claimNextRuntimeSyncJob() {
+  if (!hasDatabase()) {
+    throw new Error("database_not_configured");
+  }
+
+  await ensureSchema();
+  const sql = getSql();
+
+  const rows = await sql<ControlRuntimeSyncJobRow[]>`
+    WITH next_job AS (
+      SELECT id
+      FROM control_runtime_sync_jobs
+      WHERE status = 'pending'
+      ORDER BY created_at ASC
+      LIMIT 1
+      FOR UPDATE SKIP LOCKED
+    )
+    UPDATE control_runtime_sync_jobs
+    SET
+      status = 'in_progress',
+      claimed_at = NOW(),
+      updated_at = NOW()
+    WHERE id IN (SELECT id FROM next_job)
+    RETURNING id, file_path, remote_path, content, status, created_at, claimed_at, applied_at, updated_at, last_error
+  `;
+
+  return rows[0] ?? null;
+}
+
+export async function completeRuntimeSyncJob(id: number, status: "applied" | "failed", lastError?: string | null) {
+  if (!hasDatabase()) {
+    throw new Error("database_not_configured");
+  }
+
+  await ensureSchema();
+  const sql = getSql();
+
+  const rows = await sql<ControlRuntimeSyncJobRow[]>`
+    UPDATE control_runtime_sync_jobs
+    SET
+      status = ${status},
+      applied_at = CASE WHEN ${status} = 'applied' THEN NOW() ELSE applied_at END,
+      updated_at = NOW(),
+      last_error = ${lastError ?? null}
+    WHERE id = ${id}
+    RETURNING id, file_path, remote_path, content, status, created_at, claimed_at, applied_at, updated_at, last_error
+  `;
+
+  return rows[0] ?? null;
 }
 
 export async function getDraft(pathValue: string) {
