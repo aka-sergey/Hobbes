@@ -313,3 +313,12 @@ Added:
   - `chief` now has an explicit router-first pattern for search-heavy tasks
   - `research` and `booking` now accept router hints and domain bias
   - dashboard search cards now include route metadata
+# 2026-03-18
+
+- Wave 4B behavior baseline prepared:
+  - added [Phase_04_Wave_4B_Installation.md](/Users/sergeysobolev/HobbesCodex/docs/Phase_04_Wave_4B_Installation.md)
+  - added installer [setup_phase4b_wave_b.sh](/Users/sergeysobolev/HobbesCodex/scripts/remote/setup_phase4b_wave_b.sh)
+  - added checker [check_phase4b_wave_b.sh](/Users/sergeysobolev/HobbesCodex/scripts/remote/check_phase4b_wave_b.sh)
+  - added explicit reminder, persona, meeting, and document-shape files for `main`, `chief`, and `comms`
+  - updated `main`, `chief`, and `comms` contracts to default to Russian for Sergey in Telegram, keep persona behavior explicit, and avoid false reminder-scheduling claims
+  - documented that Wave 4B should be treated as a behavior-layer baseline while Wave 4A search quality still remains mixed in `travel_booking` and `local_maps`

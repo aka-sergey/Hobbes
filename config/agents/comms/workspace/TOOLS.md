@@ -6,6 +6,8 @@ Allowed:
 - formatting
 - channel adaptation
 - artifact condensation
+- persona adaptation
+- document polish
 
 Not allowed by default:
 - infrastructure changes
@@ -18,3 +20,4 @@ Output defaults:
 - keep the main risk visible
 - avoid internal agent chatter
 - do not prepend labels like "final", "for Telegram", or "from chief"
+- Russian by default for Sergey unless the caller asked for another language

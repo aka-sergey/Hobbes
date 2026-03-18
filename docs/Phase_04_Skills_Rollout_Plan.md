@@ -146,6 +146,21 @@ Why:
 
 - these shape how Hobbes behaves and how useful it feels in real chats
 
+Current checkpoint:
+
+- Wave 4B is ready to be deployed as a behavior baseline
+- the repo now carries explicit persona, reminder, meeting, and document-shape files for `main`, `chief`, and `comms`
+- this should be treated as:
+  - deployed baseline once installed
+  - honest UX hardening
+  - not yet the final reminder-scheduler or per-chat persona-persistence system
+
+Main remaining issue inside Wave 4B:
+
+- reminders are normalized, but durable reminder execution still needs a verified scheduler path
+- persona-router is explicit and usable as a contract, but not yet a fully automated persistent chat-to-persona mapping layer
+- quality of final answers still depends on the earlier Wave 4A search quality when the task is search-backed
+
 ### Wave 4C. Durable relationship layer
 
 Install after that:
@@ -267,3 +282,4 @@ Meaning:
 
 - Wave 4B can be started only if we accept that search is “good enough for baseline”
 - if we want search to feel genuinely strong, one more iteration on `travel_booking` and `local_maps` is recommended before heavy Wave 4B expansion
+- if we proceed anyway, Wave 4B should be presented as a behavior-layer baseline rather than a claim that every downstream execution backend is complete
