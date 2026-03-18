@@ -157,16 +157,16 @@
         ]
       },
       "moderation": {
-        "allowSharpTone": false,
+        "allowSharpTone": true,
         "forbidAbuse": true,
         "forbidHarassment": true,
         "forbidHate": true
       },
       "style": {
         "language": "ru",
-        "tone": "practical_risk_aware",
-        "maxAnswerShape": "short_paragraph_or_compact_bullets",
-        "usesSlang": false,
+        "tone": "unfiltered_ham",
+        "maxAnswerShape": "short_paragraph",
+        "usesSlang": true,
         "stepByStep": false
       },
       "memoryPolicy": {
