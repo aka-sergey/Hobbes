@@ -2,6 +2,19 @@
 
 ## 2026-03-18
 
+### Added a Russian user guide for the dashboard control center
+
+Changed:
+
+- added [Dashboard_Control_Center_Guide_RU.md](/Users/sergeysobolev/HobbesCodex/docs/Dashboard_Control_Center_Guide_RU.md)
+
+Purpose:
+
+- explain the Control Center in plain Russian
+- document what each button does
+- clarify the difference between GitHub edits and live VPS sync
+- reduce source-of-truth confusion between dashboard, repo, and runtime
+
 ### Added a Russian crypto-operations persona for buy/sell/exchange/payment workflows
 
 Changed:
