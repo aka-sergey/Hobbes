@@ -613,6 +613,20 @@ export function validateBehaviorProfilesDocument(doc: BehaviorProfilesDocument, 
       });
     }
 
+    if (profile.id === "rude_street_operator") {
+      issues.push({
+        level: "warning",
+        message: "Профиль rude_street_operator грубее обычного режима. Используйте его только в чатах с явным согласием на такой тон."
+      });
+    }
+
+    if (profile.id === "unfiltered_ham") {
+      issues.push({
+        level: "warning",
+        message: "Профиль unfiltered_ham является high-risk режимом. Он остаётся ограниченным guardrails, но требует особенно аккуратного применения."
+      });
+    }
+
     if (profile.memoryDefaults.mode === "shared_domain" && !profile.memoryDefaults.sharedDomainKey.trim()) {
       issues.push({
         level: "warning",
@@ -680,6 +694,20 @@ export function validateChatPoliciesDocument(
       issues.push({
         level: "warning",
         message: `Чат ${chat.slug || chat.chatId} разрешает sharp tone без полной защиты от abuse/harassment.`
+      });
+    }
+
+    if (chat.profileId === "rude_street_operator") {
+      issues.push({
+        level: "warning",
+        message: `Чат ${chat.slug || chat.chatId} использует грубый street-tone профиль. Проверьте, что это действительно ожидаемый стиль.`
+      });
+    }
+
+    if (chat.profileId === "unfiltered_ham") {
+      issues.push({
+        level: "warning",
+        message: `Чат ${chat.slug || chat.chatId} использует high-risk профиль unfiltered_ham. Не включайте его без явного согласия на такой стиль.`
       });
     }
   }

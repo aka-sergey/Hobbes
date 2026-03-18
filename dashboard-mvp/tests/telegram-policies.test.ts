@@ -22,6 +22,8 @@ test("parses persona ids from PERSONAS.md", () => {
   assert.ok(personaIds.includes("default_operator"));
   assert.ok(personaIds.includes("it_specialist"));
   assert.ok(personaIds.includes("sharp_sarcastic_operator"));
+  assert.ok(personaIds.includes("rude_street_operator"));
+  assert.ok(personaIds.includes("unfiltered_ham"));
 });
 
 test("resolves chat behavior from profile plus chat overrides", () => {

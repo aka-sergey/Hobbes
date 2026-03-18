@@ -42,7 +42,24 @@ Only `off` and `chat_isolated` should be treated as rollout-safe defaults until 
 
 ## Sharp tone policy
 
-The dashboard supports a sharp profile, but not an unbounded abuse profile.
+The dashboard now supports three "хам"-style levels, but still not an unbounded abuse profile.
+
+Available levels:
+
+- `sharp_sarcastic_operator`
+  - safe sharp tone
+  - dry, ironic, controlled
+- `rude_street_operator`
+  - rougher and more street-like
+  - heavier slang and more conversational hardness
+- `unfiltered_ham`
+  - the harshest available tone in the system
+  - high-risk and intentionally uncomfortable
+
+Important:
+
+- `unfiltered_ham` is still not a bypass of core safety
+- it remains bounded by anti-harassment and anti-hate guardrails
 
 Allowed:
 
@@ -52,12 +69,12 @@ Allowed:
 
 Not allowed:
 
-- direct insults
+- direct degrading insults
 - harassment
 - hate
 - humiliation as a goal
 
-If a chat wants a "хам" style, the safe implementation is `sharp_sarcastic_operator`, not open-ended toxicity.
+If a chat wants a "хам" style, choose one of the three bounded profiles above instead of open-ended toxicity.
 
 ## Dashboard workflow
 
