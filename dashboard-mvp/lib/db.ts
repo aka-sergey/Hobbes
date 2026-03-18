@@ -84,6 +84,22 @@ export function ensureSchema() {
         CREATE INDEX IF NOT EXISTS dashboard_events_event_ts_idx
         ON dashboard_events (event_ts DESC)
       `;
+
+      await sql`
+        CREATE TABLE IF NOT EXISTS control_drafts (
+          id BIGSERIAL PRIMARY KEY,
+          file_path TEXT NOT NULL UNIQUE,
+          content_type TEXT NOT NULL,
+          content TEXT NOT NULL,
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+      `;
+
+      await sql`
+        CREATE INDEX IF NOT EXISTS control_drafts_updated_at_idx
+        ON control_drafts (updated_at DESC)
+      `;
     })();
   }
 

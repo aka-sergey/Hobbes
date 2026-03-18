@@ -190,6 +190,172 @@ main {
   background: linear-gradient(90deg, var(--accent), #dca34a, var(--warn));
 }
 
+.control-layout {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 280px minmax(0, 1.2fr) minmax(0, 1fr);
+}
+
+.control-sidebar,
+.control-editor-card,
+.control-preview-card {
+  min-height: 720px;
+}
+
+.control-section-label {
+  margin-bottom: 0.5rem;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.control-file-list {
+  display: grid;
+  gap: 8px;
+}
+
+.control-file-button {
+  width: 100%;
+  display: grid;
+  gap: 8px;
+  text-align: left;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.control-file-button.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.control-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.control-path {
+  margin: 0.75rem 0;
+  word-break: break-all;
+}
+
+.control-editor {
+  width: 100%;
+  min-height: 420px;
+  resize: vertical;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink);
+  font: 14px/1.55 "IBM Plex Mono", monospace;
+}
+
+.control-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.action-button {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.action-button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.action-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.control-message {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.control-summary {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 16px;
+}
+
+.control-help-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.help-item {
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--line);
+}
+
+.help-item p {
+  margin: 8px 0 0;
+  color: var(--muted);
+}
+
+.control-warning {
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--warn-soft);
+  color: var(--warn);
+  border: 1px solid color-mix(in srgb, var(--warn) 32%, white 68%);
+}
+
+.preview-markdown {
+  display: grid;
+  gap: 10px;
+}
+
+.preview-markdown h1,
+.preview-markdown h2,
+.preview-markdown h3,
+.preview-markdown p,
+.preview-markdown ul {
+  margin: 0;
+}
+
+.preview-list {
+  padding-left: 18px;
+}
+
+.preview-code {
+  margin: 0;
+  padding: 14px;
+  border-radius: 14px;
+  background: #191816;
+  color: #f5f0e7;
+  overflow: auto;
+  font: 13px/1.55 "IBM Plex Mono", monospace;
+}
+
 @media (max-width: 960px) {
   .span-8,
   .span-7,
@@ -197,5 +363,11 @@ main {
   .span-5,
   .span-4 {
     grid-column: span 12;
+  }
+
+  .control-layout,
+  .control-help-grid,
+  .control-summary {
+    grid-template-columns: 1fr;
   }
 }

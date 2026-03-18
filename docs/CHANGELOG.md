@@ -333,3 +333,9 @@ Added:
 - Dashboard control-center architecture added:
   - added [Dashboard_Control_Center_Architecture.md](/Users/sergeysobolev/HobbesCodex/docs/Dashboard_Control_Center_Architecture.md)
   - defined the editor UX, safety model, API surface, rollout stages, and allowlisted first file scopes for a real Hobbes operations console
+- Dashboard control-center v1 implemented in `dashboard-mvp`:
+  - added `/control`
+  - added allowlisted control APIs for file listing, file loading, and draft saving
+  - added Russian UI labels and a mini-instruction in the control panel
+  - drafts are now saved in Postgres via `control_drafts`
+  - v1 currently supports safe draft editing, preview, and diff summary, but not yet direct git push or VPS sync from the UI

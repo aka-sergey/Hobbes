@@ -41,6 +41,7 @@ export default async function HomePage() {
           <div className="row" style={{ marginTop: "1rem", gap: "0.75rem", flexWrap: "wrap" }}>
             <span className={sourceClass(data.source)}>{data.source === "live" ? "live data" : "mock data"}</span>
             {data.capturedAt ? <span className="muted mono">captured {new Date(data.capturedAt).toLocaleString()}</span> : null}
+            <a href="/control" className="pill ok">Control Center</a>
           </div>
         </section>
 
