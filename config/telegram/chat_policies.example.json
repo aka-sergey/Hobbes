@@ -57,6 +57,10 @@
     {
       "chatId": "-5086270479",
       "slug": "crypto_operations_group",
+      "displayName": "Crypto Operations",
+      "chatTitle": "Crypto Operations RU",
+      "chatUsername": "crypto_ops_ru",
+      "chatType": "supergroup",
       "enabled": true,
       "profileId": "unfiltered_ham",
       "persona": "crypto_operations_assistant",
@@ -185,6 +189,10 @@
     {
       "chatId": "-10000",
       "slug": "logistics_group_example",
+      "displayName": "Logistics Dispatch",
+      "chatTitle": "Logistics Dispatch Demo",
+      "chatUsername": "",
+      "chatType": "group",
       "enabled": true,
       "profileId": "default_operator",
       "persona": "logistics_operator",

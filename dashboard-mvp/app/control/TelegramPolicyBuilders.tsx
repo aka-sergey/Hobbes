@@ -9,6 +9,8 @@ import {
   createEmptyChatPolicy,
   defaultBehaviorProfilesDocument,
   defaultChatPoliciesDocument,
+  formatChatUsername,
+  getPreferredChatLabel,
   parseBehaviorProfilesContent,
   parseChatPoliciesContent,
   parsePersonaIdsFromMarkdown,
@@ -148,7 +150,10 @@ function ChatPreview({ chat, behaviorProfilesContent }: { chat: ChatPolicy; beha
     <div className="builder-preview-card">
       <div className="row" style={{ alignItems: "flex-start" }}>
         <div>
-          <strong>{resolved.slug || resolved.chatId}</strong>
+          <strong>{getPreferredChatLabel(resolved)}</strong>
+          <div className="muted" style={{ marginTop: "0.35rem" }}>
+            {[resolved.chatTitle, formatChatUsername(resolved.chatUsername), resolved.chatType].filter(Boolean).join(" • ") || resolved.chatId}
+          </div>
           <div className="muted" style={{ marginTop: "0.35rem" }}>{resolved.label} • {resolved.persona}</div>
         </div>
         <span className={resolved.enabled ? "pill ok" : "pill warn"}>{resolved.enabled ? "включен" : "выключен"}</span>
@@ -277,7 +282,8 @@ export function TelegramChatPoliciesBuilder({ content, behaviorProfilesContent, 
               className={`builder-list-item ${chat.chatId === selectedChatId ? "active" : ""}`}
               onClick={() => setSelectedChatId(chat.chatId)}
             >
-              <strong>{chat.slug || chat.chatId}</strong>
+              <strong>{getPreferredChatLabel(chat)}</strong>
+              <span className="muted">{[chat.chatTitle, formatChatUsername(chat.chatUsername), chat.chatType].filter(Boolean).join(" • ") || chat.slug}</span>
               <span className="muted mono">{chat.chatId}</span>
               <span className={chat.enabled ? "pill ok" : "pill warn"}>{chat.enabled ? "on" : "off"}</span>
             </button>
@@ -296,6 +302,18 @@ export function TelegramChatPoliciesBuilder({ content, behaviorProfilesContent, 
               </BuilderField>
               <BuilderField label="Slug">
                 <TextInput value={selectedChat.slug} onChange={(event) => updateSelectedChat((chat) => ({ ...chat, slug: event.target.value }))} />
+              </BuilderField>
+              <BuilderField label="Display name" description="Красивое имя для карточек панели. Если пусто, панель покажет title, username или slug.">
+                <TextInput value={selectedChat.displayName} onChange={(event) => updateSelectedChat((chat) => ({ ...chat, displayName: event.target.value }))} />
+              </BuilderField>
+              <BuilderField label="Chat type" description="Например: private, group, supergroup, channel.">
+                <TextInput value={selectedChat.chatType} onChange={(event) => updateSelectedChat((chat) => ({ ...chat, chatType: event.target.value }))} />
+              </BuilderField>
+              <BuilderField label="Telegram title">
+                <TextInput value={selectedChat.chatTitle} onChange={(event) => updateSelectedChat((chat) => ({ ...chat, chatTitle: event.target.value }))} />
+              </BuilderField>
+              <BuilderField label="Telegram username">
+                <TextInput value={selectedChat.chatUsername} onChange={(event) => updateSelectedChat((chat) => ({ ...chat, chatUsername: event.target.value }))} />
               </BuilderField>
               <BuilderField label="Профиль">
                 <SelectInput
@@ -537,6 +555,10 @@ function ProfilePreview({
         {buildCompiledPrompt({
           chatId: "preview",
           slug: "preview",
+          displayName: profile.label,
+          chatTitle: "",
+          chatUsername: "",
+          chatType: "preview",
           enabled: true,
           profileId: profile.id,
           persona: profile.persona,

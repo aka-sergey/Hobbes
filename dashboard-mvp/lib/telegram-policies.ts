@@ -74,6 +74,10 @@ export type BehaviorProfilesDocument = {
 export type ChatPolicy = {
   chatId: string;
   slug: string;
+  displayName: string;
+  chatTitle: string;
+  chatUsername: string;
+  chatType: string;
   enabled: boolean;
   profileId: string;
   persona: string;
@@ -91,13 +95,20 @@ export type ChatPolicy = {
 export type ChatPoliciesDocument = {
   version: number;
   notes: string[];
-  defaults: Omit<ChatPolicy, "chatId" | "slug" | "description" | "activationKeywords">;
+  defaults: Omit<
+    ChatPolicy,
+    "chatId" | "slug" | "displayName" | "chatTitle" | "chatUsername" | "chatType" | "description" | "activationKeywords"
+  >;
   chats: ChatPolicy[];
 };
 
 export type ResolvedChatBehavior = {
   chatId: string;
   slug: string;
+  displayName: string;
+  chatTitle: string;
+  chatUsername: string;
+  chatType: string;
   enabled: boolean;
   profileId: string;
   persona: string;
@@ -320,6 +331,10 @@ export function createEmptyChatPolicy(index: number): ChatPolicy {
   return {
     chatId: `-1000${index}`,
     slug: `new_chat_${index}`,
+    displayName: "",
+    chatTitle: "",
+    chatUsername: "",
+    chatType: "",
     enabled: false,
     profileId: "default_operator",
     persona: "",
@@ -395,6 +410,10 @@ function normalizeChatPolicy(value: unknown, defaults: ChatPoliciesDocument["def
   return {
     chatId: asString(record.chatId, fallback.chatId),
     slug: asString(record.slug, fallback.slug),
+    displayName: asString(record.displayName),
+    chatTitle: asString(record.chatTitle),
+    chatUsername: asString(record.chatUsername),
+    chatType: asString(record.chatType),
     enabled: asBoolean(record.enabled, defaults.enabled),
     profileId: asString(record.profileId, defaults.profileId),
     persona: legacyPersona,
@@ -481,10 +500,12 @@ export function getBehaviorProfileById(doc: BehaviorProfilesDocument, profileId:
 }
 
 export function buildCompiledPrompt(behavior: Omit<ResolvedChatBehavior, "compiledPrompt">) {
+  const knownChatName = behavior.displayName || behavior.chatTitle || behavior.slug || behavior.chatId;
   const lines = [
     "You are Hobbes in a Telegram chat.",
     `Primary persona: ${behavior.persona}.`,
     `Profile: ${behavior.profileId}.`,
+    `Known chat name: ${knownChatName}.`,
     behavior.description ? `Chat description: ${behavior.description}` : "Chat description: not specified.",
     `Preferred answer language: ${behavior.style.language}.`,
     `Preferred tone: ${behavior.style.tone}.`,
@@ -500,6 +521,18 @@ export function buildCompiledPrompt(behavior: Omit<ResolvedChatBehavior, "compil
       : "Keep the tone controlled and non-hostile.",
     "Do not pretend you are a licensed professional, regulated advisor, or guaranteed authority beyond the configured persona scope."
   ];
+
+  if (behavior.chatTitle) {
+    lines.push(`Telegram chat title: ${behavior.chatTitle}.`);
+  }
+
+  if (behavior.chatUsername) {
+    lines.push(`Telegram username: ${behavior.chatUsername}.`);
+  }
+
+  if (behavior.chatType) {
+    lines.push(`Telegram chat type: ${behavior.chatType}.`);
+  }
 
   if (behavior.systemPrompt) {
     lines.push("Profile system prompt:");
@@ -554,6 +587,10 @@ export function resolveChatBehavior(
   const resolved = {
     chatId: chat.chatId,
     slug: chat.slug,
+    displayName: chat.displayName,
+    chatTitle: chat.chatTitle,
+    chatUsername: chat.chatUsername,
+    chatType: chat.chatType,
     enabled: chat.enabled,
     profileId: chat.profileId,
     persona,
@@ -575,6 +612,18 @@ export function resolveChatBehavior(
     ...resolved,
     compiledPrompt: buildCompiledPrompt(resolved)
   };
+}
+
+export function getPreferredChatLabel(chat: Pick<ChatPolicy, "displayName" | "chatTitle" | "chatUsername" | "slug" | "chatId">) {
+  return chat.displayName.trim() || chat.chatTitle.trim() || chat.chatUsername.trim() || chat.slug.trim() || chat.chatId.trim();
+}
+
+export function formatChatUsername(chatUsername: string) {
+  const value = chatUsername.trim();
+  if (!value) {
+    return "";
+  }
+  return value.startsWith("@") ? value : `@${value}`;
 }
 
 export function validateBehaviorProfilesDocument(doc: BehaviorProfilesDocument, personaIds: string[] = []): ValidationIssue[] {

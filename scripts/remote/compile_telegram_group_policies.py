@@ -145,6 +145,11 @@ def mode_requires_signal(mode: str, react_without_signal: bool) -> bool:
 def compile_group_system_prompt(chat: dict):
     persona = chat.get("persona", "default_operator")
     profile_id = chat.get("profileId", "inline")
+    display_name = (chat.get("displayName") or "").strip()
+    chat_title = (chat.get("chatTitle") or "").strip()
+    chat_username = (chat.get("chatUsername") or "").strip()
+    chat_type = (chat.get("chatType") or "").strip()
+    known_chat_name = display_name or chat_title or chat.get("slug") or chat.get("chatId") or "unknown_chat"
     description = chat.get("description", "")
     language = chat.get("style", {}).get("language", "ru")
     tone = chat.get("style", {}).get("tone", "calm_operator")
@@ -163,6 +168,7 @@ def compile_group_system_prompt(chat: dict):
         "You are Hobbes in a Telegram chat.",
         f"Primary persona: {persona}.",
         f"Profile: {profile_id}.",
+        f"Known chat name: {known_chat_name}.",
         f"Chat description: {description}" if description else "Chat description: not specified.",
         f"Preferred answer language: {language}.",
         f"Preferred tone: {tone}.",
@@ -173,6 +179,15 @@ def compile_group_system_prompt(chat: dict):
         "If the request is outside the allowed scope or crosses a denied boundary, refuse briefly and safely.",
         "Do not pretend you are a licensed professional, regulated advisor, or guaranteed authority beyond the configured persona scope.",
     ]
+
+    if chat_title:
+        lines.append(f"Telegram chat title: {chat_title}.")
+
+    if chat_username:
+        lines.append(f"Telegram username: {chat_username}.")
+
+    if chat_type:
+        lines.append(f"Telegram chat type: {chat_type}.")
 
     lines.append(
         "Controlled slang is allowed when it improves fit for the chat."
@@ -280,6 +295,10 @@ def build_runtime(policies: dict, profiles_payload: dict, openclaw: dict):
         resolved_snapshot_groups[chat_id] = {
             "chatId": chat_id,
             "slug": chat.get("slug", chat_id),
+            "displayName": chat.get("displayName", ""),
+            "chatTitle": chat.get("chatTitle", ""),
+            "chatUsername": chat.get("chatUsername", ""),
+            "chatType": chat.get("chatType", ""),
             "enabled": True,
             "profileId": chat.get("profileId", "default_operator"),
             "persona": chat.get("persona", "default_operator"),
@@ -296,6 +315,10 @@ def build_runtime(policies: dict, profiles_payload: dict, openclaw: dict):
                 "chatId": chat_id,
                 "profileId": chat.get("profileId", "default_operator"),
                 "persona": chat.get("persona", "default_operator"),
+                "displayName": chat.get("displayName", ""),
+                "chatTitle": chat.get("chatTitle", ""),
+                "chatUsername": chat.get("chatUsername", ""),
+                "chatType": chat.get("chatType", ""),
                 "memoryMode": chat.get("memoryPolicy", {}).get("mode", "chat_isolated"),
                 "replyMode": mode,
             },
@@ -352,6 +375,10 @@ def build_runtime(policies: dict, profiles_payload: dict, openclaw: dict):
             [
                 f"## {chat.get('slug', chat['chatId'])}",
                 "",
+                f"- displayName: `{chat.get('displayName', '') or 'none'}`",
+                f"- chatTitle: `{chat.get('chatTitle', '') or 'none'}`",
+                f"- chatUsername: `{chat.get('chatUsername', '') or 'none'}`",
+                f"- chatType: `{chat.get('chatType', '') or 'none'}`",
                 f"- chatId: `{chat['chatId']}`",
                 f"- profileId: `{chat.get('profileId', 'default_operator')}`",
                 f"- persona: `{chat.get('persona', 'default_operator')}`",

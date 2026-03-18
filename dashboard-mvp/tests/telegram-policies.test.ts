@@ -35,12 +35,17 @@ test("resolves chat behavior from profile plus chat overrides", () => {
 
   const resolved = resolveChatBehavior(chatDoc, profileDoc, cryptoChat);
 
-  assert.equal(resolved.profileId, "crypto_ops");
-  assert.equal(resolved.persona, "crypto_operations_assistant");
+  assert.equal(resolved.profileId, "unfiltered_ham");
+  assert.equal(resolved.persona, "unfiltered_ham");
+  assert.equal(resolved.displayName, "Crypto Operations");
+  assert.equal(resolved.chatTitle, "Crypto Operations RU");
+  assert.equal(resolved.chatUsername, "crypto_ops_ru");
+  assert.equal(resolved.chatType, "supergroup");
   assert.equal(resolved.memoryPolicy.mode, "chat_isolated");
-  assert.equal(resolved.style.usesSlang, true);
+  assert.equal(resolved.style.usesSlang, false);
   assert.match(resolved.compiledPrompt, /Memory mode: chat_isolated/);
-  assert.match(resolved.compiledPrompt, /Chat-specific override:/);
+  assert.match(resolved.compiledPrompt, /Known chat name: Crypto Operations\./);
+  assert.match(resolved.compiledPrompt, /Telegram chat title: Crypto Operations RU\./);
 });
 
 test("validates behavior profiles against known personas", () => {

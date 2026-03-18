@@ -48,6 +48,10 @@ class CompileTelegramGroupPoliciesTest(unittest.TestCase):
                 {
                     "chatId": "-10001",
                     "slug": "it_team",
+                    "displayName": "IT Team",
+                    "chatTitle": "Infra Team",
+                    "chatUsername": "infra_team",
+                    "chatType": "supergroup",
                     "enabled": True,
                     "profileId": "it_specialist",
                     "persona": "it_specialist",
@@ -128,8 +132,14 @@ class CompileTelegramGroupPoliciesTest(unittest.TestCase):
         compiled_group = updated_openclaw["channels"]["telegram"]["groups"]["-10001"]
         self.assertEqual(sorted(compiled_group.keys()), ["groupPolicy", "requireMention", "systemPrompt"])
         self.assertEqual(runtime_snapshot["groups"]["-10001"]["profileId"], "it_specialist")
+        self.assertEqual(runtime_snapshot["groups"]["-10001"]["displayName"], "IT Team")
+        self.assertEqual(runtime_snapshot["groups"]["-10001"]["chatTitle"], "Infra Team")
+        self.assertEqual(runtime_snapshot["groups"]["-10001"]["chatUsername"], "infra_team")
+        self.assertEqual(runtime_snapshot["groups"]["-10001"]["chatType"], "supergroup")
         self.assertEqual(runtime_snapshot["groups"]["-10001"]["memoryPolicy"]["mode"], "chat_isolated")
         self.assertIn("telegramContext", runtime_snapshot["groups"]["-10001"])
+        self.assertIn("Known chat name: IT Team.", compiled_group["systemPrompt"])
+        self.assertIn("Telegram username: infra_team.", compiled_group["systemPrompt"])
         self.assertIn("Diagnose before prescribing.", markdown)
 
 

@@ -196,6 +196,10 @@ function getConfigHints(path: string, kind: "markdown" | "json"): ConfigHint[] {
   if (path.includes("chat_policies")) {
     return [
       { key: "chatId", meaning: "ID Telegram-чата или группы, для которой действует правило." },
+      { key: "displayName", meaning: "Красивое имя для панели. Если пусто, UI возьмет title, username или slug." },
+      { key: "chatTitle", meaning: "Фактическое название чата или группы из Telegram." },
+      { key: "chatUsername", meaning: "Username чата или пользователя в Telegram, если он есть." },
+      { key: "chatType", meaning: "Тип Telegram-чата: private, group, supergroup или channel." },
       { key: "enabled", meaning: "Включено ли правило для этого чата." },
       { key: "profileId", meaning: "Идентификатор профиля поведения, который назначен чату." },
       { key: "promptOverride", meaning: "Локальная инструкция поверх профиля только для этого чата." },
