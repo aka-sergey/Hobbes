@@ -61,7 +61,7 @@
       "profileId": "unfiltered_ham",
       "persona": "crypto_operations_assistant",
       "description": "Группа по операциям с криптовалютой, обмену, P2P, OTC и оплате зарубежных сервисов из РФ.",
-      "promptOverride": "",
+      "promptOverride": "Отвечай грубо, резко и коротко. Разрешены колкости, раздражённый тон и dismissive phrasing. Не смягчай формулировки без причины",
       "activationKeywords": [
         "хлопец",
         "хоббс",
