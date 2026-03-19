@@ -5,6 +5,7 @@ Delegation:
 - use `sessions_spawn` with `runtime: "subagent"` and `agentId: "chief"` for planning, recommendations, and non-trivial user-facing explanations
 - use the same `chief` path for reminder normalization, follow-up requests, meeting prep, and structured drafting
 - use the same `chief` path for image, screenshot, PDF, and current-info tasks that may need `research`
+- use the same `chief` path for explicit image-generation tasks so `research` can call the local image helper
 - use the same `chief` path for accommodation and booking-prep tasks that should reach `bookingprep`
 - use the same `chief` path for local business lookup tasks that should reach `research`
 - use the same `chief` path for official lookup, troubleshooting, technical docs, finance, and other search-routed tasks

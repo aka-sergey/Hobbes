@@ -117,6 +117,7 @@ Current checkpoint:
 
 - `voice-notes`, `vision-intake`, `pdf-workbench`, and `web-research` are installed as a baseline
 - `web-research` has since been reworked into a search-router-driven architecture
+- Telegram-facing image generation has now been added as a practical extension to the same multimodal layer
 - Wave 4A should currently be treated as:
   - deployed
   - partially stabilized
@@ -132,6 +133,7 @@ Main remaining issue inside Wave 4A:
 - weakest current performance is in:
   - `travel_booking`
   - `local_maps`
+- image generation is now available as a helper-backed path, but direct Telegram binary attachment still needs explicit live validation
 
 ### Wave 4B. Delivery and operator UX
 

@@ -28,6 +28,7 @@ Rules:
 - when the user explicitly asks to answer "as sales", "as support", "as consultant", or with another named persona, follow `PERSONAS.md` instead of improvising a blended voice
 - do not pretend that per-chat persona persistence is automatic unless a real chat mapping has been configured
 - for photo, screenshot, scan, receipt, PDF, or current-info requests, route through `chief` so `research` can do the evidence work when needed
+- for explicit image-generation requests like "сгенерируй картинку", "нарисуй", "сделай постер", "сделай обложку", or "generate an image", route through `chief` so `research` can use the configured image-generation helper
 - for hotel, apartment, stay, trip, booking, budget, check-in/check-out, or family-accommodation requests, route through `chief` so `bookingprep` can prepare options
 - for nearby-business, clinic, restaurant, service, address, phone, hours, or "рядом с метро" requests, route through `chief` so `research` can do directory-first lookup
 - for search-heavy tasks, treat `chief` as the search router entry point rather than guessing the backend from `main`
@@ -41,3 +42,10 @@ Rules:
 - for non-trivial planning, recommendation, or explanation requests from Telegram, route through `chief` instead of drafting the full answer yourself
 - for the current Telegram conversation, send the final answer once as plain assistant text
 - do not use `message` for the final reply in the same conversation
+
+Artifact contract:
+- for trivial direct replies, `artifact_status: not_required` is fine
+- for delegated or non-trivial work, expect downstream artifact metadata and preserve it instead of flattening it away
+- when routing through `chief`, prefer results that include `artifact_type`, `artifact_status`, `artifact_summary`, and `produced_by`
+- never invent `artifact_path` or `linked_run_id`
+- common schema lives in `config/agents/ARTIFACT_CONTRACT.md`

@@ -10,6 +10,7 @@ Allowed:
 - spawning `comms` for final wording
 - spawning `guard` for risk review
 - spawning `research` for source-grounded work, document extraction, and current-info tasks
+- spawning `research` for explicit image-generation tasks
 - spawning `memorykeeper` for durable write governance
 - spawning `bookingprep` for approval-aware booking preparation
 
@@ -27,6 +28,7 @@ Rules:
 - if you call `bookingprep`, use `sessions_spawn` with `runtime: "subagent"` and `agentId: "bookingprep"`
 - for search-heavy tasks, you may call `exec` with `/usr/local/bin/hobbes-search-router --query "<raw user request>" --pretty` and then obey the router result
 - for screenshot, PDF, receipt, and current-info work, do not use `image`, `pdf`, or `web_search` yourself; spawn `research`
+- for explicit "generate image / нарисуй / сделай обложку / сделай постер" tasks, spawn `research` and tell it to use the local image-generation helper
 - for local business, clinic, restaurant, address, phone, hours, or "рядом с метро" tasks, spawn `research`
 - for hotel, apartment, stay, trip, accommodation, booking-filter, budget, or date-window tasks, spawn `bookingprep`
 - for internet-search, latest-news, fresh-facts, and recent-event tasks, spawn `research` instead of telling the caller that search is unavailable

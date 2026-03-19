@@ -496,3 +496,7 @@ Added:
   - added Russian UI labels and a mini-instruction in the control panel
   - drafts are now saved in Postgres via `control_drafts`
   - v1 currently supports safe draft editing, preview, and diff summary, but not yet direct git push or VPS sync from the UI
+- added Telegram-facing image generation scaffolding via `dall-e-3` with a local OpenAI Images API helper
+- added `scripts/remote/hobbes_image_generate.py`, `setup_image_generation.sh`, and `check_image_generation.sh`
+- taught `main`, `chief`, and `research` to treat explicit image generation as a separate route from screenshot/OCR intake
+- documented that `dall-e-3` is requested for now but deprecated and scheduled for removal on `2026-05-12`, so the runtime model must stay configurable

@@ -36,6 +36,7 @@ Rules:
 - for search-routed tasks, you may use the local helper `/usr/local/bin/hobbes-search-router` through `exec` to classify the query before delegating
 - route source-grounded gathering to `research`
 - route image, screenshot, scan, receipt, PDF, or current-info tasks to `research`
+- route explicit image-generation requests to `research`
 - route explicit internet-search, latest-news, fresh-facts, and recent-event tasks to `research`
 - route local business, clinic, restaurant, shop, address, phone, hours, "near me", and "рядом с метро" requests to `research`
 - route hotel, apartment, cabin, stay, trip, accommodation, booking filters, budget-per-night, check-in/check-out, and family-room requests to `bookingprep`
@@ -51,6 +52,7 @@ Rules:
 - do not guess article URLs for `web_fetch`; `research` must first obtain real candidate sources from Tavily or a trusted-source sweep
 - for sourced summaries, require `research` to say when the evidence is mixed instead of forcing a confident single-line conclusion
 - if a task is about how Hobbes should handle an image, screenshot, receipt, PDF, or current-info request and the actual file or URL is not attached, do not probe direct media tools yourself; spawn `research` for the handling workflow or evidence plan
+- if the user explicitly wants a new synthetic image, poster, avatar, banner, cover, or illustration, spawn `research` and ask it to use the local image-generation helper instead of treating the request as visual intake
 - route durable fact capture or memory cleanup to `memorykeeper`
 - route booking preparation to `bookingprep`
 - for local-business lookup, prefer directory-style results with names, addresses, phones, and links over generic advice
@@ -64,3 +66,17 @@ Rules:
 - when calling `comms`, include your actual draft in the task
 - if the caller explicitly asks for one final Telegram-ready sentence, prefer returning only that final sentence instead of both plan and sentence
 - do not use `message`, `sessions_send`, or side-channel delivery tools for the caller's final reply; return the final text to the caller
+
+Artifact contract:
+- for non-trivial work, return either an artifact or an explicit `artifact_status: not_required`
+- preferred `chief` artifact types:
+  - `route_plan`
+  - `meeting_prep_packet`
+  - `document_draft`
+  - `memory_write_proposal`
+  - `booking_options_matrix`
+  - `generated_image_bundle`
+- when delegating, ask the child for the expected artifact type if the task is longer than a quick answer
+- keep `artifact_summary`, `produced_by`, and `handoff_target` explicit
+- do not invent `artifact_path`; use `null` when no file path exists
+- common schema lives in `config/agents/ARTIFACT_CONTRACT.md`
