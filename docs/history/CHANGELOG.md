@@ -2,6 +2,21 @@
 
 ## 2026-03-18
 
+### Fixed shopping-product routing false positive on PC component price queries
+
+Changed:
+
+- strengthened `shopping_product` signals in [hobbes_search_router.py](/Users/sergeysobolev/HobbesCodex/scripts/remote/hobbes_search_router.py)
+- prevented `media_search` false positives for queries containing `видеокарта`
+- added merchant-domain bias for product-price lookups
+- taught `chief` to route `shopping_product` explicitly to `research`
+- expanded [check_search_router.sh](/Users/sergeysobolev/HobbesCodex/scripts/remote/check_search_router.sh) with a regression case for PC component pricing
+- fixed the regression harness to invoke the router through `python3`, so local checks no longer fail just because the script file is not executable
+
+Result:
+
+- a PC configuration pricing query now routes to `shopping_product -> research -> product_merchant` instead of being misclassified as `media_search`
+
 ### Verified live Telegram behavior-profile rollout on the VPS
 
 Changed:

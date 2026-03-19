@@ -38,9 +38,11 @@ Rules:
 - preferred pattern: `sessions_spawn(task=\"Use Tavily first for recent web research. Return concise sourced findings with links. Use trusted-source fetch only on real candidate URLs discovered during the search.\", runtime=\"subagent\", agentId=\"research\")`
 - preferred local-business pattern: `sessions_spawn(task=\"Find concrete nearby businesses. Use Tavily first and prioritize directory or map-style sources. Return names, addresses, phones, and direct links when available. Do not answer with generic advice if candidate listings can be found.\", runtime=\"subagent\", agentId=\"research\")`
 - preferred accommodation pattern: `sessions_spawn(task=\"Prepare accommodation options using Tavily-first discovery and booking-specific comparison. Return concrete candidate stays or filtered result links, price context when visible, and note that final availability must be verified on the provider page.\", runtime=\"subagent\", agentId=\"bookingprep\")`
+- preferred product-pricing pattern: `sessions_spawn(task=\"Find concrete product listings and price signals for the requested items. Prefer merchant and marketplace pages, return price ranges in RUB when visible, and mark any unverified or stale prices clearly.\", runtime=\"subagent\", agentId=\"research\")`
 - router pattern: `exec(command=\"/usr/local/bin/hobbes-search-router --query '<raw user request>' --pretty\")`
 - if the router says `local_maps`, spawn `research` with the router hint and ask for directory-first results
 - if the router says `travel_booking`, spawn `bookingprep` with the router hint and ask for concrete candidate options or filtered links
+- if the router says `shopping_product`, spawn `research` with the router hint and ask for merchant-first product/price lookup
 - if the router says `technical_docs`, `troubleshooting`, `official_lookup`, `law_policy`, `finance_market`, or `news_current`, spawn `research` and include the router hint
 - if no actual file, image, PDF, or URL is attached, never call direct media or web tools just because the task mentions them; spawn `research` for the workflow or evidence plan
 - if `main` asks for a draft, return the draft and let `main` handle `comms`

@@ -45,6 +45,10 @@ TRAVEL_TERMS = {
 PRODUCT_TERMS = {
     "buy", "купить", "price", "цена", "where to buy", "seller", "stock", "наличие",
     "дешевле", "cheaper", "compare models", "модель", "товар",
+    "стоит", "стоимость", "сколько стоит", "сколько рублей", "рублей будет стоить",
+    "конфигурация пк", "сборка пк", "pc build", "pc configuration",
+    "материнская плата", "процессор", "видеокарта", "оперативная память",
+    "ssd", "nvme", "блок питания", "корпус",
 }
 OFFICIAL_TERMS = {
     "official", "официаль", "site", "сайт", "docs", "documentation", "pricing",
@@ -108,6 +112,14 @@ TRAVEL_DOMAINS = [
     "trip.com",
     "travel.yandex.ru",
 ]
+PRODUCT_MERCHANT_DOMAINS = [
+    "dns-shop.ru",
+    "citilink.ru",
+    "market.yandex.ru",
+    "ozon.ru",
+    "onlinetrade.ru",
+    "regard.ru",
+]
 OFFICIAL_DOCS_DOMAINS = [
     "github.com",
     "docs.",
@@ -163,7 +175,7 @@ def detect_signals(query: str) -> dict:
     internal = has_any(q, INTERNAL_TERMS) or bool(re.search(r"/[\w.-]+", q))
     freshness = has_any(q, FRESHNESS_TERMS)
     review = has_any(q, REVIEWS_TERMS)
-    media = has_any(q, MEDIA_TERMS)
+    media = has_any(q, MEDIA_TERMS) and "видеокарта" not in q
     law = has_any(q, LAW_TERMS)
     academic = has_any(q, ACADEMIC_TERMS)
     local_business = location and has_any(q, LOCAL_BUSINESS_TERMS)
@@ -223,6 +235,9 @@ def route_query(query: str) -> dict:
     elif signals["official_page_intent"]:
         detected_type = "official_lookup"
         confidence = 0.88
+    elif has_any(q, PRODUCT_TERMS):
+        detected_type = "shopping_product"
+        confidence = 0.91
     elif signals["review_intent"]:
         detected_type = "community_reviews"
         confidence = 0.88
@@ -237,9 +252,6 @@ def route_query(query: str) -> dict:
         confidence = 0.84
     elif signals["people_company_intent"]:
         detected_type = "people_company_lookup"
-        confidence = 0.82
-    elif has_any(q, PRODUCT_TERMS):
-        detected_type = "shopping_product"
         confidence = 0.82
     elif re.search(r"\bwhat is\b|\bчто такое\b|\bwhen\b|\bкогда\b|\bcapital of\b|\bmeaning\b", q):
         detected_type = "quick_fact"
@@ -320,7 +332,7 @@ def route_query(query: str) -> dict:
             "preferred_agent": "research",
             "preferred_backend": "product_merchant",
             "fallback_backend": "comparison_summary",
-            "recommended_domains": [],
+            "recommended_domains": PRODUCT_MERCHANT_DOMAINS,
             "needs_structured_filters": True,
             "tavily_topic": "general",
             "tavily_time_range": None,

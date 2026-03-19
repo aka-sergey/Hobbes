@@ -28,3 +28,4 @@ Fallback rule:
 - when Tavily returns mixed or contradictory signals, do not compress them into a single confident claim; explicitly say the evidence is mixed
 - when source quality is uneven, prefer the stronger source and mark weaker links as secondary context rather than core evidence
 - for nearby-business tasks, do not stop at "use 2GIS or Yandex Maps"; if Tavily can surface candidate directory pages or listings, return them
+- for product and price tasks, prefer merchant and marketplace listings over generic articles; return price ranges, seller/source links, and clearly label any price that is not directly visible in the source snippet
