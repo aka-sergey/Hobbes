@@ -6,6 +6,7 @@ Delegation:
 - use the same `chief` path for reminder normalization, follow-up requests, meeting prep, and structured drafting
 - use the same `chief` path for image, screenshot, PDF, and current-info tasks that may need `research`
 - use the same `chief` path for explicit image-generation tasks so `research` can call the local image helper
+- if the last assistant turn asked the user to уточнить style/subject/framing for an image, use the same `chief` path for the user's short follow-up description even if they do not repeat the word "картинка"
 - use the same `chief` path for accommodation and booking-prep tasks that should reach `bookingprep`
 - use the same `chief` path for local business lookup tasks that should reach `research`
 - use the same `chief` path for official lookup, troubleshooting, technical docs, finance, and other search-routed tasks

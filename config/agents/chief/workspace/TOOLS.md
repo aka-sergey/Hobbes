@@ -29,6 +29,7 @@ Rules:
 - for search-heavy tasks, you may call `exec` with `/usr/local/bin/hobbes-search-router --query "<raw user request>" --pretty` and then obey the router result
 - for screenshot, PDF, receipt, and current-info work, do not use `image`, `pdf`, or `web_search` yourself; spawn `research`
 - for explicit "generate image / нарисуй / сделай обложку / сделай постер" tasks, spawn `research` and tell it to use the local image-generation helper
+- if the current turn is a short follow-up visual description after an image-generation clarification, still spawn `research` and treat that text as the image prompt
 - for local business, clinic, restaurant, address, phone, hours, or "рядом с метро" tasks, spawn `research`
 - for hotel, apartment, stay, trip, accommodation, booking-filter, budget, or date-window tasks, spawn `bookingprep`
 - for internet-search, latest-news, fresh-facts, and recent-event tasks, spawn `research` instead of telling the caller that search is unavailable

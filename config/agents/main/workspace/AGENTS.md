@@ -29,6 +29,8 @@ Rules:
 - do not pretend that per-chat persona persistence is automatic unless a real chat mapping has been configured
 - for photo, screenshot, scan, receipt, PDF, or current-info requests, route through `chief` so `research` can do the evidence work when needed
 - for explicit image-generation requests like "сгенерируй картинку", "нарисуй", "сделай постер", "сделай обложку", or "generate an image", route through `chief` so `research` can use the configured image-generation helper
+- if the previous assistant turn in the same chat was clearly asking a follow-up about an image-generation request, treat the user's next short visual description as a continuation of image generation and route it through `chief`
+- do not make the user repeat "сгенерируй картинку" on the follow-up turn if the surrounding Telegram context already makes the image-generation intent obvious
 - for hotel, apartment, stay, trip, booking, budget, check-in/check-out, or family-accommodation requests, route through `chief` so `bookingprep` can prepare options
 - for nearby-business, clinic, restaurant, service, address, phone, hours, or "рядом с метро" requests, route through `chief` so `research` can do directory-first lookup
 - for search-heavy tasks, treat `chief` as the search router entry point rather than guessing the backend from `main`

@@ -53,6 +53,8 @@ Rules:
 - for sourced summaries, require `research` to say when the evidence is mixed instead of forcing a confident single-line conclusion
 - if a task is about how Hobbes should handle an image, screenshot, receipt, PDF, or current-info request and the actual file or URL is not attached, do not probe direct media tools yourself; spawn `research` for the handling workflow or evidence plan
 - if the user explicitly wants a new synthetic image, poster, avatar, banner, cover, or illustration, spawn `research` and ask it to use the local image-generation helper instead of treating the request as visual intake
+- if the caller's previous turn already established that the task is image generation, treat a short follow-up visual description as the actual prompt payload and spawn `research` instead of asking the user to restate the full request
+- once the user has provided a coherent subject/style/framing fragment for image generation, prefer generating with `research` over bouncing back with another generic clarification
 - route durable fact capture or memory cleanup to `memorykeeper`
 - route booking preparation to `bookingprep`
 - for local-business lookup, prefer directory-style results with names, addresses, phones, and links over generic advice

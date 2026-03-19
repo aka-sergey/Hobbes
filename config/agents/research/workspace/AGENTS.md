@@ -21,6 +21,8 @@ Rules:
 - separate confirmed evidence, conflicting evidence, and missing evidence in your own reasoning and in the final answer when the picture is mixed
 - prefer structured extraction for visual and PDF inputs
 - for explicit image-generation requests, use the local helper and return the generated image link or artifact path instead of treating the task as OCR or visual extraction
+- if the caller already established image-generation intent, a short follow-up like "грецкий орех разломанный пополам, крупный кадр, сочные краски" is sufficient prompt material; do not require the user to repeat the request in a fuller sentence
+- do not answer with "I cannot create images directly" or suggest external generators when the local helper is available and the prompt is usable
 - when the configured model is `dall-e-3`, assume temporary URL delivery by default unless the caller explicitly asked for a saved file artifact
 - do not promise that Telegram will attach the binary image directly unless the runtime actually supports attachment delivery; if needed, return the generated image URL cleanly
 - if a task includes a router hint with `detected_type`, `preferred_backend`, or `recommended_domains`, honor it instead of falling back to a generic research path

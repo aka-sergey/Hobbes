@@ -500,3 +500,5 @@ Added:
 - added `scripts/remote/hobbes_image_generate.py`, `setup_image_generation.sh`, and `check_image_generation.sh`
 - taught `main`, `chief`, and `research` to treat explicit image generation as a separate route from screenshot/OCR intake
 - documented that `dall-e-3` is requested for now but deprecated and scheduled for removal on `2026-05-12`, so the runtime model must stay configurable
+- fixed Telegram image-generation continuity so short follow-up visual prompts after a clarification question still route through `chief -> research -> hobbes-image-generate`
+- tightened `main`, `chief`, and `research` to avoid falling back to generic chat or external-generator advice when image-generation intent is already established in the conversation

@@ -31,6 +31,14 @@ as a separate capability from:
 
 This avoids the old failure mode where every image-related request was interpreted only as visual inspection.
 
+It should also treat the immediate follow-up turn as part of the same image-generation request when the bot has just asked for clarification. For example:
+
+1. user: `сделай картинку с грецким орехом`
+2. bot: asks whether a photo / illustration / close-up is wanted
+3. user: `грецкий орех разломанный пополам, крупный кадр, сочные краски`
+
+In that third step, the short visual fragment must still route to image generation instead of falling back to ordinary chat.
+
 ## Runtime helper
 
 The generation helper is:
