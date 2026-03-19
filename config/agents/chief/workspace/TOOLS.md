@@ -30,6 +30,8 @@ Rules:
 - for screenshot, PDF, receipt, and current-info work, do not use `image`, `pdf`, or `web_search` yourself; spawn `research`
 - for explicit "generate image / нарисуй / сделай обложку / сделай постер" tasks, spawn `research` and tell it to use the local image-generation helper
 - if the current turn is a short follow-up visual description after an image-generation clarification, still spawn `research` and treat that text as the image prompt
+- never call the built-in `image` tool for synthetic generation; it is not the Hobbes DALL-E path and `image required` means you used the wrong tool
+- if you see a synthetic image request, do not try the built-in `image` tool first "just to see" whether it works; immediately spawn `research`
 - for local business, clinic, restaurant, address, phone, hours, or "рядом с метро" tasks, spawn `research`
 - for hotel, apartment, stay, trip, accommodation, booking-filter, budget, or date-window tasks, spawn `bookingprep`
 - for internet-search, latest-news, fresh-facts, and recent-event tasks, spawn `research` instead of telling the caller that search is unavailable

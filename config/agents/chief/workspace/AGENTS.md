@@ -55,6 +55,8 @@ Rules:
 - if the user explicitly wants a new synthetic image, poster, avatar, banner, cover, or illustration, spawn `research` and ask it to use the local image-generation helper instead of treating the request as visual intake
 - if the caller's previous turn already established that the task is image generation, treat a short follow-up visual description as the actual prompt payload and spawn `research` instead of asking the user to restate the full request
 - once the user has provided a coherent subject/style/framing fragment for image generation, prefer generating with `research` over bouncing back with another generic clarification
+- never call the built-in tool named `image` for synthetic image generation; in Hobbes it behaves like image intake/editing and will fail with `image required`
+- for synthetic image generation, your only valid path is `sessions_spawn(... agentId=\"research\")` and `research` must use the local helper
 - route durable fact capture or memory cleanup to `memorykeeper`
 - route booking preparation to `bookingprep`
 - for local-business lookup, prefer directory-style results with names, addresses, phones, and links over generic advice

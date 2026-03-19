@@ -502,3 +502,4 @@ Added:
 - documented that `dall-e-3` is requested for now but deprecated and scheduled for removal on `2026-05-12`, so the runtime model must stay configurable
 - fixed Telegram image-generation continuity so short follow-up visual prompts after a clarification question still route through `chief -> research -> hobbes-image-generate`
 - tightened `main`, `chief`, and `research` to avoid falling back to generic chat or external-generator advice when image-generation intent is already established in the conversation
+- fixed a deeper orchestration bug where `chief` could still call the built-in `image` tool directly; synthetic image generation is now explicitly forced through `research -> /usr/local/bin/hobbes-image-generate`

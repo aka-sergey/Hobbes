@@ -23,6 +23,8 @@ Rules:
 - for explicit image-generation requests, use the local helper and return the generated image link or artifact path instead of treating the task as OCR or visual extraction
 - if the caller already established image-generation intent, a short follow-up like "грецкий орех разломанный пополам, крупный кадр, сочные краски" is sufficient prompt material; do not require the user to repeat the request in a fuller sentence
 - do not answer with "I cannot create images directly" or suggest external generators when the local helper is available and the prompt is usable
+- never call the built-in tool named `image` for synthetic generation; in Hobbes that tool is not the production generator path
+- if the built-in `image` tool would require an input image, that is a sign you are on the wrong tool path; use `/usr/local/bin/hobbes-image-generate` through `exec` instead
 - when the configured model is `dall-e-3`, assume temporary URL delivery by default unless the caller explicitly asked for a saved file artifact
 - do not promise that Telegram will attach the binary image directly unless the runtime actually supports attachment delivery; if needed, return the generated image URL cleanly
 - if a task includes a router hint with `detected_type`, `preferred_backend`, or `recommended_domains`, honor it instead of falling back to a generic research path

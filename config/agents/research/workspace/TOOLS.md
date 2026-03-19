@@ -24,6 +24,8 @@ Fallback rule:
 - if `TAVILY_API_KEY` is set, prefer `exec` + `hobbes-tavily-search` before the fallback sweep
 - for explicit image-generation requests, use `exec` + `/usr/local/bin/hobbes-image-generate --prompt \"<request>\"`
 - if image-generation intent is already established in the conversation, treat a short visual fragment from the user as `<request>` rather than falling back to generic chat or asking for an external service
+- do not use the built-in `image` tool for synthetic generation; it is the wrong tool path for Hobbes image creation
+- if a synthetic generation attempt returns `image required`, stop and switch to `exec` + `/usr/local/bin/hobbes-image-generate` instead of surfacing an external-generator suggestion
 - if `HOBBES_IMAGE_MODEL` resolves to `dall-e-3`, prefer `--delivery url` for Telegram-facing results unless the caller explicitly needs a saved file
 - when the helper returns an `image_url`, keep it visible in the final answer and mark that the URL may be temporary
 - when the helper returns an `artifact_path`, preserve it as artifact metadata instead of flattening it away

@@ -39,6 +39,13 @@ It should also treat the immediate follow-up turn as part of the same image-gene
 
 In that third step, the short visual fragment must still route to image generation instead of falling back to ordinary chat.
 
+Another important guardrail:
+
+- the built-in OpenClaw tool named `image` is not the Hobbes production path for synthetic image generation
+- for Hobbes image generation, `chief` must spawn `research`
+- `research` must use `/usr/local/bin/hobbes-image-generate`
+- if a tool result says `image required`, that means the wrong tool path was chosen
+
 ## Runtime helper
 
 The generation helper is:
