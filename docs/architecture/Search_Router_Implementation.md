@@ -77,9 +77,11 @@ This should make it easier to debug whether a bad answer came from:
 Detailed checkpoint:
 
 - [Search_Current_State_2026-03-18.md](/Users/sergeysobolev/HobbesCodex/docs/current-state/Search_Current_State_2026-03-18.md)
+- [Search_Target_Architecture_Plan.md](/Users/sergeysobolev/HobbesCodex/docs/architecture/Search_Target_Architecture_Plan.md)
 
 Important current reality:
 
 - the router baseline is implemented and rolled out
 - `travel_booking` and `local_maps` are still the weakest verticals
 - the next improvement should target backend selection per route, not generic prompt tuning
+- the phased implementation program now lives in the target architecture plan

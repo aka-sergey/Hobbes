@@ -1,5 +1,28 @@
 # Hobbes Changelog
 
+## 2026-03-20
+
+### Added the target search architecture and phased implementation plan
+
+Added:
+
+- [Search_Target_Architecture_Plan.md](/Users/sergeysobolev/HobbesCodex/docs/architecture/Search_Target_Architecture_Plan.md)
+
+Changed:
+
+- linked the new plan from [Search_Router_Implementation.md](/Users/sergeysobolev/HobbesCodex/docs/architecture/Search_Router_Implementation.md)
+
+Purpose:
+
+- turn the current search checkpoint into a concrete architecture program
+- define the target layered search stack for Hobbes
+- separate route-aware backend design from generic prompt tuning
+- break the rollout into implementable phases:
+  - `S1` local and product search
+  - `S2` travel booking
+  - `S3` ranking and evidence quality
+  - `S4` observability and operator control
+
 ## 2026-03-18
 
 ### Fixed shopping-product routing false positive on PC component price queries
